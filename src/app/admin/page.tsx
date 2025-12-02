@@ -3,10 +3,24 @@
 import { useState, useEffect } from 'react'
 import { supabase, Report } from '@/lib/supabase'
 
+interface UnblacklistRequest {
+  id: string
+  nama: string
+  no_hp: string | null
+  instagram: string | null
+  alasan_banding: string
+  bukti_clear: string | null
+  kontak: string | null
+  status: string
+  created_at: string
+}
+
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [password, setPassword] = useState('')
+  const [activeTab, setActiveTab] = useState<'laporan' | 'banding'>('laporan')
   const [reports, setReports] = useState<Report[]>([])
+  const [bandingRequests, setBandingRequests] = useState<UnblacklistRequest[]>([])
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'resolved' | 'all'>('pending')
   const [kategoriFilter, setKategoriFilter] = useState<'all' | 'KOL' | 'MG'>('all')
@@ -25,9 +39,17 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      fetchReports()
+      if (activeTab === 'laporan') {
+        fetchReports()
+      } else {
+        fetchBandingRequests()
+      }
+      // Load banding count for badge
+      supabase.from('unblacklist_requests').select('*').then(({ data }) => {
+        setBandingRequests(data || [])
+      })
     }
-  }, [isLoggedIn, filter, kategoriFilter])
+  }, [isLoggedIn, filter, kategoriFilter, activeTab])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,6 +82,55 @@ export default function AdminPage() {
     const { data } = await query
     setReports(data || [])
     setLoading(false)
+  }
+
+  const fetchBandingRequests = async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('unblacklist_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+    setBandingRequests(data || [])
+    setLoading(false)
+  }
+
+  const handleApproveBanding = async (req: UnblacklistRequest) => {
+    if (!confirm('Yakin approve banding ini? Orang ini akan dihapus dari blacklist.')) return
+    
+    setProcessing(req.id)
+    
+    // Find and delete from blacklist
+    await supabase.from('blacklist').delete().or(
+      `nama.ilike.%${req.nama}%,instagram.ilike.${req.instagram || ''},no_hp.eq.${req.no_hp || ''}`
+    )
+    
+    // Update request status
+    await supabase.from('unblacklist_requests').update({
+      status: 'approved',
+      reviewed_at: new Date().toISOString()
+    }).eq('id', req.id)
+    
+    // Also update related reports to resolved
+    await supabase.from('reports').update({
+      status: 'resolved'
+    }).or(`nama.ilike.%${req.nama}%,instagram.ilike.${req.instagram || ''}`)
+    
+    setProcessing(null)
+    fetchBandingRequests()
+  }
+
+  const handleRejectBanding = async (req: UnblacklistRequest) => {
+    if (!confirm('Yakin reject banding ini?')) return
+    
+    setProcessing(req.id)
+    
+    await supabase.from('unblacklist_requests').update({
+      status: 'rejected',
+      reviewed_at: new Date().toISOString()
+    }).eq('id', req.id)
+    
+    setProcessing(null)
+    fetchBandingRequests()
   }
 
   const handleApprove = async (report: Report) => {
@@ -295,6 +366,33 @@ export default function AdminPage() {
         </button>
       </div>
 
+      {/* Main Tabs */}
+      <div className="flex gap-2 mb-4">
+        <button 
+          onClick={() => setActiveTab('laporan')}
+          className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+            activeTab === 'laporan' ? 'bg-red-600 text-white shadow-lg' : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          📋 Laporan
+        </button>
+        <button 
+          onClick={() => setActiveTab('banding')}
+          className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all relative ${
+            activeTab === 'banding' ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          🔓 Banding
+          {bandingRequests.filter(r => r.status === 'pending').length > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+              {bandingRequests.filter(r => r.status === 'pending').length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {activeTab === 'laporan' && (
+      <>
       {/* Status Filter */}
       <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
         <button 
@@ -499,6 +597,84 @@ export default function AdminPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+      </>
+      )}
+
+      {/* Banding Tab Content */}
+      {activeTab === 'banding' && (
+        <div>
+          {loading ? (
+            <p className="text-center py-12 text-gray-500">Loading...</p>
+          ) : bandingRequests.length === 0 ? (
+            <div className="bg-gray-50 rounded-xl p-12 text-center">
+              <p className="text-gray-500">Belum ada ajuan banding.</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              {bandingRequests.map((req, index) => (
+                <div key={req.id} className={`p-4 ${index !== bandingRequests.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold text-gray-800">{req.nama}</h3>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                          req.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          req.status === 'approved' ? 'bg-green-100 text-green-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>{req.status}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {req.instagram && `@${req.instagram}`}
+                        {req.instagram && req.no_hp && ' • '}
+                        {req.no_hp}
+                        {' • '}
+                        {new Date(req.created_at).toLocaleDateString('id-ID')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-orange-50 rounded-xl p-3 mb-3">
+                    <p className="text-[10px] text-orange-600 font-medium mb-1">Alasan Banding:</p>
+                    <p className="text-xs text-gray-700">{req.alasan_banding}</p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 text-[10px] mb-3">
+                    {req.bukti_clear && (
+                      <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                        📎 Bukti Clear
+                      </a>
+                    )}
+                    {req.kontak && (
+                      <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                        📞 {req.kontak}
+                      </span>
+                    )}
+                  </div>
+
+                  {req.status === 'pending' && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApproveBanding(req)}
+                        disabled={processing === req.id}
+                        className="flex-1 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98]"
+                      >
+                        ✅ Approve
+                      </button>
+                      <button
+                        onClick={() => handleRejectBanding(req)}
+                        disabled={processing === req.id}
+                        className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98]"
+                      >
+                        ❌ Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

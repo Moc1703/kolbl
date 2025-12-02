@@ -256,13 +256,25 @@ export default function Home() {
             </a>
           </div>
 
-          {/* Tips */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">💡</span>
+          {/* Banding */}
+          <a href="/banding" className="block bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-4 border border-orange-100 hover:shadow-md transition-all">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
+                <span className="text-lg">🔓</span>
+              </div>
               <div>
-                <p className="text-sm font-medium text-amber-800 mb-1">Tips Aman</p>
-                <p className="text-xs text-amber-700">Selalu cek track record sebelum kerjasama. Minta bukti kerjasama sebelumnya dan jangan transfer fee di awal.</p>
+                <p className="text-sm font-semibold text-orange-800">Ajuan Unblacklist</p>
+                <p className="text-xs text-orange-600">Masalah sudah clear? Ajukan banding disini</p>
+              </div>
+            </div>
+          </a>
+
+          {/* Tips */}
+          <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">💡</span>
+              <div>
+                <p className="text-xs text-gray-600">Selalu cek track record sebelum kerjasama. Minta bukti kerjasama sebelumnya.</p>
               </div>
             </div>
           </div>

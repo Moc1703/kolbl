@@ -67,3 +67,29 @@ CREATE POLICY "Anyone can submit saran" ON saran FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Anyone can view saran" ON saran;
 CREATE POLICY "Anyone can view saran" ON saran FOR SELECT USING (true);
+
+-- Tabel ajuan unblacklist
+CREATE TABLE IF NOT EXISTS unblacklist_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  nama VARCHAR(255) NOT NULL,
+  no_hp VARCHAR(50),
+  instagram VARCHAR(100),
+  alasan_banding TEXT NOT NULL,
+  bukti_clear TEXT,
+  kontak VARCHAR(255),
+  status VARCHAR(20) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  reviewed_at TIMESTAMP WITH TIME ZONE,
+  review_note TEXT
+);
+
+ALTER TABLE unblacklist_requests ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can submit unblacklist request" ON unblacklist_requests;
+CREATE POLICY "Anyone can submit unblacklist request" ON unblacklist_requests FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anyone can view unblacklist requests" ON unblacklist_requests;
+CREATE POLICY "Anyone can view unblacklist requests" ON unblacklist_requests FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can update unblacklist requests" ON unblacklist_requests;
+CREATE POLICY "Anyone can update unblacklist requests" ON unblacklist_requests FOR UPDATE USING (true);
