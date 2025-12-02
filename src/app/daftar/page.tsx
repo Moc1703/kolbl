@@ -37,63 +37,49 @@ export default function DaftarPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
+    <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">📋 Daftar Blacklist</h1>
-        <p className="text-gray-600 text-sm md:text-base">Semua KOL dan Management yang sudah terverifikasi bermasalah</p>
+      <div className="mb-4">
+        <h1 className="text-xl font-bold text-gray-800">Daftar Blacklist</h1>
+        <p className="text-gray-500 text-sm">Tap untuk lihat detail</p>
       </div>
 
-      {/* Filter & Sort */}
-      <div className="bg-white rounded-xl shadow p-4 mb-6 space-y-3 md:space-y-0 md:flex md:flex-wrap md:gap-4 md:items-center md:justify-between">
-        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
-          {(['all', 'KOL', 'MG'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm transition whitespace-nowrap ${
-                filter === f 
-                  ? 'bg-red-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {f === 'all' ? 'Semua' : f}
-            </button>
-          ))}
-        </div>
+      {/* Stats + Filter */}
+      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
+        <button
+          onClick={() => setFilter('all')}
+          className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm whitespace-nowrap transition ${
+            filter === 'all' ? 'bg-red-600 text-white' : 'bg-white border border-gray-200 text-gray-700'
+          }`}
+        >
+          Semua <span className="bg-white/20 px-1.5 rounded text-xs">{data.length}</span>
+        </button>
+        <button
+          onClick={() => setFilter('KOL')}
+          className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm whitespace-nowrap transition ${
+            filter === 'KOL' ? 'bg-purple-600 text-white' : 'bg-white border border-gray-200 text-gray-700'
+          }`}
+        >
+          KOL <span className={`px-1.5 rounded text-xs ${filter === 'KOL' ? 'bg-white/20' : 'bg-purple-100 text-purple-600'}`}>{data.filter(d => d.kategori === 'KOL').length}</span>
+        </button>
+        <button
+          onClick={() => setFilter('MG')}
+          className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm whitespace-nowrap transition ${
+            filter === 'MG' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 text-gray-700'
+          }`}
+        >
+          MG <span className={`px-1.5 rounded text-xs ${filter === 'MG' ? 'bg-white/20' : 'bg-blue-100 text-blue-600'}`}>{data.filter(d => d.kategori === 'MG').length}</span>
+        </button>
         
-        <div className="flex gap-2 items-center">
-          <span className="text-gray-500 text-sm">Urutkan:</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as typeof sort)}
-            className="flex-1 md:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            <option value="terbaru">Terbaru</option>
-            <option value="terlama">Terlama</option>
-            <option value="terbanyak">Laporan Terbanyak</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-2 md:gap-4 mb-6">
-        <div className="bg-red-50 rounded-lg p-3 md:p-4 text-center">
-          <p className="text-xl md:text-2xl font-bold text-red-600">{data.length}</p>
-          <p className="text-xs md:text-sm text-gray-600">Total</p>
-        </div>
-        <div className="bg-purple-50 rounded-lg p-3 md:p-4 text-center">
-          <p className="text-xl md:text-2xl font-bold text-purple-600">
-            {data.filter(d => d.kategori === 'KOL').length}
-          </p>
-          <p className="text-xs md:text-sm text-gray-600">KOL</p>
-        </div>
-        <div className="bg-blue-50 rounded-lg p-3 md:p-4 text-center">
-          <p className="text-xl md:text-2xl font-bold text-blue-600">
-            {data.filter(d => d.kategori === 'MG').length}
-          </p>
-          <p className="text-xs md:text-sm text-gray-600">MG</p>
-        </div>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as typeof sort)}
+          className="ml-auto px-3 py-2 bg-white border border-gray-200 rounded-full text-sm focus:outline-none"
+        >
+          <option value="terbaru">Terbaru</option>
+          <option value="terlama">Terlama</option>
+          <option value="terbanyak">Terbanyak</option>
+        </select>
       </div>
 
       {/* List */}
@@ -108,59 +94,40 @@ export default function DaftarPage() {
           <p className="text-gray-500">Belum ada data blacklist.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {data.map((item) => (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {data.map((item, index) => (
             <div 
               key={item.id} 
               onClick={() => setSelected(item)}
-              className="bg-white border-l-4 border-red-500 rounded-lg shadow hover:shadow-lg transition p-4 md:p-5 cursor-pointer"
+              className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition ${
+                index !== data.length - 1 ? 'border-b border-gray-100' : ''
+              }`}
             >
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-bold text-gray-800">{item.nama}</h3>
-                <div className="flex gap-2">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    item.kategori === 'KOL' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+              {/* Indicator */}
+              <div className={`w-1 h-12 rounded-full ${
+                item.kategori === 'KOL' ? 'bg-purple-500' : 'bg-blue-500'
+              }`} />
+              
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-800 truncate">{item.nama}</h3>
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0 ${
+                    item.kategori === 'KOL' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
                   }`}>
                     {item.kategori}
                   </span>
-                  {item.jumlah_laporan > 1 && (
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
-                      {item.jumlah_laporan}x dilaporkan
-                    </span>
-                  )}
                 </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mb-3 text-xs md:text-sm">
-                {item.no_hp && (
-                  <span className="bg-gray-100 px-2 py-1 rounded text-gray-600">
-                    📱 {item.no_hp}
-                  </span>
-                )}
-                {item.instagram && (
-                  <span className="bg-gray-100 px-2 py-1 rounded text-gray-600">
-                    📷 @{item.instagram}
-                  </span>
-                )}
-                {item.tiktok && (
-                  <span className="bg-gray-100 px-2 py-1 rounded text-gray-600">
-                    🎵 @{item.tiktok}
-                  </span>
-                )}
-              </div>
-              
-              <p className="text-sm text-gray-700 line-clamp-3 bg-red-50 rounded p-3">
-                {item.alasan}
-              </p>
-              
-              <div className="flex justify-between items-center mt-3">
-                <p className="text-xs text-gray-400">
-                  {new Date(item.created_at).toLocaleDateString('id-ID', { 
-                    day: 'numeric', month: 'short', year: 'numeric' 
-                  })}
+                <p className="text-xs text-gray-500 truncate mt-0.5">
+                  {item.instagram && `@${item.instagram}`}
+                  {item.instagram && item.no_hp && ' • '}
+                  {item.no_hp}
+                  {!item.instagram && !item.no_hp && item.tiktok && `@${item.tiktok}`}
                 </p>
-                <span className="text-xs text-blue-500">Tap untuk detail →</span>
               </div>
+              
+              {/* Arrow */}
+              <span className="text-gray-300 text-lg">›</span>
             </div>
           ))}
         </div>

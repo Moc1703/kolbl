@@ -19,7 +19,7 @@ export type Report = {
   bukti_url: string | null
   pelapor_nama: string | null
   pelapor_kontak: string | null
-  status: 'pending' | 'approved' | 'rejected'
+  status: 'pending' | 'approved' | 'rejected' | 'resolved'
   created_at: string
   reviewed_at: string | null
   review_note: string | null

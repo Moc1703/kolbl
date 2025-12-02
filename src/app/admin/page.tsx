@@ -8,7 +8,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(false)
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending')
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'resolved' | 'all'>('pending')
   const [processing, setProcessing] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editKategori, setEditKategori] = useState<string>('')
@@ -144,6 +144,24 @@ export default function AdminPage() {
     }
   }
 
+  const handleUnblacklist = async (report: Report) => {
+    if (!confirm('Yakin unblacklist? Entry akan dihapus dari daftar publik.')) return
+    
+    setProcessing(report.id)
+    
+    // Remove from blacklist
+    await supabase.from('blacklist').delete().eq('report_id', report.id)
+    
+    // Update report status to 'resolved'
+    await supabase.from('reports').update({
+      status: 'resolved',
+      review_note: 'Unblacklisted - masalah sudah clear'
+    }).eq('id', report.id)
+    
+    setProcessing(null)
+    fetchReports()
+  }
+
   const handleBulkApprove = async () => {
     if (selectedIds.length === 0) return
     if (!confirm(`Yakin approve ${selectedIds.length} laporan sekaligus?`)) return
@@ -218,7 +236,7 @@ export default function AdminPage() {
       {/* Filter */}
       <div className="bg-white rounded-lg shadow p-3 mb-4 overflow-x-auto">
         <div className="flex gap-2">
-          {(['pending', 'approved', 'rejected', 'all'] as const).map((f) => (
+          {(['pending', 'approved', 'rejected', 'resolved', 'all'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -229,8 +247,9 @@ export default function AdminPage() {
               }`}
             >
               {f === 'pending' && '⏳ Pending'}
-              {f === 'approved' && '✅ OK'}
+              {f === 'approved' && '✅ Aktif'}
               {f === 'rejected' && '❌ Reject'}
+              {f === 'resolved' && '🔓 Resolved'}
               {f === 'all' && '📁 Semua'}
             </button>
           ))}
@@ -265,24 +284,30 @@ export default function AdminPage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4">
-        <div className="bg-yellow-50 rounded-lg p-3 text-center">
-          <p className="text-xl md:text-2xl font-bold text-yellow-600">
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="bg-yellow-50 rounded-lg p-2 text-center">
+          <p className="text-lg font-bold text-yellow-600">
             {reports.filter(r => r.status === 'pending').length}
           </p>
-          <p className="text-xs md:text-sm text-gray-600">Pending</p>
+          <p className="text-[10px] text-gray-600">Pending</p>
         </div>
-        <div className="bg-green-50 rounded-lg p-3 text-center">
-          <p className="text-xl md:text-2xl font-bold text-green-600">
+        <div className="bg-green-50 rounded-lg p-2 text-center">
+          <p className="text-lg font-bold text-green-600">
             {reports.filter(r => r.status === 'approved').length}
           </p>
-          <p className="text-xs md:text-sm text-gray-600">Approved</p>
+          <p className="text-[10px] text-gray-600">Aktif</p>
         </div>
-        <div className="bg-red-50 rounded-lg p-3 text-center">
-          <p className="text-xl md:text-2xl font-bold text-red-600">
+        <div className="bg-red-50 rounded-lg p-2 text-center">
+          <p className="text-lg font-bold text-red-600">
             {reports.filter(r => r.status === 'rejected').length}
           </p>
-          <p className="text-xs md:text-sm text-gray-600">Rejected</p>
+          <p className="text-[10px] text-gray-600">Reject</p>
+        </div>
+        <div className="bg-orange-50 rounded-lg p-2 text-center">
+          <p className="text-lg font-bold text-orange-600">
+            {reports.filter(r => r.status === 'resolved').length}
+          </p>
+          <p className="text-[10px] text-gray-600">Resolved</p>
         </div>
       </div>
 
@@ -417,6 +442,18 @@ export default function AdminPage() {
                     className="flex-1 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 text-sm font-medium"
                   >
                     ❌ Reject
+                  </button>
+                </div>
+              )}
+
+              {report.status === 'approved' && (
+                <div className="pt-4 border-t">
+                  <button
+                    onClick={() => handleUnblacklist(report)}
+                    disabled={processing === report.id}
+                    className="w-full py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 text-sm font-medium"
+                  >
+                    🔓 Unblacklist (Masalah Sudah Clear)
                   </button>
                 </div>
               )}
