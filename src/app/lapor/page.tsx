@@ -22,18 +22,20 @@ export default function LaporPage() {
     e.preventDefault()
     setLoading(true)
 
-    const { error } = await supabase.from('reports').insert({
-      nama: form.nama,
-      no_hp: form.no_hp || null,
-      instagram: form.instagram || null,
-      tiktok: form.tiktok || null,
+    const cleanData = {
+      nama: form.nama.trim(),
+      no_hp: form.no_hp.trim() || null,
+      instagram: form.instagram.trim().replace('@', '') || null,
+      tiktok: form.tiktok.trim().replace('@', '') || null,
       kategori: form.kategori,
-      kronologi: form.kronologi,
-      bukti_url: form.bukti_url || null,
-      pelapor_nama: form.pelapor_nama || null,
-      pelapor_kontak: form.pelapor_kontak || null,
+      kronologi: form.kronologi.trim(),
+      bukti_url: form.bukti_url.trim() || null,
+      pelapor_nama: form.pelapor_nama.trim() || null,
+      pelapor_kontak: form.pelapor_kontak.trim() || null,
       status: 'pending'
-    })
+    }
+
+    const { error } = await supabase.from('reports').insert(cleanData)
 
     setLoading(false)
     
