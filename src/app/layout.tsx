@@ -22,6 +22,7 @@ export default function RootLayout({
               <div className="flex gap-2 md:gap-4 text-sm md:text-base">
                 <a href="/" className="hover:underline px-2 py-1">Cek</a>
                 <a href="/daftar" className="hover:underline px-2 py-1">Daftar</a>
+                <a href="/saran" className="hover:underline px-2 py-1">Saran</a>
                 <a href="/lapor" className="bg-white text-red-600 px-3 py-1 rounded-full font-medium hover:bg-red-50">Lapor</a>
               </div>
             </div>

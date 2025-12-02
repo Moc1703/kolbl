@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS reports (
   instagram VARCHAR(100),
   tiktok VARCHAR(100),
   kategori VARCHAR(50) NOT NULL,
+  asal_mg VARCHAR(255),
   kronologi TEXT NOT NULL,
   bukti_url TEXT,
   pelapor_nama VARCHAR(255),
@@ -13,6 +14,15 @@ CREATE TABLE IF NOT EXISTS reports (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   reviewed_at TIMESTAMP WITH TIME ZONE,
   review_note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS saran (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  nama VARCHAR(255),
+  kontak VARCHAR(255),
+  jenis VARCHAR(50) NOT NULL,
+  pesan TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS blacklist (
@@ -49,3 +59,11 @@ CREATE POLICY "Anyone can insert blacklist" ON blacklist FOR INSERT WITH CHECK (
 
 DROP POLICY IF EXISTS "Anyone can update blacklist" ON blacklist;
 CREATE POLICY "Anyone can update blacklist" ON blacklist FOR UPDATE USING (true);
+
+ALTER TABLE saran ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can submit saran" ON saran;
+CREATE POLICY "Anyone can submit saran" ON saran FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anyone can view saran" ON saran;
+CREATE POLICY "Anyone can view saran" ON saran FOR SELECT USING (true);

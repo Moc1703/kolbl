@@ -12,6 +12,7 @@ export default function LaporPage() {
     instagram: '',
     tiktok: '',
     kategori: 'KOL',
+    asal_mg: '',
     kronologi: '',
     bukti_url: '',
     pelapor_nama: '',
@@ -28,6 +29,7 @@ export default function LaporPage() {
       instagram: form.instagram.trim().replace('@', '') || null,
       tiktok: form.tiktok.trim().replace('@', '') || null,
       kategori: form.kategori,
+      asal_mg: form.kategori === 'KOL' ? (form.asal_mg.trim() || null) : null,
       kronologi: form.kronologi.trim(),
       bukti_url: form.bukti_url.trim() || null,
       pelapor_nama: form.pelapor_nama.trim() || null,
@@ -43,7 +45,7 @@ export default function LaporPage() {
       setSuccess(true)
       setForm({
         nama: '', no_hp: '', instagram: '', tiktok: '',
-        kategori: 'KOL', kronologi: '', bukti_url: '',
+        kategori: 'KOL', asal_mg: '', kronologi: '', bukti_url: '',
         pelapor_nama: '', pelapor_kontak: ''
       })
     } else {
@@ -132,6 +134,19 @@ export default function LaporPage() {
                 </select>
               </div>
             </div>
+
+            {form.kategori === 'KOL' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asal Management</label>
+                <input
+                  type="text"
+                  value={form.asal_mg}
+                  onChange={(e) => setForm({...form, asal_mg: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
+                  placeholder="Nama management yang menaungi KOL ini (jika ada)"
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
