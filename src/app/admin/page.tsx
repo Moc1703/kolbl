@@ -248,22 +248,28 @@ export default function AdminPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">🔐 Admin Login</h1>
+      <div className="min-h-[70vh] flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-200">
+              <span className="text-2xl">🔐</span>
+            </div>
+            <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
+            <p className="text-sm text-gray-500">Masuk untuk kelola laporan</p>
+          </div>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password admin"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Password"
+              className="w-full px-4 py-4 border border-gray-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 text-base"
             />
             <button
               type="submit"
-              className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700"
+              className="w-full py-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-200 transition-all active:scale-[0.98]"
             >
-              Login
+              Masuk
             </button>
           </form>
         </div>
@@ -272,91 +278,75 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800">📋 Admin</h1>
-        <button onClick={handleLogout} className="text-red-600 hover:underline text-sm">
+    <div className="max-w-2xl mx-auto px-4 py-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h1 className="text-lg font-bold text-gray-800">Admin Panel</h1>
+          <p className="text-xs text-gray-500">Kelola laporan masuk</p>
+        </div>
+        <button onClick={handleLogout} className="text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-lg">
           Logout
         </button>
       </div>
 
-      {/* Filter */}
-      <div className="bg-white rounded-lg shadow p-3 mb-4 overflow-x-auto">
-        <div className="flex gap-2">
-          {(['pending', 'approved', 'rejected', 'resolved', 'all'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-lg transition text-sm whitespace-nowrap ${
-                filter === f 
-                  ? 'bg-red-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {f === 'pending' && '⏳ Pending'}
-              {f === 'approved' && '✅ Aktif'}
-              {f === 'rejected' && '❌ Reject'}
-              {f === 'resolved' && '🔓 Resolved'}
-              {f === 'all' && '📁 Semua'}
-            </button>
-          ))}
-        </div>
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        <button 
+          onClick={() => setFilter('pending')}
+          className={`rounded-xl p-2 text-center transition-all ${filter === 'pending' ? 'bg-yellow-100 ring-2 ring-yellow-400' : 'bg-yellow-50'}`}
+        >
+          <p className="text-lg font-bold text-yellow-600">{reports.filter(r => r.status === 'pending').length}</p>
+          <p className="text-[10px] text-gray-600">Pending</p>
+        </button>
+        <button 
+          onClick={() => setFilter('approved')}
+          className={`rounded-xl p-2 text-center transition-all ${filter === 'approved' ? 'bg-green-100 ring-2 ring-green-400' : 'bg-green-50'}`}
+        >
+          <p className="text-lg font-bold text-green-600">{reports.filter(r => r.status === 'approved').length}</p>
+          <p className="text-[10px] text-gray-600">Aktif</p>
+        </button>
+        <button 
+          onClick={() => setFilter('rejected')}
+          className={`rounded-xl p-2 text-center transition-all ${filter === 'rejected' ? 'bg-red-100 ring-2 ring-red-400' : 'bg-red-50'}`}
+        >
+          <p className="text-lg font-bold text-red-600">{reports.filter(r => r.status === 'rejected').length}</p>
+          <p className="text-[10px] text-gray-600">Reject</p>
+        </button>
+        <button 
+          onClick={() => setFilter('resolved')}
+          className={`rounded-xl p-2 text-center transition-all ${filter === 'resolved' ? 'bg-orange-100 ring-2 ring-orange-400' : 'bg-orange-50'}`}
+        >
+          <p className="text-lg font-bold text-orange-600">{reports.filter(r => r.status === 'resolved').length}</p>
+          <p className="text-[10px] text-gray-600">Clear</p>
+        </button>
       </div>
 
       {/* Bulk Actions */}
       {filter === 'pending' && reports.filter(r => r.status === 'pending').length > 0 && (
-        <div className="bg-blue-50 rounded-lg p-3 mb-4 flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={selectedIds.length === reports.filter(r => r.status === 'pending').length && selectedIds.length > 0}
-              onChange={toggleSelectAll}
-              className="w-4 h-4"
-            />
-            <span className="text-sm">Pilih Semua</span>
-          </label>
-          {selectedIds.length > 0 && (
-            <>
-              <span className="text-sm text-gray-600">({selectedIds.length} dipilih)</span>
+        <div className="bg-blue-50 rounded-xl p-3 mb-4">
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedIds.length === reports.filter(r => r.status === 'pending').length && selectedIds.length > 0}
+                onChange={toggleSelectAll}
+                className="w-5 h-5 rounded"
+              />
+              <span className="text-sm font-medium">Pilih Semua</span>
+            </label>
+            {selectedIds.length > 0 && (
               <button
                 onClick={handleBulkApprove}
                 disabled={bulkProcessing}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
               >
-                {bulkProcessing ? 'Processing...' : `✅ Approve ${selectedIds.length} Laporan`}
+                {bulkProcessing ? '...' : `✅ Approve (${selectedIds.length})`}
               </button>
-            </>
-          )}
+            )}
+          </div>
         </div>
       )}
-
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-2 mb-4">
-        <div className="bg-yellow-50 rounded-lg p-2 text-center">
-          <p className="text-lg font-bold text-yellow-600">
-            {reports.filter(r => r.status === 'pending').length}
-          </p>
-          <p className="text-[10px] text-gray-600">Pending</p>
-        </div>
-        <div className="bg-green-50 rounded-lg p-2 text-center">
-          <p className="text-lg font-bold text-green-600">
-            {reports.filter(r => r.status === 'approved').length}
-          </p>
-          <p className="text-[10px] text-gray-600">Aktif</p>
-        </div>
-        <div className="bg-red-50 rounded-lg p-2 text-center">
-          <p className="text-lg font-bold text-red-600">
-            {reports.filter(r => r.status === 'rejected').length}
-          </p>
-          <p className="text-[10px] text-gray-600">Reject</p>
-        </div>
-        <div className="bg-orange-50 rounded-lg p-2 text-center">
-          <p className="text-lg font-bold text-orange-600">
-            {reports.filter(r => r.status === 'resolved').length}
-          </p>
-          <p className="text-[10px] text-gray-600">Resolved</p>
-        </div>
-      </div>
 
       {/* Reports List */}
       {loading ? (
@@ -366,127 +356,87 @@ export default function AdminPage() {
           <p className="text-gray-500">Tidak ada laporan dengan status ini.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {reports.map((report) => (
-            <div key={report.id} className="bg-white rounded-xl shadow p-4 md:p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-start gap-3">
-                  {report.status === 'pending' && (
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(report.id)}
-                      onChange={() => toggleSelect(report.id)}
-                      className="w-5 h-5 mt-1"
-                    />
-                  )}
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">{report.nama}</h3>
-                  <div className="flex items-center gap-2 mt-1">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          {reports.map((report, index) => (
+            <div key={report.id} className={`p-4 ${index !== reports.length - 1 ? 'border-b border-gray-100' : ''}`}>
+              {/* Header */}
+              <div className="flex items-start gap-3 mb-3">
+                {report.status === 'pending' && (
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(report.id)}
+                    onChange={() => toggleSelect(report.id)}
+                    className="w-5 h-5 mt-0.5 rounded"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-bold text-gray-800">{report.nama}</h3>
                     {editingId === report.id ? (
-                      <>
+                      <div className="flex items-center gap-1">
                         <select
                           value={editKategori}
                           onChange={(e) => setEditKategori(e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded text-sm"
+                          className="px-2 py-1 border border-gray-300 rounded text-xs"
                         >
                           <option value="KOL">KOL</option>
                           <option value="MG">MG</option>
                         </select>
-                        <button
-                          onClick={() => handleSaveEdit(report)}
-                          disabled={processing === report.id}
-                          className="text-green-600 text-sm hover:underline"
-                        >
-                          Simpan
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          className="text-gray-500 text-sm hover:underline"
-                        >
-                          Batal
-                        </button>
-                      </>
+                        <button onClick={() => handleSaveEdit(report)} disabled={processing === report.id} className="text-green-600 text-xs">✓</button>
+                        <button onClick={handleCancelEdit} className="text-gray-500 text-xs">✕</button>
+                      </div>
                     ) : (
                       <>
-                        <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                          report.kategori === 'KOL' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {report.kategori}
-                        </span>
-                        <button
-                          onClick={() => handleEdit(report)}
-                          className="text-blue-500 text-xs hover:underline"
-                        >
-                          ✏️ Edit
-                        </button>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                          report.kategori === 'KOL' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                        }`}>{report.kategori}</span>
+                        <button onClick={() => handleEdit(report)} className="text-blue-500 text-[10px]">✏️</button>
                       </>
                     )}
                   </div>
-                  </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  report.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  report.status === 'approved' ? 'bg-green-100 text-green-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
-                  {report.status}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-sm bg-gray-50 rounded-lg p-3">
-                <div>
-                  <span className="text-gray-500">📱 HP:</span>
-                  <p className="font-medium">{report.no_hp || '-'}</p>
-                </div>
-                <div>
-                  <span className="text-gray-500">📷 IG:</span>
-                  <p className="font-medium">{report.instagram ? `@${report.instagram}` : '-'}</p>
-                </div>
-                <div>
-                  <span className="text-gray-500">🎵 TikTok:</span>
-                  <p className="font-medium">{report.tiktok ? `@${report.tiktok}` : '-'}</p>
-                </div>
-                <div>
-                  <span className="text-gray-500">📅 Tanggal:</span>
-                  <p className="font-medium">{new Date(report.created_at).toLocaleDateString('id-ID')}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {report.instagram && `@${report.instagram}`}
+                    {report.instagram && report.no_hp && ' • '}
+                    {report.no_hp}
+                    {' • '}
+                    {new Date(report.created_at).toLocaleDateString('id-ID')}
+                  </p>
                 </div>
               </div>
 
-              <div className="mb-4">
-                <p className="text-sm text-gray-500 mb-1">Kronologi:</p>
-                <p className="text-gray-800 bg-gray-50 rounded-lg p-3 text-sm">{report.kronologi}</p>
+              {/* Kronologi */}
+              <div className="bg-gray-50 rounded-xl p-3 mb-3">
+                <p className="text-xs text-gray-700 line-clamp-3">{report.kronologi}</p>
               </div>
 
-              {report.bukti_url && (
-                <div className="mb-4">
-                  <p className="text-sm text-gray-500 mb-1">Bukti:</p>
-                  <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
-                    {report.bukti_url}
+              {/* Info tambahan */}
+              <div className="flex flex-wrap gap-2 text-[10px] mb-3">
+                {report.bukti_url && (
+                  <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                    📎 Bukti
                   </a>
-                </div>
-              )}
+                )}
+                {report.pelapor_nama && (
+                  <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                    👤 {report.pelapor_nama}
+                  </span>
+                )}
+              </div>
 
-              {(report.pelapor_nama || report.pelapor_kontak) && (
-                <div className="mb-4 bg-blue-50 rounded-lg p-3">
-                  <p className="text-sm text-gray-500 mb-1">Data Pelapor (Rahasia):</p>
-                  <p className="text-sm">Nama: {report.pelapor_nama || '-'}</p>
-                  <p className="text-sm">Kontak: {report.pelapor_kontak || '-'}</p>
-                </div>
-              )}
-
+              {/* Action Buttons */}
               {report.status === 'pending' && (
-                <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
+                <div className="flex gap-2">
                   <button
                     onClick={() => handleApprove(report)}
                     disabled={processing === report.id}
-                    className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm font-medium"
+                    className="flex-1 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98]"
                   >
                     ✅ Approve
                   </button>
                   <button
                     onClick={() => handleReject(report)}
                     disabled={processing === report.id}
-                    className="flex-1 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 text-sm font-medium"
+                    className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98]"
                   >
                     ❌ Reject
                   </button>
@@ -494,21 +444,13 @@ export default function AdminPage() {
               )}
 
               {report.status === 'approved' && (
-                <div className="pt-4 border-t">
-                  <button
-                    onClick={() => handleUnblacklist(report)}
-                    disabled={processing === report.id}
-                    className="w-full py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 text-sm font-medium"
-                  >
-                    🔓 Unblacklist (Masalah Sudah Clear)
-                  </button>
-                </div>
-              )}
-
-              {report.review_note && (
-                <div className="mt-4 bg-gray-100 rounded-lg p-3">
-                  <p className="text-sm text-gray-500">Catatan Review: {report.review_note}</p>
-                </div>
+                <button
+                  onClick={() => handleUnblacklist(report)}
+                  disabled={processing === report.id}
+                  className="w-full py-2.5 bg-orange-500 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98]"
+                >
+                  🔓 Clear / Unblacklist
+                </button>
               )}
             </div>
           ))}
