@@ -9,6 +9,22 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
   const [selected, setSelected] = useState<Blacklist | null>(null)
+  const [stats, setStats] = useState({ total: 0, kol: 0, mg: 0 })
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    const { data } = await supabase.from('blacklist').select('kategori')
+    if (data) {
+      setStats({
+        total: data.length,
+        kol: data.filter(d => d.kategori === 'KOL').length,
+        mg: data.filter(d => d.kategori === 'MG').length
+      })
+    }
+  }
 
   const handleSearch = async () => {
     if (!search.trim()) return
@@ -35,28 +51,45 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="max-w-lg mx-auto px-4 py-6">
       {/* Hero Section */}
       <div className="text-center mb-6">
-        <div className="inline-block bg-red-100 text-red-600 px-4 py-2 rounded-full text-sm font-medium mb-4">
-          🛡️ Lindungi Dirimu
+        <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-200">
+          <span className="text-3xl">🚫</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
-          Cek Blacklist KOL/MG
+        <h1 className="text-2xl font-bold text-gray-800 mb-1">
+          Blacklist KOL/MG
         </h1>
-        <p className="text-gray-600 text-sm md:text-base">
-          Cari by <strong>Nama</strong>, <strong>HP</strong>, <strong>IG</strong>, atau <strong>TikTok</strong>
+        <p className="text-gray-500 text-sm">
+          Database KOL & Management bermasalah
         </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 text-center">
+          <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+          <p className="text-xs text-gray-500">Total</p>
+        </div>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 text-center">
+          <p className="text-2xl font-bold text-purple-600">{stats.kol}</p>
+          <p className="text-xs text-gray-500">KOL</p>
+        </div>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 text-center">
+          <p className="text-2xl font-bold text-blue-600">{stats.mg}</p>
+          <p className="text-xs text-gray-500">MG</p>
+        </div>
       </div>
 
       {/* Search Box */}
       <div className="bg-white rounded-2xl shadow-lg p-4 mb-6 border border-gray-100">
+        <p className="text-xs text-gray-500 mb-3 text-center">Cek sebelum kerjasama</p>
         <div className="flex flex-col gap-3">
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
             <input
               type="text"
-              placeholder="Ketik nama, HP, IG, atau TikTok..."
+              placeholder="Nama, HP, IG, atau TikTok..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -66,7 +99,7 @@ export default function Home() {
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="w-full py-4 bg-red-600 text-white rounded-xl hover:bg-red-700 active:scale-[0.98] transition-all disabled:opacity-50 font-semibold text-base"
+            className="w-full py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 active:scale-[0.98] transition-all disabled:opacity-50 font-semibold text-base shadow-lg shadow-red-200"
           >
             {loading ? 'Mencari...' : 'Cari Sekarang'}
           </button>
@@ -91,50 +124,49 @@ export default function Home() {
             </div>
           ) : (
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                ⚠️ Ditemukan {results.length} hasil
-              </h2>
-              <div className="space-y-4">
-                {results.map((item) => (
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                  <span className="text-sm">⚠️</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Ditemukan <strong className="text-red-600">{results.length}</strong> hasil
+                </p>
+              </div>
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                {results.map((item, index) => (
                   <div 
                     key={item.id} 
                     onClick={() => setSelected(item)}
-                    className="bg-white border-l-4 border-red-500 rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition"
+                    className={`p-4 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition ${
+                      index !== results.length - 1 ? 'border-b border-gray-100' : ''
+                    }`}
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-bold text-gray-800">{item.nama}</h3>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        item.kategori === 'KOL' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {item.kategori}
-                      </span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2 mb-4 text-xs md:text-sm">
-                      {item.no_hp && (
-                        <span className="bg-gray-100 px-2 py-1 rounded">📱 {item.no_hp}</span>
-                      )}
-                      {item.instagram && (
-                        <span className="bg-gray-100 px-2 py-1 rounded">📷 @{item.instagram}</span>
-                      )}
-                      {item.tiktok && (
-                        <span className="bg-gray-100 px-2 py-1 rounded">🎵 @{item.tiktok}</span>
-                      )}
-                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded">📊 {item.jumlah_laporan}x laporan</span>
-                    </div>
-                    
-                    <div className="bg-red-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-500 mb-1">Alasan Blacklist:</p>
-                      <p className="text-gray-800">{item.alasan}</p>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mt-3">
-                      <p className="text-xs text-gray-400">
-                        Ditambahkan: {new Date(item.created_at).toLocaleDateString('id-ID', { 
-                          day: 'numeric', month: 'long', year: 'numeric' 
-                        })}
-                      </p>
-                      <span className="text-xs text-blue-500">Tap untuk detail →</span>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-1 h-12 rounded-full shrink-0 ${
+                        item.kategori === 'KOL' ? 'bg-purple-500' : 'bg-blue-500'
+                      }`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-gray-800 truncate">{item.nama}</h3>
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0 ${
+                            item.kategori === 'KOL' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            {item.kategori}
+                          </span>
+                          {item.jumlah_laporan > 1 && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0 bg-red-100 text-red-700">
+                              {item.jumlah_laporan}x
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 truncate">
+                          {item.instagram && `@${item.instagram}`}
+                          {item.instagram && item.no_hp && ' • '}
+                          {item.no_hp}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-2 line-clamp-2">{item.alasan}</p>
+                      </div>
+                      <span className="text-gray-300 text-lg shrink-0">›</span>
                     </div>
                   </div>
                 ))}
@@ -204,42 +236,31 @@ export default function Home() {
       {/* Info Section */}
       {!searched && (
         <div className="space-y-4">
-          {/* Quick Stats */}
+          {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-3">
-            <a href="/daftar" className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all active:scale-[0.98]">
-              <div className="text-2xl mb-1">📋</div>
-              <p className="text-sm font-medium text-gray-800">Lihat Daftar</p>
-              <p className="text-xs text-gray-500">Blacklist lengkap</p>
+            <a href="/daftar" className="bg-white rounded-2xl border border-gray-200 p-4 hover:border-gray-300 hover:shadow-md transition-all active:scale-[0.98]">
+              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mb-2">
+                <span className="text-lg">📋</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-800">Lihat Semua</p>
+              <p className="text-xs text-gray-500">Daftar lengkap</p>
             </a>
-            <a href="/lapor" className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-all active:scale-[0.98]">
-              <div className="text-2xl mb-1">📢</div>
-              <p className="text-sm font-medium text-white">Buat Laporan</p>
-              <p className="text-xs text-red-100">Laporkan KOL/MG</p>
+            <a href="/lapor" className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-4 hover:shadow-lg transition-all active:scale-[0.98] shadow-lg shadow-red-200">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mb-2">
+                <span className="text-lg">📢</span>
+              </div>
+              <p className="text-sm font-semibold text-white">Lapor</p>
+              <p className="text-xs text-red-100">Buat aduan baru</p>
             </a>
           </div>
 
-          {/* How to use */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-            <h3 className="font-semibold text-base mb-3 flex items-center gap-2">
-              <span className="bg-blue-100 w-8 h-8 rounded-full flex items-center justify-center text-sm">💡</span>
-              Cara Pakai
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="bg-gray-50 rounded-xl p-3">
-                <span className="text-lg">👤</span>
-                <p className="text-gray-600 mt-1">Cari nama</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-3">
-                <span className="text-lg">📱</span>
-                <p className="text-gray-600 mt-1">Cari no HP</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-3">
-                <span className="text-lg">📷</span>
-                <p className="text-gray-600 mt-1">Cari IG</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-3">
-                <span className="text-lg">🎵</span>
-                <p className="text-gray-600 mt-1">Cari TikTok</p>
+          {/* Tips */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">💡</span>
+              <div>
+                <p className="text-sm font-medium text-amber-800 mb-1">Tips Aman</p>
+                <p className="text-xs text-amber-700">Selalu cek track record sebelum kerjasama. Minta bukti kerjasama sebelumnya dan jangan transfer fee di awal.</p>
               </div>
             </div>
           </div>
