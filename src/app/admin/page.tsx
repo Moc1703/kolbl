@@ -29,6 +29,7 @@ export default function AdminPage() {
   const [editKategori, setEditKategori] = useState<string>('')
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [bulkProcessing, setBulkProcessing] = useState(false)
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
 
   useEffect(() => {
     const saved = sessionStorage.getItem('admin_logged_in')
@@ -548,20 +549,29 @@ export default function AdminPage() {
               </div>
 
               {/* Kronologi */}
-              <div className="bg-gray-50 rounded-xl p-3 mb-3">
-                <p className="text-xs text-gray-700 line-clamp-3">{report.kronologi}</p>
+              <div 
+                onClick={() => setSelectedReport(report)}
+                className="bg-gray-50 rounded-xl p-3 mb-3 cursor-pointer hover:bg-gray-100 transition-all"
+              >
+                <p className="text-xs text-gray-700 line-clamp-2">{report.kronologi}</p>
+                <p className="text-[10px] text-blue-600 mt-1">Tap untuk baca lengkap →</p>
               </div>
 
               {/* Info tambahan */}
               <div className="flex flex-wrap gap-2 text-[10px] mb-3">
                 {report.bukti_url && (
-                  <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                  <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-600 bg-blue-50 px-2 py-1 rounded">
                     📎 Bukti
                   </a>
                 )}
                 {report.pelapor_nama && (
                   <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded">
                     👤 {report.pelapor_nama}
+                  </span>
+                )}
+                {report.pelapor_kontak && (
+                  <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                    📞 {report.pelapor_kontak}
                   </span>
                 )}
               </div>
@@ -675,6 +685,113 @@ export default function AdminPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Report Detail Modal */}
+      {selectedReport && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedReport(null)}>
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-5">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800">{selectedReport.nama}</h2>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      selectedReport.kategori === 'KOL' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                    }`}>{selectedReport.kategori}</span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      selectedReport.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      selectedReport.status === 'approved' ? 'bg-green-100 text-green-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>{selectedReport.status}</span>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedReport(null)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+              </div>
+
+              {/* Contact Info */}
+              <div className="bg-gray-50 rounded-xl p-3 mb-4 space-y-2">
+                {selectedReport.no_hp && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-500">📱</span>
+                    <span className="font-medium">{selectedReport.no_hp}</span>
+                  </div>
+                )}
+                {selectedReport.instagram && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-500">📷</span>
+                    <span className="font-medium">@{selectedReport.instagram}</span>
+                  </div>
+                )}
+                {selectedReport.tiktok && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-500">🎵</span>
+                    <span className="font-medium">@{selectedReport.tiktok}</span>
+                  </div>
+                )}
+                {selectedReport.asal_mg && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-500">🏢</span>
+                    <span className="font-medium">{selectedReport.asal_mg}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Kronologi */}
+              <div className="mb-4">
+                <p className="text-xs text-gray-500 mb-2 font-medium">📝 Kronologi Lengkap:</p>
+                <div className="bg-red-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-800 whitespace-pre-wrap">{selectedReport.kronologi}</p>
+                </div>
+              </div>
+
+              {/* Bukti */}
+              {selectedReport.bukti_url && (
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500 mb-2 font-medium">📎 Link Bukti:</p>
+                  <a href={selectedReport.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm break-all hover:underline">
+                    {selectedReport.bukti_url}
+                  </a>
+                </div>
+              )}
+
+              {/* Pelapor Info */}
+              {(selectedReport.pelapor_nama || selectedReport.pelapor_kontak) && (
+                <div className="bg-blue-50 rounded-xl p-3 mb-4">
+                  <p className="text-xs text-blue-600 mb-2 font-medium">👤 Data Pelapor (Rahasia):</p>
+                  {selectedReport.pelapor_nama && <p className="text-sm">Nama: {selectedReport.pelapor_nama}</p>}
+                  {selectedReport.pelapor_kontak && <p className="text-sm">Kontak: {selectedReport.pelapor_kontak}</p>}
+                </div>
+              )}
+
+              <p className="text-xs text-gray-400 mb-4">
+                Dilaporkan: {new Date(selectedReport.created_at).toLocaleDateString('id-ID', { 
+                  day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                })}
+              </p>
+
+              {/* Actions */}
+              {selectedReport.status === 'pending' && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { handleApprove(selectedReport); setSelectedReport(null); }}
+                    disabled={processing === selectedReport.id}
+                    className="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium disabled:opacity-50"
+                  >
+                    ✅ Approve
+                  </button>
+                  <button
+                    onClick={() => { handleReject(selectedReport); setSelectedReport(null); }}
+                    disabled={processing === selectedReport.id}
+                    className="flex-1 py-3 bg-red-600 text-white rounded-xl font-medium disabled:opacity-50"
+                  >
+                    ❌ Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
