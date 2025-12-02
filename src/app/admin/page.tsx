@@ -9,6 +9,7 @@ export default function AdminPage() {
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'resolved' | 'all'>('pending')
+  const [kategoriFilter, setKategoriFilter] = useState<'all' | 'KOL' | 'MG'>('all')
   const [processing, setProcessing] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editKategori, setEditKategori] = useState<string>('')
@@ -26,7 +27,7 @@ export default function AdminPage() {
     if (isLoggedIn) {
       fetchReports()
     }
-  }, [isLoggedIn, filter])
+  }, [isLoggedIn, filter, kategoriFilter])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,6 +51,10 @@ export default function AdminPage() {
     
     if (filter !== 'all') {
       query = query.eq('status', filter)
+    }
+    
+    if (kategoriFilter !== 'all') {
+      query = query.eq('kategori', kategoriFilter)
     }
     
     const { data } = await query
@@ -290,35 +295,75 @@ export default function AdminPage() {
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-2 mb-4">
+      {/* Status Filter */}
+      <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
+        <button 
+          onClick={() => setFilter('all')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap ${
+            filter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          Semua
+        </button>
         <button 
           onClick={() => setFilter('pending')}
-          className={`rounded-xl p-2 text-center transition-all ${filter === 'pending' ? 'bg-yellow-100 ring-2 ring-yellow-400' : 'bg-yellow-50'}`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap ${
+            filter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-yellow-50 text-yellow-700'
+          }`}
         >
-          <p className="text-lg font-bold text-yellow-600">{reports.filter(r => r.status === 'pending').length}</p>
-          <p className="text-[10px] text-gray-600">Pending</p>
+          ⏳ Pending
         </button>
         <button 
           onClick={() => setFilter('approved')}
-          className={`rounded-xl p-2 text-center transition-all ${filter === 'approved' ? 'bg-green-100 ring-2 ring-green-400' : 'bg-green-50'}`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap ${
+            filter === 'approved' ? 'bg-green-500 text-white' : 'bg-green-50 text-green-700'
+          }`}
         >
-          <p className="text-lg font-bold text-green-600">{reports.filter(r => r.status === 'approved').length}</p>
-          <p className="text-[10px] text-gray-600">Aktif</p>
+          ✅ Aktif
         </button>
         <button 
           onClick={() => setFilter('rejected')}
-          className={`rounded-xl p-2 text-center transition-all ${filter === 'rejected' ? 'bg-red-100 ring-2 ring-red-400' : 'bg-red-50'}`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap ${
+            filter === 'rejected' ? 'bg-red-500 text-white' : 'bg-red-50 text-red-700'
+          }`}
         >
-          <p className="text-lg font-bold text-red-600">{reports.filter(r => r.status === 'rejected').length}</p>
-          <p className="text-[10px] text-gray-600">Reject</p>
+          ❌ Reject
         </button>
         <button 
           onClick={() => setFilter('resolved')}
-          className={`rounded-xl p-2 text-center transition-all ${filter === 'resolved' ? 'bg-orange-100 ring-2 ring-orange-400' : 'bg-orange-50'}`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap ${
+            filter === 'resolved' ? 'bg-orange-500 text-white' : 'bg-orange-50 text-orange-700'
+          }`}
         >
-          <p className="text-lg font-bold text-orange-600">{reports.filter(r => r.status === 'resolved').length}</p>
-          <p className="text-[10px] text-gray-600">Clear</p>
+          🔓 Clear
+        </button>
+      </div>
+
+      {/* Kategori Filter */}
+      <div className="flex gap-2 mb-4">
+        <button 
+          onClick={() => setKategoriFilter('all')}
+          className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+            kategoriFilter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          Semua ({reports.length})
+        </button>
+        <button 
+          onClick={() => setKategoriFilter('KOL')}
+          className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+            kategoriFilter === 'KOL' ? 'bg-purple-600 text-white' : 'bg-purple-50 text-purple-600'
+          }`}
+        >
+          KOL ({reports.filter(r => r.kategori === 'KOL').length})
+        </button>
+        <button 
+          onClick={() => setKategoriFilter('MG')}
+          className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+            kategoriFilter === 'MG' ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'
+          }`}
+        >
+          MG ({reports.filter(r => r.kategori === 'MG').length})
         </button>
       </div>
 
