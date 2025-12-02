@@ -117,6 +117,11 @@ export default function DaftarPage() {
                   }`}>
                     {item.kategori}
                   </span>
+                  {item.jumlah_laporan > 1 && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0 bg-red-100 text-red-700">
+                      {item.jumlah_laporan}x
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-gray-500 truncate mt-0.5">
                   {item.instagram && `@${item.instagram}`}

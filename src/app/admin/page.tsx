@@ -62,17 +62,42 @@ export default function AdminPage() {
     
     setProcessing(report.id)
     
-    // Add to blacklist
-    await supabase.from('blacklist').insert({
-      report_id: report.id,
-      nama: report.nama,
-      no_hp: report.no_hp,
-      instagram: report.instagram,
-      tiktok: report.tiktok,
-      kategori: report.kategori,
-      alasan: report.kronologi.substring(0, 500),
-      jumlah_laporan: 1
-    })
+    // Check if already exists in blacklist (by name, phone, ig, or tiktok)
+    let existingQuery = supabase.from('blacklist').select('*')
+    
+    const conditions = []
+    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
+    if (report.no_hp) conditions.push(`no_hp.eq.${report.no_hp}`)
+    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (report.tiktok) conditions.push(`tiktok.ilike.${report.tiktok}`)
+    
+    const { data: existing } = await supabase
+      .from('blacklist')
+      .select('*')
+      .or(conditions.join(','))
+      .limit(1)
+    
+    if (existing && existing.length > 0) {
+      // Update existing entry - increment jumlah_laporan
+      const entry = existing[0]
+      await supabase.from('blacklist').update({
+        jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
+        alasan: entry.alasan + '\n\n---\n\n' + report.kronologi.substring(0, 500),
+        updated_at: new Date().toISOString()
+      }).eq('id', entry.id)
+    } else {
+      // Create new entry
+      await supabase.from('blacklist').insert({
+        report_id: report.id,
+        nama: report.nama,
+        no_hp: report.no_hp,
+        instagram: report.instagram,
+        tiktok: report.tiktok,
+        kategori: report.kategori,
+        alasan: report.kronologi.substring(0, 500),
+        jumlah_laporan: 1
+      })
+    }
     
     // Update report status
     await supabase.from('reports').update({
@@ -172,16 +197,38 @@ export default function AdminPage() {
       const report = reports.find(r => r.id === id)
       if (!report || report.status !== 'pending') continue
 
-      await supabase.from('blacklist').insert({
-        report_id: report.id,
-        nama: report.nama,
-        no_hp: report.no_hp,
-        instagram: report.instagram,
-        tiktok: report.tiktok,
-        kategori: report.kategori,
-        alasan: report.kronologi.substring(0, 500),
-        jumlah_laporan: 1
-      })
+      // Check for existing entry
+      const conditions = []
+      if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
+      if (report.no_hp) conditions.push(`no_hp.eq.${report.no_hp}`)
+      if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+      if (report.tiktok) conditions.push(`tiktok.ilike.${report.tiktok}`)
+      
+      const { data: existing } = await supabase
+        .from('blacklist')
+        .select('*')
+        .or(conditions.join(','))
+        .limit(1)
+
+      if (existing && existing.length > 0) {
+        const entry = existing[0]
+        await supabase.from('blacklist').update({
+          jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
+          alasan: entry.alasan + '\n\n---\n\n' + report.kronologi.substring(0, 500),
+          updated_at: new Date().toISOString()
+        }).eq('id', entry.id)
+      } else {
+        await supabase.from('blacklist').insert({
+          report_id: report.id,
+          nama: report.nama,
+          no_hp: report.no_hp,
+          instagram: report.instagram,
+          tiktok: report.tiktok,
+          kategori: report.kategori,
+          alasan: report.kronologi.substring(0, 500),
+          jumlah_laporan: 1
+        })
+      }
 
       await supabase.from('reports').update({
         status: 'approved',
