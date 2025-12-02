@@ -225,11 +225,33 @@ export default function Home() {
                 <p className="text-gray-800 whitespace-pre-wrap">{selected.alasan}</p>
               </div>
 
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 mb-4">
                 Ditambahkan: {new Date(selected.created_at).toLocaleDateString('id-ID', { 
                   day: 'numeric', month: 'long', year: 'numeric' 
                 })}
               </p>
+
+              <button
+                onClick={() => {
+                  const text = `⚠️ *BLACKLIST ${selected.kategori}*
+
+*Nama:* ${selected.nama}
+${selected.no_hp ? `*HP/WA:* ${selected.no_hp}` : ''}
+${selected.instagram ? `*Instagram:* @${selected.instagram}` : ''}
+${selected.tiktok ? `*TikTok:* @${selected.tiktok}` : ''}
+${selected.jumlah_laporan > 1 ? `*Jumlah Laporan:* ${selected.jumlah_laporan}x` : ''}
+
+*Alasan:*
+${selected.alasan}
+
+_Cek lengkap di: kolbl.vercel.app_`;
+                  navigator.clipboard.writeText(text);
+                  alert('Info berhasil dicopy! Silakan paste di grup WA.');
+                }}
+                className="w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+              >
+                <span>📋</span> Copy untuk Share ke Grup
+              </button>
             </div>
           </div>
         </div>
