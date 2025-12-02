@@ -15,22 +15,35 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className="bg-gray-50 min-h-screen">
-        <nav className="bg-red-600 text-white shadow-lg">
+        <nav className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg sticky top-0 z-40">
           <div className="max-w-6xl mx-auto px-4 py-3">
             <div className="flex justify-between items-center">
-              <a href="/" className="text-lg md:text-xl font-bold">🚫 Blacklist KOL/MG</a>
-              <div className="flex gap-2 md:gap-4 text-sm md:text-base">
-                <a href="/" className="hover:underline px-2 py-1">Cek</a>
-                <a href="/daftar" className="hover:underline px-2 py-1">Daftar</a>
-                <a href="/saran" className="hover:underline px-2 py-1">Saran</a>
-                <a href="/lapor" className="bg-white text-red-600 px-3 py-1 rounded-full font-medium hover:bg-red-50">Lapor</a>
+              <a href="/" className="text-base md:text-lg font-bold flex items-center gap-2">
+                <span className="bg-white/20 rounded-lg p-1">🚫</span>
+                <span className="hidden sm:inline">Blacklist KOL</span>
+                <span className="sm:hidden">BLKOL</span>
+              </a>
+              <div className="flex gap-1 md:gap-2 text-xs md:text-sm">
+                <a href="/" className="hover:bg-white/20 px-2 py-1.5 rounded-lg transition">Cek</a>
+                <a href="/daftar" className="hover:bg-white/20 px-2 py-1.5 rounded-lg transition">Daftar</a>
+                <a href="/saran" className="hover:bg-white/20 px-2 py-1.5 rounded-lg transition hidden sm:block">Saran</a>
+                <a href="/lapor" className="bg-white text-red-600 px-3 py-1.5 rounded-lg font-semibold hover:bg-red-50 transition">Lapor</a>
               </div>
             </div>
           </div>
         </nav>
         <main>{children}</main>
-        <footer className="bg-gray-800 text-white text-center py-6 mt-12">
-          <p className="text-sm">Blacklist KOL/MG Indonesia - Lindungi sesama dari kerjasama yang merugikan</p>
+        <footer className="bg-gray-900 text-white py-6 mt-8">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-gray-400">🚫 Blacklist KOL/MG Indonesia</p>
+              <div className="flex gap-4 text-xs text-gray-500">
+                <a href="/saran" className="hover:text-white transition">Saran</a>
+                <a href="/lapor" className="hover:text-white transition">Lapor</a>
+                <a href="/admin" className="hover:text-white transition">Admin</a>
+              </div>
+            </div>
+          </div>
         </footer>
       </body>
     </html>
