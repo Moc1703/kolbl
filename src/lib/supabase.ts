@@ -1,7 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Remove any non-ASCII characters that might cause header issues
+const cleanString = (str: string) => str.replace(/[^\x00-\x7F]/g, '').trim()
+
+const supabaseUrl = cleanString(process.env.NEXT_PUBLIC_SUPABASE_URL || '')
+const supabaseAnonKey = cleanString(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '')
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
