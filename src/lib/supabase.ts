@@ -15,6 +15,7 @@ export type Report = {
   instagram: string | null
   tiktok: string | null
   kategori: 'KOL' | 'MG'
+  asal_mg: string | null
   kronologi: string
   bukti_url: string | null
   pelapor_nama: string | null
