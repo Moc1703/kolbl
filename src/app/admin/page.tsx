@@ -549,12 +549,14 @@ export default function AdminPage() {
               </div>
 
               {/* Kronologi */}
-              <div 
-                onClick={() => setSelectedReport(report)}
-                className="bg-gray-50 rounded-xl p-3 mb-3 cursor-pointer hover:bg-gray-100 transition-all"
-              >
-                <p className="text-xs text-gray-700 line-clamp-2">{report.kronologi}</p>
-                <p className="text-[10px] text-blue-600 mt-1">Tap untuk baca lengkap →</p>
+              <div className="bg-gray-50 rounded-xl p-3 mb-3">
+                <p className="text-xs text-gray-700 line-clamp-2 mb-2">{report.kronologi}</p>
+                <button 
+                  onClick={() => setSelectedReport(report)}
+                  className="text-[11px] text-white bg-blue-500 px-3 py-1.5 rounded-lg font-medium"
+                >
+                  📖 Baca Lengkap
+                </button>
               </div>
 
               {/* Info tambahan */}
