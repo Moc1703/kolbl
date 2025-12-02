@@ -45,7 +45,8 @@ export default function LaporPage() {
         pelapor_nama: '', pelapor_kontak: ''
       })
     } else {
-      alert('Gagal mengirim laporan. Coba lagi.')
+      console.error('Supabase error:', error)
+      alert('Gagal mengirim laporan: ' + error.message)
     }
   }
 
