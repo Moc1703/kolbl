@@ -10,6 +10,10 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending')
   const [processing, setProcessing] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editKategori, setEditKategori] = useState<string>('')
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [bulkProcessing, setBulkProcessing] = useState(false)
 
   useEffect(() => {
     const saved = sessionStorage.getItem('admin_logged_in')
@@ -95,6 +99,83 @@ export default function AdminPage() {
     fetchReports()
   }
 
+  const handleEdit = (report: Report) => {
+    setEditingId(report.id)
+    setEditKategori(report.kategori)
+  }
+
+  const handleSaveEdit = async (report: Report) => {
+    setProcessing(report.id)
+    
+    // Update report
+    await supabase.from('reports').update({
+      kategori: editKategori
+    }).eq('id', report.id)
+    
+    // If already approved, also update blacklist
+    if (report.status === 'approved') {
+      await supabase.from('blacklist').update({
+        kategori: editKategori
+      }).eq('report_id', report.id)
+    }
+    
+    setProcessing(null)
+    setEditingId(null)
+    fetchReports()
+  }
+
+  const handleCancelEdit = () => {
+    setEditingId(null)
+    setEditKategori('')
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    const pendingReports = reports.filter(r => r.status === 'pending')
+    if (selectedIds.length === pendingReports.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(pendingReports.map(r => r.id))
+    }
+  }
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.length === 0) return
+    if (!confirm(`Yakin approve ${selectedIds.length} laporan sekaligus?`)) return
+
+    setBulkProcessing(true)
+
+    for (const id of selectedIds) {
+      const report = reports.find(r => r.id === id)
+      if (!report || report.status !== 'pending') continue
+
+      await supabase.from('blacklist').insert({
+        report_id: report.id,
+        nama: report.nama,
+        no_hp: report.no_hp,
+        instagram: report.instagram,
+        tiktok: report.tiktok,
+        kategori: report.kategori,
+        alasan: report.kronologi.substring(0, 500),
+        jumlah_laporan: 1
+      })
+
+      await supabase.from('reports').update({
+        status: 'approved',
+        reviewed_at: new Date().toISOString()
+      }).eq('id', id)
+    }
+
+    setBulkProcessing(false)
+    setSelectedIds([])
+    fetchReports()
+  }
+
   const handleLogout = () => {
     sessionStorage.removeItem('admin_logged_in')
     setIsLoggedIn(false)
@@ -156,6 +237,33 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Bulk Actions */}
+      {filter === 'pending' && reports.filter(r => r.status === 'pending').length > 0 && (
+        <div className="bg-blue-50 rounded-lg p-3 mb-4 flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedIds.length === reports.filter(r => r.status === 'pending').length && selectedIds.length > 0}
+              onChange={toggleSelectAll}
+              className="w-4 h-4"
+            />
+            <span className="text-sm">Pilih Semua</span>
+          </label>
+          {selectedIds.length > 0 && (
+            <>
+              <span className="text-sm text-gray-600">({selectedIds.length} dipilih)</span>
+              <button
+                onClick={handleBulkApprove}
+                disabled={bulkProcessing}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+              >
+                {bulkProcessing ? 'Processing...' : `✅ Approve ${selectedIds.length} Laporan`}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4">
         <div className="bg-yellow-50 rounded-lg p-3 text-center">
@@ -190,13 +298,59 @@ export default function AdminPage() {
           {reports.map((report) => (
             <div key={report.id} className="bg-white rounded-xl shadow p-4 md:p-6">
               <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">{report.nama}</h3>
-                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium mt-1 ${
-                    report.kategori === 'KOL' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                  }`}>
-                    {report.kategori}
-                  </span>
+                <div className="flex items-start gap-3">
+                  {report.status === 'pending' && (
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(report.id)}
+                      onChange={() => toggleSelect(report.id)}
+                      className="w-5 h-5 mt-1"
+                    />
+                  )}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">{report.nama}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    {editingId === report.id ? (
+                      <>
+                        <select
+                          value={editKategori}
+                          onChange={(e) => setEditKategori(e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm"
+                        >
+                          <option value="KOL">KOL</option>
+                          <option value="MG">MG</option>
+                        </select>
+                        <button
+                          onClick={() => handleSaveEdit(report)}
+                          disabled={processing === report.id}
+                          className="text-green-600 text-sm hover:underline"
+                        >
+                          Simpan
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="text-gray-500 text-sm hover:underline"
+                        >
+                          Batal
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                          report.kategori === 'KOL' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {report.kategori}
+                        </span>
+                        <button
+                          onClick={() => handleEdit(report)}
+                          className="text-blue-500 text-xs hover:underline"
+                        >
+                          ✏️ Edit
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  </div>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   report.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
