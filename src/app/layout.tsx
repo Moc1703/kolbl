@@ -36,8 +36,12 @@ export default function RootLayout({
         <footer className="bg-gray-900 text-white py-6 mt-8">
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-gray-400">🚫 Blacklist KOL/MG Indonesia</p>
+              <div className="text-center sm:text-left">
+                <p className="text-sm text-gray-400">🚫 Blacklist KOL/MG Indonesia</p>
+                <a href="/disclaimer" className="text-[10px] text-gray-500 hover:text-yellow-400 transition">⚠️ Baca Disclaimer</a>
+              </div>
               <div className="flex gap-4 text-xs text-gray-500">
+                <a href="/banding" className="hover:text-white transition">Banding</a>
                 <a href="/saran" className="hover:text-white transition">Saran</a>
                 <a href="/lapor" className="hover:text-white transition">Lapor</a>
                 <a href="/admin" className="hover:text-white transition">Admin</a>
