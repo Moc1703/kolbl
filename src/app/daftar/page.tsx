@@ -174,10 +174,12 @@ export default function DaftarPage() {
                     <span className="font-medium">@{selected.tiktok}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-gray-500">📊 Jumlah Laporan:</span>
-                  <span className="font-medium text-red-600">{selected.jumlah_laporan}x</span>
-                </div>
+                {selected.jumlah_laporan > 1 && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-500">📊 Jumlah Laporan:</span>
+                    <span className="font-medium text-red-600">{selected.jumlah_laporan}x</span>
+                  </div>
+                )}
               </div>
 
               <div className="bg-red-50 rounded-lg p-4 mb-4">
