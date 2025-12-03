@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { sanitizeInput } from '@/lib/security'
 
 export default function LaporPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [form, setForm] = useState({
     nama: '',
     no_hp: '',
@@ -22,37 +21,45 @@ export default function LaporPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-
-    // Sanitize all inputs to prevent XSS attacks
-    const cleanData = {
-      nama: sanitizeInput(form.nama),
-      no_hp: sanitizeInput(form.no_hp) || null,
-      instagram: sanitizeInput(form.instagram.replace('@', '')) || null,
-      tiktok: sanitizeInput(form.tiktok.replace('@', '')) || null,
-      kategori: sanitizeInput(form.kategori),
-      asal_mg: form.kategori === 'KOL' ? (sanitizeInput(form.asal_mg) || null) : null,
-      kronologi: sanitizeInput(form.kronologi),
-      bukti_url: sanitizeInput(form.bukti_url) || null,
-      pelapor_nama: sanitizeInput(form.pelapor_nama) || null,
-      pelapor_kontak: sanitizeInput(form.pelapor_kontak) || null,
-      status: 'pending'
+    
+    if (!agreedToTerms) {
+      alert('Anda harus menyetujui syarat dan ketentuan terlebih dahulu')
+      return
     }
 
-    const { error } = await supabase.from('reports').insert(cleanData)
+    setLoading(true)
 
-    setLoading(false)
-    
-    if (!error) {
+    try {
+      // Send to API route which will handle IP capture and sanitization
+      const response = await fetch('/api/reports/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...form,
+          agreedToTerms: true
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Gagal mengirim laporan')
+      }
+
       setSuccess(true)
+      setAgreedToTerms(false)
       setForm({
         nama: '', no_hp: '', instagram: '', tiktok: '',
         kategori: 'KOL', asal_mg: '', kronologi: '', bukti_url: '',
         pelapor_nama: '', pelapor_kontak: ''
       })
-    } else {
-      console.error('Supabase error:', error)
+    } catch (error: any) {
+      console.error('Submission error:', error)
       alert('Gagal mengirim laporan: ' + error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -249,10 +256,26 @@ export default function LaporPage() {
           </p>
         </div>
 
+        {/* Terms & Liability Agreement */}
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              required
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-1 w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer flex-shrink-0"
+            />
+            <span className="text-sm text-gray-800 leading-relaxed">
+              <strong className="text-red-700">Saya menyatakan bukti ini ASLI & BENAR.</strong> Saya bertanggung jawab penuh secara hukum apabila laporan ini palsu. Platform dibebaskan dari tuntutan.
+            </span>
+          </label>
+        </div>
+
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+          disabled={loading || !agreedToTerms}
+          className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Mengirim...' : 'Kirim Laporan'}
         </button>
