@@ -159,7 +159,7 @@ export default function AdminPage() {
       const entry = existing[0]
       await supabase.from('blacklist').update({
         jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
-        alasan: entry.alasan + '\n\n---\n\n' + report.kronologi.substring(0, 500),
+        alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
         updated_at: new Date().toISOString()
       }).eq('id', entry.id)
     } else {
@@ -171,7 +171,7 @@ export default function AdminPage() {
         instagram: report.instagram,
         tiktok: report.tiktok,
         kategori: report.kategori,
-        alasan: report.kronologi.substring(0, 500),
+        alasan: report.kronologi,
         jumlah_laporan: 1
       })
     }
@@ -291,7 +291,7 @@ export default function AdminPage() {
         const entry = existing[0]
         await supabase.from('blacklist').update({
           jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
-          alasan: entry.alasan + '\n\n---\n\n' + report.kronologi.substring(0, 500),
+          alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
           updated_at: new Date().toISOString()
         }).eq('id', entry.id)
       } else {
@@ -302,7 +302,7 @@ export default function AdminPage() {
           instagram: report.instagram,
           tiktok: report.tiktok,
           kategori: report.kategori,
-          alasan: report.kronologi.substring(0, 500),
+          alasan: report.kronologi,
           jumlah_laporan: 1
         })
       }
