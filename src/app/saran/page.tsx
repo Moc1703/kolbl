@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { sanitizeInput } from '@/lib/security'
 
 export default function SaranPage() {
   const [loading, setLoading] = useState(false)
@@ -17,11 +18,12 @@ export default function SaranPage() {
     e.preventDefault()
     setLoading(true)
 
+    // Sanitize all inputs to prevent XSS attacks
     const { error } = await supabase.from('saran').insert({
-      nama: form.nama.trim() || null,
-      kontak: form.kontak.trim() || null,
-      jenis: form.jenis,
-      pesan: form.pesan.trim()
+      nama: sanitizeInput(form.nama) || null,
+      kontak: sanitizeInput(form.kontak) || null,
+      jenis: sanitizeInput(form.jenis),
+      pesan: sanitizeInput(form.pesan)
     })
 
     setLoading(false)

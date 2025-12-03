@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { sanitizeInput } from '@/lib/security'
 
 export default function LaporPage() {
   const [loading, setLoading] = useState(false)
@@ -23,17 +24,18 @@ export default function LaporPage() {
     e.preventDefault()
     setLoading(true)
 
+    // Sanitize all inputs to prevent XSS attacks
     const cleanData = {
-      nama: form.nama.trim(),
-      no_hp: form.no_hp.trim() || null,
-      instagram: form.instagram.trim().replace('@', '') || null,
-      tiktok: form.tiktok.trim().replace('@', '') || null,
-      kategori: form.kategori,
-      asal_mg: form.kategori === 'KOL' ? (form.asal_mg.trim() || null) : null,
-      kronologi: form.kronologi.trim(),
-      bukti_url: form.bukti_url.trim() || null,
-      pelapor_nama: form.pelapor_nama.trim() || null,
-      pelapor_kontak: form.pelapor_kontak.trim() || null,
+      nama: sanitizeInput(form.nama),
+      no_hp: sanitizeInput(form.no_hp) || null,
+      instagram: sanitizeInput(form.instagram.replace('@', '')) || null,
+      tiktok: sanitizeInput(form.tiktok.replace('@', '')) || null,
+      kategori: sanitizeInput(form.kategori),
+      asal_mg: form.kategori === 'KOL' ? (sanitizeInput(form.asal_mg) || null) : null,
+      kronologi: sanitizeInput(form.kronologi),
+      bukti_url: sanitizeInput(form.bukti_url) || null,
+      pelapor_nama: sanitizeInput(form.pelapor_nama) || null,
+      pelapor_kontak: sanitizeInput(form.pelapor_kontak) || null,
       status: 'pending'
     }
 

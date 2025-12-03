@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { sanitizeInput } from '@/lib/security'
 
 export default function BandingPage() {
   const [form, setForm] = useState({
@@ -25,13 +26,14 @@ export default function BandingPage() {
 
     setLoading(true)
     
+    // Sanitize all inputs to prevent XSS attacks
     const { error } = await supabase.from('unblacklist_requests').insert({
-      nama: form.nama.trim(),
-      no_hp: form.no_hp.trim() || null,
-      instagram: form.instagram.trim() || null,
-      alasan_banding: form.alasan_banding.trim(),
-      bukti_clear: form.bukti_clear.trim() || null,
-      kontak: form.kontak.trim() || null
+      nama: sanitizeInput(form.nama),
+      no_hp: sanitizeInput(form.no_hp) || null,
+      instagram: sanitizeInput(form.instagram) || null,
+      alasan_banding: sanitizeInput(form.alasan_banding),
+      bukti_clear: sanitizeInput(form.bukti_clear) || null,
+      kontak: sanitizeInput(form.kontak) || null
     })
 
     setLoading(false)
