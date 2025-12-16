@@ -282,15 +282,15 @@ export default function Home() {
             </div>
           </a>
           
-          <div className="md:col-span-2 p-5 bg-amber-50 rounded-2xl border border-amber-100 flex items-center gap-4">
-             <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
-               💡
+          <a href="/banding" className="md:col-span-2 p-5 bg-indigo-50 hover:bg-indigo-100 rounded-2xl border border-indigo-100 transition-colors flex items-center gap-4 cursor-pointer group">
+             <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center shrink-0 text-xl group-hover:scale-110 transition-transform">
+               ⚖️
              </div>
              <div>
-               <p className="text-sm font-medium text-amber-900">Tips Aman</p>
-               <p className="text-xs text-amber-700">Selalu gunakan rekber atau minta DP rendah di awal kerjasama.</p>
+               <p className="text-sm font-bold text-indigo-900">Merasa data ini keliru?</p>
+               <p className="text-xs text-indigo-700">Ajukan permohonan banding atau klarifikasi resmi di sini.</p>
              </div>
-          </div>
+          </a>
         </div>
       )}
 
