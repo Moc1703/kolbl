@@ -80,7 +80,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase
         .from('blacklist')
-        .select('id, nama, no_hp, instagram, tiktok, kategori, alasan, jumlah_laporan, created_at, updated_at')
+        .select('id, report_id, nama, no_hp, instagram, tiktok, kategori, alasan, jumlah_laporan, created_at, updated_at')
         .or(`nama.ilike.%${searchTerm}%,no_hp.ilike.%${searchTerm}%,instagram.ilike.%${searchTerm}%,tiktok.ilike.%${searchTerm}%`)
         .order('created_at', { ascending: false })
       
