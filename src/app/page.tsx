@@ -85,7 +85,7 @@ export default function Home() {
         .order('created_at', { ascending: false })
       
       if (!error && data && data.length > 0) {
-        setResults(data)
+        setResults(data as Blacklist[])
       } else {
         // Fallback or just mock search for "test"
         if (searchTerm.includes('test') || searchTerm.includes('sarah') || searchTerm.includes('viral')) {
