@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 // Remove any non-ASCII characters that might cause header issues
 const cleanString = (str: string) => str.replace(/[^\x00-\x7F]/g, '').trim()
 
-const supabaseUrl = cleanString(process.env.NEXT_PUBLIC_SUPABASE_URL || '')
-const supabaseAnonKey = cleanString(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '')
+const supabaseUrl = cleanString(process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co')
+const supabaseAnonKey = cleanString(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key')
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
