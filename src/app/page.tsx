@@ -281,6 +281,26 @@ export default function Home() {
               <p className="text-xs text-rose-100">Bantu komunitas lebih aman</p>
             </div>
           </a>
+
+          <a href="/indikasi" className="group p-5 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-lg shadow-amber-200 text-white hover:shadow-xl hover:shadow-amber-300 transition-all flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm group-hover:scale-110 transition-transform">
+              ⚠️
+            </div>
+            <div>
+              <h3 className="font-bold">Indikasi Talent Bermasalah</h3>
+              <p className="text-xs text-amber-100">Lelet, Hilang, Ghost, dll</p>
+            </div>
+          </a>
+
+          <a href="/fraud" className="group p-5 bg-gradient-to-br from-red-700 to-rose-900 rounded-2xl shadow-lg shadow-red-300 text-white hover:shadow-xl hover:shadow-red-400 transition-all flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm group-hover:scale-110 transition-transform">
+              🚨
+            </div>
+            <div>
+              <h3 className="font-bold">Pencurian & Penipuan</h3>
+              <p className="text-xs text-red-200">Lapor kasus fraud pembayaran</p>
+            </div>
+          </a>
           
           <a href="/banding" className="md:col-span-2 p-5 bg-indigo-50 hover:bg-indigo-100 rounded-2xl border border-indigo-100 transition-colors flex items-center gap-4 cursor-pointer group">
              <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center shrink-0 text-xl group-hover:scale-110 transition-transform">

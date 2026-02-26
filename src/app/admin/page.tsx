@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase, Report } from '@/lib/supabase'
+import { supabase, Report, IndikasiReport, FraudReport } from '@/lib/supabase'
 
 interface UnblacklistRequest {
   id: string
@@ -18,7 +18,7 @@ interface UnblacklistRequest {
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [password, setPassword] = useState('')
-  const [activeTab, setActiveTab] = useState<'laporan' | 'banding'>('laporan')
+  const [activeTab, setActiveTab] = useState<'laporan' | 'banding' | 'indikasi' | 'fraud'>('laporan')
   const [reports, setReports] = useState<Report[]>([])
   const [bandingRequests, setBandingRequests] = useState<UnblacklistRequest[]>([])
   const [loading, setLoading] = useState(false)
@@ -30,6 +30,8 @@ export default function AdminPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [bulkProcessing, setBulkProcessing] = useState(false)
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+  const [indikasiReports, setIndikasiReports] = useState<IndikasiReport[]>([])
+  const [fraudReports, setFraudReports] = useState<FraudReport[]>([])
 
   useEffect(() => {
     const saved = sessionStorage.getItem('admin_logged_in')
@@ -42,8 +44,12 @@ export default function AdminPage() {
     if (isLoggedIn) {
       if (activeTab === 'laporan') {
         fetchReports()
-      } else {
+      } else if (activeTab === 'banding') {
         fetchBandingRequests()
+      } else if (activeTab === 'indikasi') {
+        fetchIndikasiReports()
+      } else if (activeTab === 'fraud') {
+        fetchFraudReports()
       }
       // Load banding count for badge
       supabase.from('unblacklist_requests').select('*').then(({ data }) => {
@@ -93,6 +99,124 @@ export default function AdminPage() {
       .order('created_at', { ascending: false })
     setBandingRequests(data || [])
     setLoading(false)
+  }
+
+  const fetchIndikasiReports = async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('indikasi_reports')
+      .select('*')
+      .order('created_at', { ascending: false })
+    setIndikasiReports(data || [])
+    setLoading(false)
+  }
+
+  const fetchFraudReports = async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('fraud_reports')
+      .select('*')
+      .order('created_at', { ascending: false })
+    setFraudReports(data || [])
+    setLoading(false)
+  }
+
+  const handleApproveIndikasi = async (report: IndikasiReport) => {
+    if (!confirm('Yakin approve laporan indikasi ini?')) return
+    setProcessing(report.id)
+
+    const conditions = []
+    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+
+    const { data: existing } = conditions.length > 0 ? await supabase
+      .from('indikasi_list').select('*').or(conditions.join(',')).limit(1) : { data: null }
+
+    if (existing && existing.length > 0) {
+      await supabase.from('indikasi_list').update({
+        jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
+        alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
+        updated_at: new Date().toISOString()
+      }).eq('id', existing[0].id)
+    } else {
+      await supabase.from('indikasi_list').insert({
+        report_id: report.id,
+        nama: report.nama,
+        no_hp: report.no_hp,
+        instagram: report.instagram,
+        tiktok: report.tiktok,
+        kategori_masalah: report.kategori_masalah,
+        alasan: report.kronologi,
+        jumlah_laporan: 1
+      })
+    }
+
+    await supabase.from('indikasi_reports').update({
+      status: 'approved', reviewed_at: new Date().toISOString()
+    }).eq('id', report.id)
+
+    setProcessing(null)
+    fetchIndikasiReports()
+  }
+
+  const handleRejectIndikasi = async (report: IndikasiReport) => {
+    if (!confirm('Yakin reject?')) return
+    setProcessing(report.id)
+    await supabase.from('indikasi_reports').update({
+      status: 'rejected', reviewed_at: new Date().toISOString()
+    }).eq('id', report.id)
+    setProcessing(null)
+    fetchIndikasiReports()
+  }
+
+  const handleApproveFraud = async (report: FraudReport) => {
+    if (!confirm('Yakin approve laporan fraud ini?')) return
+    setProcessing(report.id)
+
+    const conditions = []
+    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+
+    const { data: existing } = conditions.length > 0 ? await supabase
+      .from('fraud_list').select('*').or(conditions.join(',')).limit(1) : { data: null }
+
+    if (existing && existing.length > 0) {
+      await supabase.from('fraud_list').update({
+        jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
+        nominal_total: (existing[0].nominal_total || 0) + (report.nominal || 0),
+        alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
+        updated_at: new Date().toISOString()
+      }).eq('id', existing[0].id)
+    } else {
+      await supabase.from('fraud_list').insert({
+        report_id: report.id,
+        nama: report.nama,
+        no_hp: report.no_hp,
+        instagram: report.instagram,
+        tiktok: report.tiktok,
+        jenis_fraud: report.jenis_fraud,
+        nominal_total: report.nominal || 0,
+        alasan: report.kronologi,
+        jumlah_laporan: 1
+      })
+    }
+
+    await supabase.from('fraud_reports').update({
+      status: 'approved', reviewed_at: new Date().toISOString()
+    }).eq('id', report.id)
+
+    setProcessing(null)
+    fetchFraudReports()
+  }
+
+  const handleRejectFraud = async (report: FraudReport) => {
+    if (!confirm('Yakin reject?')) return
+    setProcessing(report.id)
+    await supabase.from('fraud_reports').update({
+      status: 'rejected', reviewed_at: new Date().toISOString()
+    }).eq('id', report.id)
+    setProcessing(null)
+    fetchFraudReports()
   }
 
   const handleApproveBanding = async (req: UnblacklistRequest) => {
@@ -368,10 +492,10 @@ export default function AdminPage() {
       </div>
 
       {/* Main Tabs */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
         <button 
           onClick={() => setActiveTab('laporan')}
-          className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+          className={`flex-1 py-3 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
             activeTab === 'laporan' ? 'bg-red-600 text-white shadow-lg' : 'bg-gray-100 text-gray-600'
           }`}
         >
@@ -379,7 +503,7 @@ export default function AdminPage() {
         </button>
         <button 
           onClick={() => setActiveTab('banding')}
-          className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all relative ${
+          className={`flex-1 py-3 rounded-xl text-xs font-medium transition-all relative whitespace-nowrap ${
             activeTab === 'banding' ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600'
           }`}
         >
@@ -387,6 +511,32 @@ export default function AdminPage() {
           {bandingRequests.filter(r => r.status === 'pending').length > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
               {bandingRequests.filter(r => r.status === 'pending').length}
+            </span>
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('indikasi')}
+          className={`flex-1 py-3 rounded-xl text-xs font-medium transition-all relative whitespace-nowrap ${
+            activeTab === 'indikasi' ? 'bg-amber-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          ⚠️ Indikasi
+          {indikasiReports.filter(r => r.status === 'pending').length > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+              {indikasiReports.filter(r => r.status === 'pending').length}
+            </span>
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('fraud')}
+          className={`flex-1 py-3 rounded-xl text-xs font-medium transition-all relative whitespace-nowrap ${
+            activeTab === 'fraud' ? 'bg-red-800 text-white shadow-lg' : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          🚨 Fraud
+          {fraudReports.filter(r => r.status === 'pending').length > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+              {fraudReports.filter(r => r.status === 'pending').length}
             </span>
           )}
         </button>
@@ -681,6 +831,119 @@ export default function AdminPage() {
                       >
                         ❌ Reject
                       </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Indikasi Tab Content */}
+      {activeTab === 'indikasi' && (
+        <div>
+          {loading ? (
+            <p className="text-center py-12 text-gray-500">Loading...</p>
+          ) : indikasiReports.length === 0 ? (
+            <div className="bg-gray-50 rounded-xl p-12 text-center">
+              <p className="text-gray-500">Belum ada laporan indikasi.</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              {indikasiReports.map((report, index) => (
+                <div key={report.id} className={`p-4 ${index !== indikasiReports.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold text-gray-800">{report.nama}</h3>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700">{report.kategori_masalah}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                          report.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          report.status === 'approved' ? 'bg-green-100 text-green-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>{report.status}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {report.instagram && `@${report.instagram}`}
+                        {report.instagram && report.no_hp && ' • '}
+                        {report.no_hp}
+                        {' • '}
+                        {new Date(report.created_at).toLocaleDateString('id-ID')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-amber-50 rounded-xl p-3 mb-3">
+                    <p className="text-xs text-gray-700 line-clamp-3">{report.kronologi}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-[10px] mb-3">
+                    {report.bukti_url && (
+                      <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded">📎 Bukti</a>
+                    )}
+                    {report.pelapor_nama && <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded">👤 {report.pelapor_nama}</span>}
+                  </div>
+                  {report.status === 'pending' && (
+                    <div className="flex gap-2">
+                      <button onClick={() => handleApproveIndikasi(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium disabled:opacity-50">✅ Approve</button>
+                      <button onClick={() => handleRejectIndikasi(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium disabled:opacity-50">❌ Reject</button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Fraud Tab Content */}
+      {activeTab === 'fraud' && (
+        <div>
+          {loading ? (
+            <p className="text-center py-12 text-gray-500">Loading...</p>
+          ) : fraudReports.length === 0 ? (
+            <div className="bg-gray-50 rounded-xl p-12 text-center">
+              <p className="text-gray-500">Belum ada laporan fraud.</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              {fraudReports.map((report, index) => (
+                <div key={report.id} className={`p-4 ${index !== fraudReports.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold text-gray-800">{report.nama}</h3>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-700">{report.jenis_fraud}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                          report.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          report.status === 'approved' ? 'bg-green-100 text-green-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>{report.status}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {report.nominal ? `Rp ${report.nominal.toLocaleString('id-ID')}` : ''}
+                        {report.nominal && report.instagram ? ' • ' : ''}
+                        {report.instagram && `@${report.instagram}`}
+                        {(report.instagram || report.nominal) && report.no_hp ? ' • ' : ''}
+                        {report.no_hp}
+                        {' • '}
+                        {new Date(report.created_at).toLocaleDateString('id-ID')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-red-50 rounded-xl p-3 mb-3">
+                    <p className="text-xs text-gray-700 line-clamp-3">{report.kronologi}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-[10px] mb-3">
+                    {report.bukti_url && (
+                      <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded">📎 Bukti</a>
+                    )}
+                    {report.metode_pembayaran && <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded">💳 {report.metode_pembayaran}</span>}
+                    {report.pelapor_nama && <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded">👤 {report.pelapor_nama}</span>}
+                  </div>
+                  {report.status === 'pending' && (
+                    <div className="flex gap-2">
+                      <button onClick={() => handleApproveFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium disabled:opacity-50">✅ Approve</button>
+                      <button onClick={() => handleRejectFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium disabled:opacity-50">❌ Reject</button>
                     </div>
                   )}
                 </div>
