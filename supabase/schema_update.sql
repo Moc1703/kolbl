@@ -190,3 +190,57 @@ CREATE POLICY "Anyone can view fraud banding" ON fraud_banding FOR SELECT USING 
 
 DROP POLICY IF EXISTS "Anyone can update fraud banding" ON fraud_banding;
 CREATE POLICY "Anyone can update fraud banding" ON fraud_banding FOR UPDATE USING (true);
+
+
+-- ============================================
+-- FITUR 3: Admin Users & Activity Log
+-- ============================================
+
+-- Tabel admin users (username + hashed password)
+CREATE TABLE IF NOT EXISTS admin_users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  display_name VARCHAR(100),
+  role VARCHAR(20) DEFAULT 'admin', -- admin, superadmin
+  is_active BOOLEAN DEFAULT true,
+  last_login TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tabel admin activity log
+CREATE TABLE IF NOT EXISTS admin_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  admin_username VARCHAR(50) NOT NULL,
+  action VARCHAR(50) NOT NULL, -- login, logout, approve_report, reject_report, etc.
+  target_type VARCHAR(30), -- report, banding, indikasi, fraud, session
+  target_id VARCHAR(100),
+  details TEXT,
+  ip_address VARCHAR(50),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for faster log queries
+CREATE INDEX IF NOT EXISTS idx_admin_logs_created_at ON admin_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_admin_logs_username ON admin_logs(admin_username);
+
+-- RLS Policies for admin_users
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can read admin users" ON admin_users;
+CREATE POLICY "Anyone can read admin users" ON admin_users FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can update admin users" ON admin_users;
+CREATE POLICY "Anyone can update admin users" ON admin_users FOR UPDATE USING (true);
+
+DROP POLICY IF EXISTS "Anyone can insert admin users" ON admin_users;
+CREATE POLICY "Anyone can insert admin users" ON admin_users FOR INSERT WITH CHECK (true);
+
+-- RLS Policies for admin_logs
+ALTER TABLE admin_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can read admin logs" ON admin_logs;
+CREATE POLICY "Anyone can read admin logs" ON admin_logs FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can insert admin logs" ON admin_logs;
+CREATE POLICY "Anyone can insert admin logs" ON admin_logs FOR INSERT WITH CHECK (true);

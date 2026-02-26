@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase, Report, IndikasiReport, FraudReport } from '@/lib/supabase'
+import { supabase, Report, IndikasiReport, FraudReport, AdminLog } from '@/lib/supabase'
 
 interface UnblacklistRequest {
   id: string
@@ -15,10 +15,19 @@ interface UnblacklistRequest {
   created_at: string
 }
 
+interface AdminUserInfo {
+  username: string
+  display_name: string
+  role: string
+}
+
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [activeTab, setActiveTab] = useState<'laporan' | 'banding' | 'indikasi' | 'fraud'>('laporan')
+  const [loginError, setLoginError] = useState('')
+  const [adminUser, setAdminUser] = useState<AdminUserInfo | null>(null)
+  const [activeTab, setActiveTab] = useState<'laporan' | 'banding' | 'indikasi' | 'fraud' | 'log'>('laporan')
   const [reports, setReports] = useState<Report[]>([])
   const [bandingRequests, setBandingRequests] = useState<UnblacklistRequest[]>([])
   const [loading, setLoading] = useState(false)
@@ -32,11 +41,23 @@ export default function AdminPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [indikasiReports, setIndikasiReports] = useState<IndikasiReport[]>([])
   const [fraudReports, setFraudReports] = useState<FraudReport[]>([])
+  const [adminLogs, setAdminLogs] = useState<AdminLog[]>([])
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('admin_logged_in')
-    if (saved === 'true') {
-      setIsLoggedIn(true)
+    // Check for admin_user cookie
+    try {
+      const cookies = document.cookie.split(';').map(c => c.trim())
+      const adminCookie = cookies.find(c => c.startsWith('admin_user='))
+      if (adminCookie) {
+        const value = decodeURIComponent(adminCookie.split('=').slice(1).join('='))
+        const user = JSON.parse(value)
+        if (user && user.username) {
+          setAdminUser(user)
+          setIsLoggedIn(true)
+        }
+      }
+    } catch {
+      // Cookie parse failed, stay logged out
     }
   }, [])
 
@@ -50,6 +71,8 @@ export default function AdminPage() {
         fetchIndikasiReports()
       } else if (activeTab === 'fraud') {
         fetchFraudReports()
+      } else if (activeTab === 'log') {
+        fetchAdminLogs()
       }
       // Load banding count for badge
       supabase.from('unblacklist_requests').select('*').then(({ data }) => {
@@ -60,17 +83,53 @@ export default function AdminPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoginError('')
     const res = await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ username, password })
     })
     
     if (res.ok) {
+      const data = await res.json()
+      setAdminUser(data.user)
       setIsLoggedIn(true)
-      sessionStorage.setItem('admin_logged_in', 'true')
+      setPassword('')
+      setUsername('')
     } else {
-      alert('Password salah!')
+      const data = await res.json()
+      setLoginError(data.error || 'Login gagal')
+    }
+  }
+
+  const fetchAdminLogs = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/logs')
+      const data = await res.json()
+      setAdminLogs(data.logs || [])
+    } catch {
+      setAdminLogs([])
+    }
+    setLoading(false)
+  }
+
+  const logAction = async (action: string, targetType: string, targetId: string | null, details: string) => {
+    if (!adminUser) return
+    try {
+      await fetch('/api/admin/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: adminUser.username,
+          action,
+          targetType,
+          targetId,
+          details
+        })
+      })
+    } catch {
+      // Don't break flow if logging fails
     }
   }
 
@@ -155,6 +214,7 @@ export default function AdminPage() {
       status: 'approved', reviewed_at: new Date().toISOString()
     }).eq('id', report.id)
 
+    await logAction('approve_indikasi', 'indikasi', report.id, `Approved indikasi: ${report.nama} (${report.kategori_masalah})`)
     setProcessing(null)
     fetchIndikasiReports()
   }
@@ -165,6 +225,7 @@ export default function AdminPage() {
     await supabase.from('indikasi_reports').update({
       status: 'rejected', reviewed_at: new Date().toISOString()
     }).eq('id', report.id)
+    await logAction('reject_indikasi', 'indikasi', report.id, `Rejected indikasi: ${report.nama}`)
     setProcessing(null)
     fetchIndikasiReports()
   }
@@ -205,6 +266,7 @@ export default function AdminPage() {
       status: 'approved', reviewed_at: new Date().toISOString()
     }).eq('id', report.id)
 
+    await logAction('approve_fraud', 'fraud', report.id, `Approved fraud: ${report.nama} (${report.jenis_fraud})`)
     setProcessing(null)
     fetchFraudReports()
   }
@@ -215,6 +277,7 @@ export default function AdminPage() {
     await supabase.from('fraud_reports').update({
       status: 'rejected', reviewed_at: new Date().toISOString()
     }).eq('id', report.id)
+    await logAction('reject_fraud', 'fraud', report.id, `Rejected fraud: ${report.nama}`)
     setProcessing(null)
     fetchFraudReports()
   }
@@ -240,6 +303,7 @@ export default function AdminPage() {
       status: 'resolved'
     }).or(`nama.ilike.%${req.nama}%,instagram.ilike.${req.instagram || ''}`)
     
+    await logAction('approve_banding', 'banding', req.id, `Approved banding: ${req.nama} — removed from blacklist`)
     setProcessing(null)
     fetchBandingRequests()
   }
@@ -254,6 +318,7 @@ export default function AdminPage() {
       reviewed_at: new Date().toISOString()
     }).eq('id', req.id)
     
+    await logAction('reject_banding', 'banding', req.id, `Rejected banding: ${req.nama}`)
     setProcessing(null)
     fetchBandingRequests()
   }
@@ -306,6 +371,7 @@ export default function AdminPage() {
       reviewed_at: new Date().toISOString()
     }).eq('id', report.id)
     
+    await logAction('approve_report', 'report', report.id, `Approved: ${report.nama} (${report.kategori})`)
     setProcessing(null)
     fetchReports()
   }
@@ -321,6 +387,7 @@ export default function AdminPage() {
       review_note: note || null
     }).eq('id', report.id)
     
+    await logAction('reject_report', 'report', report.id, `Rejected: ${report.nama}${note ? ' — ' + note : ''}`)
     setProcessing(null)
     fetchReports()
   }
@@ -384,6 +451,7 @@ export default function AdminPage() {
       review_note: 'Unblacklisted - masalah sudah clear'
     }).eq('id', report.id)
     
+    await logAction('approve_banding', 'report', report.id, `Unblacklisted: ${report.nama}`)
     setProcessing(null)
     fetchReports()
   }
@@ -437,14 +505,16 @@ export default function AdminPage() {
       }).eq('id', id)
     }
 
+    await logAction('bulk_approve', 'report', null, `Bulk approved ${selectedIds.length} reports`)
     setBulkProcessing(false)
     setSelectedIds([])
     fetchReports()
   }
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('admin_logged_in')
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' })
     setIsLoggedIn(false)
+    setAdminUser(null)
   }
 
   if (!isLoggedIn) {
@@ -460,12 +530,24 @@ export default function AdminPage() {
           </div>
           <form onSubmit={handleLogin}>
             <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Username"
+              autoComplete="username"
+              className="w-full px-4 py-4 border border-gray-200 rounded-xl mb-3 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 text-base"
+            />
+            <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
+              autoComplete="current-password"
               className="w-full px-4 py-4 border border-gray-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 text-base"
             />
+            {loginError && (
+              <p className="text-red-500 text-sm text-center mb-3">⚠️ {loginError}</p>
+            )}
             <button
               type="submit"
               className="w-full py-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-200 transition-all active:scale-[0.98]"
@@ -484,7 +566,9 @@ export default function AdminPage() {
       <div className="flex justify-between items-center mb-4">
         <div>
           <h1 className="text-lg font-bold text-gray-800">Admin Panel</h1>
-          <p className="text-xs text-gray-500">Kelola laporan masuk</p>
+          <p className="text-xs text-gray-500">
+            {adminUser ? `👤 ${adminUser.display_name || adminUser.username}` : 'Kelola laporan masuk'}
+          </p>
         </div>
         <button onClick={handleLogout} className="text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-lg">
           Logout
@@ -539,6 +623,14 @@ export default function AdminPage() {
               {fraudReports.filter(r => r.status === 'pending').length}
             </span>
           )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('log')}
+          className={`flex-1 py-3 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
+            activeTab === 'log' ? 'bg-gray-800 text-white shadow-lg' : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          📋 Log
         </button>
       </div>
 
@@ -946,6 +1038,60 @@ export default function AdminPage() {
                       <button onClick={() => handleRejectFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium disabled:opacity-50">❌ Reject</button>
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Log Tab Content */}
+      {activeTab === 'log' && (
+        <div>
+          {loading ? (
+            <p className="text-center py-12 text-gray-500">Loading...</p>
+          ) : adminLogs.length === 0 ? (
+            <div className="bg-gray-50 rounded-xl p-12 text-center">
+              <p className="text-gray-500">Belum ada log aktivitas.</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              {adminLogs.map((log, index) => (
+                <div key={log.id} className={`p-3 ${index !== adminLogs.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm">
+                      {log.action.includes('approve') ? '✅' :
+                       log.action.includes('reject') ? '❌' :
+                       log.action === 'login' ? '🔑' :
+                       log.action === 'login_failed' ? '🚫' :
+                       log.action === 'logout' ? '🚪' :
+                       log.action.includes('bulk') ? '📦' : '📝'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-semibold text-gray-800">{log.admin_username}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                          log.action.includes('approve') ? 'bg-green-100 text-green-700' :
+                          log.action.includes('reject') ? 'bg-red-100 text-red-700' :
+                          log.action === 'login' ? 'bg-blue-100 text-blue-700' :
+                          log.action === 'login_failed' ? 'bg-red-100 text-red-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>{log.action}</span>
+                        {log.target_type && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-700">{log.target_type}</span>
+                        )}
+                      </div>
+                      {log.details && <p className="text-xs text-gray-600 mt-0.5 truncate">{log.details}</p>}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] text-gray-400">
+                          {new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {log.ip_address && log.ip_address !== 'unknown' && (
+                          <span className="text-[10px] text-gray-400">IP: {log.ip_address}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

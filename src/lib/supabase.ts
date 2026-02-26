@@ -141,3 +141,29 @@ export type FraudBanding = {
   reviewed_at: string | null
   review_note: string | null
 }
+
+// ============================================
+// Admin Auth & Activity Log Types
+// ============================================
+
+export type AdminUser = {
+  id: string
+  username: string
+  password_hash: string
+  display_name: string | null
+  role: 'admin' | 'superadmin'
+  is_active: boolean
+  last_login: string | null
+  created_at: string
+}
+
+export type AdminLog = {
+  id: string
+  admin_username: string
+  action: string
+  target_type: string | null
+  target_id: string | null
+  details: string | null
+  ip_address: string | null
+  created_at: string
+}
