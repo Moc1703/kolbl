@@ -11,39 +11,6 @@ export default function Home() {
   const [selected, setSelected] = useState<Blacklist | null>(null)
   const [stats, setStats] = useState({ total: 0, kol: 0, mg: 0 })
 
-  // MOCK DATA for Preview
-  const MOCK_STATS = { total: 1250, kol: 850, mg: 400 };
-  // Static dates to prevent hydration mismatch
-  const STATIC_DATE = "2024-08-20T10:00:00.000Z"; 
-  
-  const MOCK_RESULTS: Blacklist[] = [
-    { 
-      id: '1', 
-      nama: 'Sarah "Influencer" Putri', 
-      kategori: 'KOL', 
-      instagram: 'sarah.putri_official', 
-      no_hp: '0812-3456-7890',
-      alasan: 'Endorse barang tidak diposting sudah 3 bulan, di-chat slow respon tapi story jalan terus. Refund dipersulit.', 
-      jumlah_laporan: 5,
-      created_at: STATIC_DATE,
-      updated_at: STATIC_DATE,
-      tiktok: null,
-      report_id: null
-    },
-    { 
-      id: '2', 
-      nama: 'Viral Management', 
-      kategori: 'MG', 
-      instagram: 'viral.mgt', 
-      no_hp: '0819-0000-1111',
-      alasan: 'Talent tidak datang saat event, management lepas tangan dan blokir kontak brand.', 
-      jumlah_laporan: 12,
-      created_at: STATIC_DATE,
-      updated_at: STATIC_DATE,
-      tiktok: 'viral.mgt.tiktok',
-      report_id: null
-    }
-  ];
 
   useEffect(() => {
     fetchStats()
@@ -58,11 +25,9 @@ export default function Home() {
           kol: data.filter(d => d.kategori === 'KOL').length,
           mg: data.filter(d => d.kategori === 'MG').length
         })
-      } else {
-        setStats(MOCK_STATS) // Fallback to mock
       }
-    } catch (e) {
-      setStats(MOCK_STATS)
+    } catch {
+      // Keep default stats (0)
     }
   }
 
@@ -84,18 +49,13 @@ export default function Home() {
         .or(`nama.ilike.%${searchTerm}%,no_hp.ilike.%${searchTerm}%,instagram.ilike.%${searchTerm}%,tiktok.ilike.%${searchTerm}%`)
         .order('created_at', { ascending: false })
       
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         setResults(data as Blacklist[])
       } else {
-        // Fallback or just mock search for "test"
-        if (searchTerm.includes('test') || searchTerm.includes('sarah') || searchTerm.includes('viral')) {
-          setResults(MOCK_RESULTS);
-        } else {
-           setResults([]);
-        }
+        setResults([])
       }
     } catch {
-       if (searchTerm.includes('test')) setResults(MOCK_RESULTS);
+      setResults([])
     }
 
     setLoading(false)

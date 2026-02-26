@@ -6,6 +6,10 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate'
+          },
+          {
             key: 'X-DNS-Prefetch-Control',
             value: 'on'
           },
