@@ -442,7 +442,17 @@ export default function AdminPage() {
     
     setProcessing(report.id)
     
-    // Remove from blacklist
+    // Remove from blacklist — match by multiple fields since report_id may differ for merged entries
+    const conditions = []
+    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
+    if (report.no_hp) conditions.push(`no_hp.eq.${report.no_hp}`)
+    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (report.tiktok) conditions.push(`tiktok.ilike.${report.tiktok}`)
+    
+    if (conditions.length > 0) {
+      await supabase.from('blacklist').delete().or(conditions.join(','))
+    }
+    // Also try by report_id as fallback
     await supabase.from('blacklist').delete().eq('report_id', report.id)
     
     // Update report status to 'resolved'
@@ -1114,4 +1124,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
