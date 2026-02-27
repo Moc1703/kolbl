@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase, Report, IndikasiReport, FraudReport, AdminLog } from '@/lib/supabase'
+import { supabase, Report, IndikasiReport, FraudReport, AdminLog, IndikasiBanding, FraudBanding } from '@/lib/supabase'
 
 interface UnblacklistRequest {
   id: string
@@ -42,6 +42,18 @@ export default function AdminPage() {
   const [indikasiReports, setIndikasiReports] = useState<IndikasiReport[]>([])
   const [fraudReports, setFraudReports] = useState<FraudReport[]>([])
   const [adminLogs, setAdminLogs] = useState<AdminLog[]>([])
+  // NEW: filters for indikasi/fraud/banding tabs
+  const [indikasiFilter, setIndikasiFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending')
+  const [fraudFilter, setFraudFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending')
+  const [bandingFilter, setBandingFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending')
+  // NEW: indikasi/fraud banding management
+  const [indikasiBandingList, setIndikasiBandingList] = useState<IndikasiBanding[]>([])
+  const [fraudBandingList, setFraudBandingList] = useState<FraudBanding[]>([])
+  // NEW: detail modals for indikasi/fraud
+  const [selectedIndikasi, setSelectedIndikasi] = useState<IndikasiReport | null>(null)
+  const [selectedFraud, setSelectedFraud] = useState<FraudReport | null>(null)
+  // NEW: initial pending counts (before tabs are clicked)
+  const [initialCounts, setInitialCounts] = useState({ reports: 0, banding: 0, indikasi: 0, fraud: 0 })
 
   useEffect(() => {
     // Check for admin_user cookie
@@ -63,23 +75,38 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isLoggedIn) {
+      // Fetch initial pending counts for all tabs
+      const fetchCounts = async () => {
+        const [r1, r2, r3, r4] = await Promise.all([
+          supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+          supabase.from('unblacklist_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+          supabase.from('indikasi_reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+          supabase.from('fraud_reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+        ])
+        setInitialCounts({
+          reports: r1.count || 0,
+          banding: r2.count || 0,
+          indikasi: r3.count || 0,
+          fraud: r4.count || 0
+        })
+      }
+      fetchCounts()
+
       if (activeTab === 'laporan') {
         fetchReports()
       } else if (activeTab === 'banding') {
         fetchBandingRequests()
       } else if (activeTab === 'indikasi') {
         fetchIndikasiReports()
+        fetchIndikasiBanding()
       } else if (activeTab === 'fraud') {
         fetchFraudReports()
+        fetchFraudBanding()
       } else if (activeTab === 'log') {
         fetchAdminLogs()
       }
-      // Load banding count for badge
-      supabase.from('unblacklist_requests').select('*').then(({ data }) => {
-        setBandingRequests(data || [])
-      })
     }
-  }, [isLoggedIn, filter, kategoriFilter, activeTab])
+  }, [isLoggedIn, filter, kategoriFilter, indikasiFilter, fraudFilter, bandingFilter, activeTab])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -152,32 +179,39 @@ export default function AdminPage() {
 
   const fetchBandingRequests = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('unblacklist_requests')
-      .select('*')
-      .order('created_at', { ascending: false })
+    let query = supabase.from('unblacklist_requests').select('*').order('created_at', { ascending: false })
+    if (bandingFilter !== 'all') query = query.eq('status', bandingFilter)
+    const { data } = await query
     setBandingRequests(data || [])
     setLoading(false)
   }
 
   const fetchIndikasiReports = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('indikasi_reports')
-      .select('*')
-      .order('created_at', { ascending: false })
+    let query = supabase.from('indikasi_reports').select('*').order('created_at', { ascending: false })
+    if (indikasiFilter !== 'all') query = query.eq('status', indikasiFilter)
+    const { data } = await query
     setIndikasiReports(data || [])
     setLoading(false)
   }
 
   const fetchFraudReports = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('fraud_reports')
-      .select('*')
-      .order('created_at', { ascending: false })
+    let query = supabase.from('fraud_reports').select('*').order('created_at', { ascending: false })
+    if (fraudFilter !== 'all') query = query.eq('status', fraudFilter)
+    const { data } = await query
     setFraudReports(data || [])
     setLoading(false)
+  }
+
+  const fetchIndikasiBanding = async () => {
+    const { data } = await supabase.from('indikasi_banding').select('*').order('created_at', { ascending: false })
+    setIndikasiBandingList(data || [])
+  }
+
+  const fetchFraudBanding = async () => {
+    const { data } = await supabase.from('fraud_banding').select('*').order('created_at', { ascending: false })
+    setFraudBandingList(data || [])
   }
 
   const handleApproveIndikasi = async (report: IndikasiReport) => {
@@ -280,6 +314,100 @@ export default function AdminPage() {
     await logAction('reject_fraud', 'fraud', report.id, `Rejected fraud: ${report.nama}`)
     setProcessing(null)
     fetchFraudReports()
+  }
+
+  // NEW: Unblacklist Indikasi
+  const handleUnblacklistIndikasi = async (report: IndikasiReport) => {
+    if (!confirm('Yakin clear/unblacklist indikasi ini?')) return
+    setProcessing(report.id)
+    const conditions = []
+    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (conditions.length > 0) {
+      await supabase.from('indikasi_list').delete().or(conditions.join(','))
+    }
+    await supabase.from('indikasi_reports').update({
+      status: 'resolved', review_note: 'Unblacklisted - masalah sudah clear'
+    }).eq('id', report.id)
+    await logAction('approve_banding', 'indikasi', report.id, `Unblacklisted indikasi: ${report.nama}`)
+    setProcessing(null)
+    fetchIndikasiReports()
+  }
+
+  // NEW: Unblacklist Fraud
+  const handleUnblacklistFraud = async (report: FraudReport) => {
+    if (!confirm('Yakin clear/unblacklist fraud ini?')) return
+    setProcessing(report.id)
+    const conditions = []
+    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (conditions.length > 0) {
+      await supabase.from('fraud_list').delete().or(conditions.join(','))
+    }
+    await supabase.from('fraud_reports').update({
+      status: 'resolved', review_note: 'Unblacklisted - masalah sudah clear'
+    }).eq('id', report.id)
+    await logAction('approve_banding', 'fraud', report.id, `Unblacklisted fraud: ${report.nama}`)
+    setProcessing(null)
+    fetchFraudReports()
+  }
+
+  // NEW: Approve/Reject Indikasi Banding
+  const handleApproveIndikasiBanding = async (req: IndikasiBanding) => {
+    if (!confirm('Yakin approve banding indikasi ini?')) return
+    setProcessing(req.id)
+    const conditions = []
+    if (req.nama) conditions.push(`nama.ilike.%${req.nama}%`)
+    if (req.instagram) conditions.push(`instagram.ilike.${req.instagram}`)
+    if (conditions.length > 0) {
+      await supabase.from('indikasi_list').delete().or(conditions.join(','))
+    }
+    await supabase.from('indikasi_banding').update({
+      status: 'approved', reviewed_at: new Date().toISOString()
+    }).eq('id', req.id)
+    await logAction('approve_banding', 'indikasi', req.id, `Approved indikasi banding: ${req.nama}`)
+    setProcessing(null)
+    fetchIndikasiBanding()
+  }
+
+  const handleRejectIndikasiBanding = async (req: IndikasiBanding) => {
+    if (!confirm('Yakin reject banding ini?')) return
+    setProcessing(req.id)
+    await supabase.from('indikasi_banding').update({
+      status: 'rejected', reviewed_at: new Date().toISOString()
+    }).eq('id', req.id)
+    await logAction('reject_banding', 'indikasi', req.id, `Rejected indikasi banding: ${req.nama}`)
+    setProcessing(null)
+    fetchIndikasiBanding()
+  }
+
+  // NEW: Approve/Reject Fraud Banding
+  const handleApproveFraudBanding = async (req: FraudBanding) => {
+    if (!confirm('Yakin approve banding fraud ini?')) return
+    setProcessing(req.id)
+    const conditions = []
+    if (req.nama) conditions.push(`nama.ilike.%${req.nama}%`)
+    if (req.instagram) conditions.push(`instagram.ilike.${req.instagram}`)
+    if (conditions.length > 0) {
+      await supabase.from('fraud_list').delete().or(conditions.join(','))
+    }
+    await supabase.from('fraud_banding').update({
+      status: 'approved', reviewed_at: new Date().toISOString()
+    }).eq('id', req.id)
+    await logAction('approve_banding', 'fraud', req.id, `Approved fraud banding: ${req.nama}`)
+    setProcessing(null)
+    fetchFraudBanding()
+  }
+
+  const handleRejectFraudBanding = async (req: FraudBanding) => {
+    if (!confirm('Yakin reject banding ini?')) return
+    setProcessing(req.id)
+    await supabase.from('fraud_banding').update({
+      status: 'rejected', reviewed_at: new Date().toISOString()
+    }).eq('id', req.id)
+    await logAction('reject_banding', 'fraud', req.id, `Rejected fraud banding: ${req.nama}`)
+    setProcessing(null)
+    fetchFraudBanding()
   }
 
   const handleApproveBanding = async (req: UnblacklistRequest) => {
@@ -527,10 +655,12 @@ export default function AdminPage() {
     setAdminUser(null)
   }
 
-  const pendingReports = reports.filter(r => r.status === 'pending').length
-  const pendingBanding = bandingRequests.filter(r => r.status === 'pending').length
-  const pendingIndikasi = indikasiReports.filter(r => r.status === 'pending').length
-  const pendingFraud = fraudReports.filter(r => r.status === 'pending').length
+  const pendingReports = reports.length > 0 ? reports.filter(r => r.status === 'pending').length : initialCounts.reports
+  const pendingBanding = bandingRequests.length > 0 ? bandingRequests.filter(r => r.status === 'pending').length : initialCounts.banding
+  const pendingIndikasi = indikasiReports.length > 0 ? indikasiReports.filter(r => r.status === 'pending').length : initialCounts.indikasi
+  const pendingFraud = fraudReports.length > 0 ? fraudReports.filter(r => r.status === 'pending').length : initialCounts.fraud
+  const pendingIndikasiBanding = indikasiBandingList.filter(r => r.status === 'pending').length
+  const pendingFraudBanding = fraudBandingList.filter(r => r.status === 'pending').length
   const totalPending = pendingReports + pendingBanding + pendingIndikasi + pendingFraud
 
   if (!isLoggedIn) {
@@ -834,6 +964,27 @@ export default function AdminPage() {
         {/* Banding Tab */}
         {activeTab === 'banding' && (
           <div>
+            {/* Status Filter */}
+            <div className="bg-white rounded-2xl shadow-sm p-3 mb-3">
+              <div className="flex gap-1.5 overflow-x-auto pb-1">
+                {[
+                  { key: 'all', label: 'Semua', color: 'bg-gray-800' },
+                  { key: 'pending', label: '⏳ Pending', color: 'bg-yellow-500' },
+                  { key: 'approved', label: '✅ Approved', color: 'bg-green-500' },
+                  { key: 'rejected', label: '❌ Rejected', color: 'bg-red-500' },
+                ].map((f) => (
+                  <button
+                    key={f.key}
+                    onClick={() => setBandingFilter(f.key as typeof bandingFilter)}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
+                      bandingFilter === f.key ? `${f.color} text-white shadow-sm` : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="w-8 h-8 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
@@ -885,6 +1036,27 @@ export default function AdminPage() {
         {/* Indikasi Tab */}
         {activeTab === 'indikasi' && (
           <div>
+            {/* Status Filter */}
+            <div className="bg-white rounded-2xl shadow-sm p-3 mb-3">
+              <div className="flex gap-1.5 overflow-x-auto pb-1">
+                {[
+                  { key: 'all', label: 'Semua', color: 'bg-gray-800' },
+                  { key: 'pending', label: '⏳ Pending', color: 'bg-yellow-500' },
+                  { key: 'approved', label: '✅ Aktif', color: 'bg-green-500' },
+                  { key: 'rejected', label: '❌ Reject', color: 'bg-red-500' },
+                ].map((f) => (
+                  <button
+                    key={f.key}
+                    onClick={() => setIndikasiFilter(f.key as typeof indikasiFilter)}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
+                      indikasiFilter === f.key ? `${f.color} text-white shadow-sm` : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="w-8 h-8 border-3 border-yellow-200 border-t-yellow-600 rounded-full animate-spin"></div>
@@ -913,7 +1085,10 @@ export default function AdminPage() {
                         {report.instagram && `@${report.instagram}`}{report.instagram && report.no_hp && ' • '}{report.no_hp}{' • '}{new Date(report.created_at).toLocaleDateString('id-ID')}
                       </p>
                       <div className="bg-amber-50 rounded-xl p-3 mb-3 border border-amber-100">
-                        <p className="text-xs text-gray-700 line-clamp-3">{report.kronologi}</p>
+                        <p className="text-xs text-gray-700 line-clamp-2">{report.kronologi}</p>
+                        <button onClick={() => setSelectedIndikasi(report)} className="text-[11px] text-amber-600 font-medium mt-1.5 hover:underline">
+                          📖 Baca Lengkap →
+                        </button>
                       </div>
                       <div className="flex flex-wrap gap-1.5 text-[10px] mb-3">
                         {report.bukti_url && <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">📎 Bukti</a>}
@@ -925,9 +1100,58 @@ export default function AdminPage() {
                           <button onClick={() => handleRejectIndikasi(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">❌ Reject</button>
                         </div>
                       )}
+                      {report.status === 'approved' && (
+                        <button onClick={() => handleUnblacklistIndikasi(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-500 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">
+                          🔓 Clear / Unblacklist
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Indikasi Banding Sub-section */}
+            {indikasiBandingList.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                  ⚖️ Banding Indikasi
+                  {pendingIndikasiBanding > 0 && <span className="w-5 h-5 bg-amber-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{pendingIndikasiBanding}</span>}
+                </h3>
+                <div className="space-y-3">
+                  {indikasiBandingList.map((req) => (
+                    <div key={req.id} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100"
+                      style={{ borderLeft: `3px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <h3 className="font-bold text-gray-800 text-sm">{req.nama}</h3>
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                            req.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                            req.status === 'approved' ? 'bg-green-100 text-green-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>{req.status}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 mb-3">
+                          {req.instagram && `@${req.instagram}`}{req.instagram && req.no_hp && ' • '}{req.no_hp}{' • '}{new Date(req.created_at).toLocaleDateString('id-ID')}
+                        </p>
+                        <div className="bg-amber-50 rounded-xl p-3 mb-3 border border-amber-100">
+                          <p className="text-[10px] text-amber-600 font-semibold mb-1">Alasan Banding:</p>
+                          <p className="text-xs text-gray-700">{req.alasan_banding}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 text-[10px] mb-3">
+                          {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">📎 Bukti Clear</a>}
+                          {req.kontak && <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">📞 {req.kontak}</span>}
+                        </div>
+                        {req.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <button onClick={() => handleApproveIndikasiBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">✅ Approve</button>
+                            <button onClick={() => handleRejectIndikasiBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">❌ Reject</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -936,6 +1160,27 @@ export default function AdminPage() {
         {/* Fraud Tab */}
         {activeTab === 'fraud' && (
           <div>
+            {/* Status Filter */}
+            <div className="bg-white rounded-2xl shadow-sm p-3 mb-3">
+              <div className="flex gap-1.5 overflow-x-auto pb-1">
+                {[
+                  { key: 'all', label: 'Semua', color: 'bg-gray-800' },
+                  { key: 'pending', label: '⏳ Pending', color: 'bg-yellow-500' },
+                  { key: 'approved', label: '✅ Aktif', color: 'bg-green-500' },
+                  { key: 'rejected', label: '❌ Reject', color: 'bg-red-500' },
+                ].map((f) => (
+                  <button
+                    key={f.key}
+                    onClick={() => setFraudFilter(f.key as typeof fraudFilter)}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
+                      fraudFilter === f.key ? `${f.color} text-white shadow-sm` : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="w-8 h-8 border-3 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
@@ -968,7 +1213,10 @@ export default function AdminPage() {
                         {report.no_hp}{' • '}{new Date(report.created_at).toLocaleDateString('id-ID')}
                       </p>
                       <div className="bg-red-50 rounded-xl p-3 mb-3 border border-red-100">
-                        <p className="text-xs text-gray-700 line-clamp-3">{report.kronologi}</p>
+                        <p className="text-xs text-gray-700 line-clamp-2">{report.kronologi}</p>
+                        <button onClick={() => setSelectedFraud(report)} className="text-[11px] text-red-600 font-medium mt-1.5 hover:underline">
+                          📖 Baca Lengkap →
+                        </button>
                       </div>
                       <div className="flex flex-wrap gap-1.5 text-[10px] mb-3">
                         {report.bukti_url && <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">📎 Bukti</a>}
@@ -981,9 +1229,58 @@ export default function AdminPage() {
                           <button onClick={() => handleRejectFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">❌ Reject</button>
                         </div>
                       )}
+                      {report.status === 'approved' && (
+                        <button onClick={() => handleUnblacklistFraud(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-500 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">
+                          🔓 Clear / Unblacklist
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Fraud Banding Sub-section */}
+            {fraudBandingList.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                  ⚖️ Banding Fraud
+                  {pendingFraudBanding > 0 && <span className="w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{pendingFraudBanding}</span>}
+                </h3>
+                <div className="space-y-3">
+                  {fraudBandingList.map((req) => (
+                    <div key={req.id} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100"
+                      style={{ borderLeft: `3px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <h3 className="font-bold text-gray-800 text-sm">{req.nama}</h3>
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                            req.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                            req.status === 'approved' ? 'bg-green-100 text-green-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>{req.status}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 mb-3">
+                          {req.instagram && `@${req.instagram}`}{req.instagram && req.no_hp && ' • '}{req.no_hp}{' • '}{new Date(req.created_at).toLocaleDateString('id-ID')}
+                        </p>
+                        <div className="bg-red-50 rounded-xl p-3 mb-3 border border-red-100">
+                          <p className="text-[10px] text-red-600 font-semibold mb-1">Alasan Banding:</p>
+                          <p className="text-xs text-gray-700">{req.alasan_banding}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 text-[10px] mb-3">
+                          {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">📎 Bukti Clear</a>}
+                          {req.kontak && <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">📞 {req.kontak}</span>}
+                        </div>
+                        {req.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <button onClick={() => handleApproveFraudBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-600 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">✅ Approve</button>
+                            <button onClick={() => handleRejectFraudBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-xs font-semibold disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all">❌ Reject</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -1111,6 +1408,123 @@ export default function AdminPage() {
                   <div className="flex gap-2 pt-2">
                     <button onClick={() => { handleApprove(selectedReport); setSelectedReport(null); }} disabled={processing === selectedReport.id} className="flex-1 py-3 bg-green-600 text-white rounded-xl font-semibold disabled:opacity-50 shadow-sm">✅ Approve</button>
                     <button onClick={() => { handleReject(selectedReport); setSelectedReport(null); }} disabled={processing === selectedReport.id} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold disabled:opacity-50 shadow-sm">❌ Reject</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Indikasi Detail Modal */}
+        {selectedIndikasi && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center" onClick={() => setSelectedIndikasi(null)}>
+            <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex justify-between items-start rounded-t-3xl sm:rounded-t-2xl">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800">{selectedIndikasi.nama}</h2>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-700">{selectedIndikasi.kategori_masalah}</span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                      selectedIndikasi.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      selectedIndikasi.status === 'approved' ? 'bg-green-100 text-green-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>{selectedIndikasi.status}</span>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedIndikasi(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 text-lg">&times;</button>
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="bg-gray-50 rounded-xl p-3 space-y-2">
+                  {selectedIndikasi.no_hp && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">📱</span> <span className="font-medium">{selectedIndikasi.no_hp}</span></div>}
+                  {selectedIndikasi.instagram && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">📷</span> <span className="font-medium">@{selectedIndikasi.instagram}</span></div>}
+                  {selectedIndikasi.tiktok && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">🎵</span> <span className="font-medium">@{selectedIndikasi.tiktok}</span></div>}
+                  {selectedIndikasi.asal_mg && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">🏢</span> <span className="font-medium">{selectedIndikasi.asal_mg}</span></div>}
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-2 font-semibold">📝 Kronologi Lengkap</p>
+                  <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{selectedIndikasi.kronologi}</p>
+                  </div>
+                </div>
+                {selectedIndikasi.bukti_url && (
+                  <div>
+                    <p className="text-xs text-gray-400 mb-2 font-semibold">📎 Link Bukti</p>
+                    <a href={selectedIndikasi.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm break-all hover:underline">{selectedIndikasi.bukti_url}</a>
+                  </div>
+                )}
+                {(selectedIndikasi.pelapor_nama || selectedIndikasi.pelapor_kontak) && (
+                  <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
+                    <p className="text-xs text-blue-600 mb-2 font-semibold">👤 Data Pelapor (Rahasia)</p>
+                    {selectedIndikasi.pelapor_nama && <p className="text-sm">Nama: {selectedIndikasi.pelapor_nama}</p>}
+                    {selectedIndikasi.pelapor_kontak && <p className="text-sm">Kontak: {selectedIndikasi.pelapor_kontak}</p>}
+                  </div>
+                )}
+                <p className="text-xs text-gray-300">
+                  Dilaporkan: {new Date(selectedIndikasi.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+                {selectedIndikasi.status === 'pending' && (
+                  <div className="flex gap-2 pt-2">
+                    <button onClick={() => { handleApproveIndikasi(selectedIndikasi); setSelectedIndikasi(null); }} disabled={processing === selectedIndikasi.id} className="flex-1 py-3 bg-green-600 text-white rounded-xl font-semibold disabled:opacity-50 shadow-sm">✅ Approve</button>
+                    <button onClick={() => { handleRejectIndikasi(selectedIndikasi); setSelectedIndikasi(null); }} disabled={processing === selectedIndikasi.id} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold disabled:opacity-50 shadow-sm">❌ Reject</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Fraud Detail Modal */}
+        {selectedFraud && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center" onClick={() => setSelectedFraud(null)}>
+            <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex justify-between items-start rounded-t-3xl sm:rounded-t-2xl">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800">{selectedFraud.nama}</h2>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700">{selectedFraud.jenis_fraud}</span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                      selectedFraud.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      selectedFraud.status === 'approved' ? 'bg-green-100 text-green-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>{selectedFraud.status}</span>
+                    {selectedFraud.nominal && <span className="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700">Rp {selectedFraud.nominal.toLocaleString('id-ID')}</span>}
+                  </div>
+                </div>
+                <button onClick={() => setSelectedFraud(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 text-lg">&times;</button>
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="bg-gray-50 rounded-xl p-3 space-y-2">
+                  {selectedFraud.no_hp && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">📱</span> <span className="font-medium">{selectedFraud.no_hp}</span></div>}
+                  {selectedFraud.instagram && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">📷</span> <span className="font-medium">@{selectedFraud.instagram}</span></div>}
+                  {selectedFraud.tiktok && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">🎵</span> <span className="font-medium">@{selectedFraud.tiktok}</span></div>}
+                  {selectedFraud.metode_pembayaran && <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">💳</span> <span className="font-medium">{selectedFraud.metode_pembayaran}</span></div>}
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-2 font-semibold">📝 Kronologi Lengkap</p>
+                  <div className="bg-red-50 rounded-xl p-4 border border-red-100">
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{selectedFraud.kronologi}</p>
+                  </div>
+                </div>
+                {selectedFraud.bukti_url && (
+                  <div>
+                    <p className="text-xs text-gray-400 mb-2 font-semibold">📎 Link Bukti</p>
+                    <a href={selectedFraud.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm break-all hover:underline">{selectedFraud.bukti_url}</a>
+                  </div>
+                )}
+                {(selectedFraud.pelapor_nama || selectedFraud.pelapor_kontak) && (
+                  <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
+                    <p className="text-xs text-blue-600 mb-2 font-semibold">👤 Data Pelapor (Rahasia)</p>
+                    {selectedFraud.pelapor_nama && <p className="text-sm">Nama: {selectedFraud.pelapor_nama}</p>}
+                    {selectedFraud.pelapor_kontak && <p className="text-sm">Kontak: {selectedFraud.pelapor_kontak}</p>}
+                  </div>
+                )}
+                <p className="text-xs text-gray-300">
+                  Dilaporkan: {new Date(selectedFraud.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+                {selectedFraud.status === 'pending' && (
+                  <div className="flex gap-2 pt-2">
+                    <button onClick={() => { handleApproveFraud(selectedFraud); setSelectedFraud(null); }} disabled={processing === selectedFraud.id} className="flex-1 py-3 bg-green-600 text-white rounded-xl font-semibold disabled:opacity-50 shadow-sm">✅ Approve</button>
+                    <button onClick={() => { handleRejectFraud(selectedFraud); setSelectedFraud(null); }} disabled={processing === selectedFraud.id} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold disabled:opacity-50 shadow-sm">❌ Reject</button>
                   </div>
                 )}
               </div>
