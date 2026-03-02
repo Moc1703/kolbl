@@ -65,25 +65,26 @@ export default function LaporPage() {
 
   if (success) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
-          <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold text-green-800 mb-3">Laporan Terkirim!</h2>
-          <p className="text-green-600 mb-6">
-            Terima kasih sudah melapor. Tim kami akan review dan verifikasi laporan kamu.
+      <div className="max-w-2xl mx-auto px-4 py-12 font-sans">
+        <div className="bg-green-950/30 border border-green-900/50 rounded-sm p-8 text-center panel-dark relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+          <div className="text-5xl mb-4 opacity-80">✅</div>
+          <h2 className="text-2xl font-black text-green-500 uppercase tracking-tight mb-3">Laporan Terkirim</h2>
+          <p className="text-green-400/80 font-mono text-sm mb-6">
+            Terima kasih telah berpartisipasi. Dossier akan direview dan diverifikasi oleh tim kami.
           </p>
-          <div className="space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
             <button 
               onClick={() => setSuccess(false)}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-6 py-3 bg-green-700 text-black font-bold uppercase tracking-widest rounded-sm hover:bg-green-600 transition-colors"
             >
-              Buat Laporan Lagi
+              LAPOR LAGI
             </button>
             <a 
               href="/"
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 inline-block"
+              className="px-6 py-3 bg-neutral-900 text-neutral-400 font-bold uppercase tracking-widest border border-neutral-700 rounded-sm hover:bg-neutral-800 hover:text-white transition-colors flex items-center justify-center"
             >
-              Kembali ke Home
+              KEMBALI KE HOME
             </a>
           </div>
         </div>
@@ -92,22 +93,29 @@ export default function LaporPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 md:py-8">
-      <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">📝 Form Laporan</h1>
-        <p className="text-gray-600">
-          Laporkan KOL atau Management yang merugikan. Laporan akan direview sebelum dipublikasikan.
+    <div className="max-w-2xl mx-auto px-4 py-6 md:py-8 font-sans">
+      <div className="mb-8 border-b-2 border-neutral-800 pb-4">
+        <h1 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight flex items-center gap-3 mb-2">
+          <span className="text-red-600">📝</span> FORM LAPORAN
+        </h1>
+        <p className="text-neutral-500 font-mono text-sm uppercase tracking-wider">
+          Laporkan entitas bermasalah. Laporan akan di-screening ketat.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-4 md:p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="panel-dark p-6 md:p-8 space-y-8 relative">
+        <div className="absolute top-0 left-0 w-w-full h-1 bg-gradient-to-r from-red-600 to-red-900"></div>
+
         {/* Data KOL/MG */}
-        <div>
-          <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b">Data KOL/MG yang Dilaporkan</h3>
+        <section>
+          <div className="flex items-center gap-3 mb-6 pb-2 border-b border-neutral-800">
+            <span className="bg-red-900/30 text-red-500 font-mono text-xs px-2 py-0.5 border border-red-900/50 rounded-sm">SEC-01</span>
+            <h3 className="font-bold text-white uppercase tracking-wider">SUBJEK TERLAPOR</h3>
+          </div>
           
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">
                 Nama KOL/MG <span className="text-red-500">*</span>
               </label>
               <input
@@ -115,159 +123,165 @@ export default function LaporPage() {
                 required
                 value={form.nama}
                 onChange={(e) => setForm({...form, nama: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Nama lengkap atau nama yang dikenal"
+                className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-700"
+                placeholder="NAMA LENGKAP / ALIAS"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">No HP/WhatsApp</label>
+                <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">No HP/WhatsApp</label>
                 <input
                   type="text"
                   value={form.no_hp}
                   onChange={(e) => setForm({...form, no_hp: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
-                  placeholder="08xxxxxxxxxx"
+                  className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-700"
+                  placeholder="08XXXXXXXXXX"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kategori <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Kategori <span className="text-red-500">*</span></label>
                 <select
                   value={form.kategori}
                   onChange={(e) => setForm({...form, kategori: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
+                  className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-mono text-sm uppercase cursor-pointer"
                 >
-                  <option value="KOL">KOL (Key Opinion Leader)</option>
-                  <option value="MG">MG (Management)</option>
+                  <option value="KOL">KOL (INFLUENCER)</option>
+                  <option value="MG">MG (MANAGEMENT)</option>
                 </select>
               </div>
             </div>
 
             {form.kategori === 'KOL' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Asal Management</label>
+                <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Asal Management</label>
                 <input
                   type="text"
                   value={form.asal_mg}
                   onChange={(e) => setForm({...form, asal_mg: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
-                  placeholder="Nama management yang menaungi KOL ini (jika ada)"
+                  className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-700"
+                  placeholder="NAMA MANAGEMENT (JIKA ADA)"
                 />
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Username Instagram</label>
+                <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Instagram</label>
                 <div className="flex">
-                  <span className="px-3 py-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-500">@</span>
+                  <span className="px-3 py-3 bg-neutral-900 border border-neutral-800 border-r-0 rounded-l-sm text-neutral-500 font-mono">@</span>
                   <input
                     type="text"
                     value={form.instagram}
                     onChange={(e) => setForm({...form, instagram: e.target.value})}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
-                    placeholder="username"
+                    className="flex-1 px-4 py-3 bg-black border border-neutral-800 rounded-r-sm text-white focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-700"
+                    placeholder="USERNAME"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Username TikTok</label>
+                <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">TikTok</label>
                 <div className="flex">
-                  <span className="px-3 py-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-500">@</span>
+                  <span className="px-3 py-3 bg-neutral-900 border border-neutral-800 border-r-0 rounded-l-sm text-neutral-500 font-mono">@</span>
                   <input
                     type="text"
                     value={form.tiktok}
                     onChange={(e) => setForm({...form, tiktok: e.target.value})}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
-                    placeholder="username"
+                    className="flex-1 px-4 py-3 bg-black border border-neutral-800 rounded-r-sm text-white focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-700"
+                    placeholder="USERNAME"
                   />
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Kronologi */}
-        <div>
-          <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b">Detail Laporan</h3>
+        <section>
+          <div className="flex items-center gap-3 mb-6 pb-2 border-b border-neutral-800">
+            <span className="bg-red-900/30 text-red-500 font-mono text-xs px-2 py-0.5 border border-red-900/50 rounded-sm">SEC-02</span>
+            <h3 className="font-bold text-white uppercase tracking-wider">INCIDENT REPORT</h3>
+          </div>
           
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">
                 Kronologi Kejadian <span className="text-red-500">*</span>
               </label>
               <textarea
                 required
-                rows={5}
+                rows={6}
                 value={form.kronologi}
                 onChange={(e) => setForm({...form, kronologi: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Ceritakan kronologi kejadian secara detail: kapan, bagaimana kerjasamanya, apa yang terjadi, kerugian yang dialami, dll."
+                className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-neutral-300 focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-serif italic text-sm placeholder-neutral-700 leading-relaxed"
+                placeholder="Tuliskan kronologi lengkap, kerugian, dan rincian kejadian."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Link Bukti</label>
+              <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Link Bukti Pendukung</label>
               <input
                 type="url"
                 value={form.bukti_url}
                 onChange={(e) => setForm({...form, bukti_url: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Link Google Drive, Imgur, atau cloud storage lainnya"
+                className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-blue-400 focus:outline-none focus:border-red-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-700"
+                placeholder="HTTPS://DRIVE.GOOGLE.COM/..."
               />
-              <p className="text-xs text-gray-500 mt-1">Upload bukti ke Google Drive/Imgur lalu paste linknya di sini</p>
+              <p className="text-[10px] uppercase tracking-widest font-mono text-neutral-500 mt-2">Masukan link GDrive/Imgur yang berisi bukti chat/transfer/dokumen.</p>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Data Pelapor */}
-        <div>
-          <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b">Data Pelapor (Opsional)</h3>
-          <p className="text-sm text-gray-500 mb-4">Data ini tidak akan dipublikasikan, hanya untuk verifikasi oleh admin.</p>
+        <section>
+          <div className="flex items-center gap-3 mb-6 pb-2 border-b border-neutral-800">
+            <span className="bg-neutral-800 text-neutral-400 font-mono text-xs px-2 py-0.5 rounded-sm">SEC-EX</span>
+            <h3 className="font-bold text-neutral-300 uppercase tracking-wider">DATA PELAPOR (RAHASIA)</h3>
+          </div>
+          <p className="text-xs font-mono text-neutral-500 mb-5 uppercase tracking-widest border-l-2 border-neutral-700 pl-3">Data ini dienkripsi dan hanya diakses oleh Admin untuk verifikasi.</p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nama Kamu</label>
+              <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Identitas</label>
               <input
                 type="text"
                 value={form.pelapor_nama}
                 onChange={(e) => setForm({...form, pelapor_nama: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
-                placeholder="Nama lengkap"
+                className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-sm text-neutral-400 focus:outline-none focus:border-neutral-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-800"
+                placeholder="NAMA ANDA"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kontak Kamu</label>
+              <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Kontak Darurat</label>
               <input
                 type="text"
                 value={form.pelapor_kontak}
                 onChange={(e) => setForm({...form, pelapor_kontak: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
-                placeholder="No HP/Email untuk konfirmasi"
+                className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-sm text-neutral-400 focus:outline-none focus:border-neutral-500 focus:bg-neutral-900 transition-colors font-mono text-sm placeholder-neutral-800"
+                placeholder="HP / EMAIL"
               />
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-sm text-yellow-800">
-            ⚠️ <strong>Perhatian:</strong> Pastikan laporan berdasarkan fakta. Laporan palsu atau fitnah dapat berakibat hukum.
+        <div className="bg-yellow-900/10 border border-yellow-900/50 rounded-sm p-4">
+          <p className="text-xs font-mono text-yellow-600 uppercase tracking-widest leading-relaxed">
+            <span className="font-bold">⚠️ PERINGATAN HUKUM:</span> Laporan palsu, fitnah, atau manipulasi data dapat dituntut sesuai undang-undang ITE yang berlaku.
           </p>
         </div>
 
         {/* Terms & Liability Agreement */}
-        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
-          <label className="flex items-start gap-3 cursor-pointer">
+        <div className="bg-red-950/20 border border-red-900/50 rounded-sm p-5 hover:bg-red-950/40 transition-colors">
+          <label className="flex items-start gap-4 cursor-pointer">
             <input
               type="checkbox"
               required
               checked={agreedToTerms}
               onChange={(e) => setAgreedToTerms(e.target.checked)}
-              className="mt-1 w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer flex-shrink-0"
+              className="mt-1 w-5 h-5 accent-red-600 bg-neutral-900 border-neutral-700 rounded-sm focus:ring-red-500 cursor-pointer flex-shrink-0"
             />
-            <span className="text-sm text-gray-800 leading-relaxed">
-              <strong className="text-red-700">Saya menyatakan bukti ini ASLI & BENAR.</strong> Saya bertanggung jawab penuh secara hukum apabila laporan ini palsu. Platform dibebaskan dari tuntutan.
+            <span className="text-xs font-mono text-neutral-400 leading-relaxed uppercase tracking-wider">
+              <strong className="text-red-500">SAYA MENYATAKAN BUKTI INI ASLI & BENAR.</strong> Saya bertanggung jawab penuh secara hukum apabila laporan ini palsu. Platform dibebaskan dari segala tuntutan hukum.
             </span>
           </label>
         </div>
@@ -275,9 +289,19 @@ export default function LaporPage() {
         <button
           type="submit"
           disabled={loading || !agreedToTerms}
-          className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 bg-red-700 text-white font-black uppercase tracking-widest rounded-sm hover:bg-red-600 active:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {loading ? 'Mengirim...' : 'Kirim Laporan'}
+          {loading ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>MEMPROSES DOSSIER...</span>
+            </>
+          ) : (
+            <>
+              <span>KIRIM DOSSIER</span>
+              <span className="text-xl">→</span>
+            </>
+          )}
         </button>
       </form>
     </div>
