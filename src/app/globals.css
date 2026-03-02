@@ -11,40 +11,50 @@
 
 body {
   font-family: var(--font-inter);
-  @apply bg-neutral-950 text-neutral-300 antialiased selection:bg-red-700 selection:text-white;
-  background-image: 
-    radial-gradient(at 50% 0%, rgba(220, 38, 38, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(0, 0, 0, 0.8) 0px, transparent 50%);
-  background-attachment: fixed;
+  background-color: #f8fafc; /* slate-50 */
+  color: #0f172a; /* slate-900 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* The selection styles are kept as they are not dark theme specific */
+  @apply selection:bg-red-600 selection:text-white;
 }
 
 @layer utilities {
-  /* Legacy classes kept but restyled to dark/solid for smooth transition */
+  /* Legacy classes kept but restyled */
   .glass {
-    @apply bg-neutral-950/95 backdrop-blur-md border border-neutral-800 shadow-none;
+    @apply bg-white/95 backdrop-blur-md border border-gray-200 shadow-sm;
   }
   
   .glass-card {
-    @apply bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors duration-200 rounded-sm shadow-sm;
+    @apply bg-white border border-gray-200 hover:border-gray-300 transition-colors duration-200 rounded-sm shadow-sm;
   }
 
   .glass-dark {
-    @apply bg-black border border-neutral-900 rounded-sm;
+    @apply bg-gray-50 border border-gray-200 rounded-sm;
   }
 
-  /* New dark theme specific utilities */
+  /* Specific utilities */
   .panel-dark {
-    @apply bg-neutral-900 border border-neutral-800 rounded-sm shadow-md;
+    @apply bg-white border border-gray-200 rounded-sm shadow-md;
   }
   
   .panel-accent {
-    @apply bg-neutral-900 border-l-4 border-l-red-600 border-t border-b border-r border-neutral-800 rounded-sm shadow-md;
+    @apply bg-white border-l-4 border-l-red-600 border-t border-b border-r border-gray-200 rounded-sm shadow-md;
+  }
+
+  .panel-light {
+    @apply bg-white border border-gray-200 rounded-sm shadow-sm;
   }
 
   .text-glow {
-    text-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+    text-shadow: 0 0 15px rgba(220, 38, 38, 0.2);
+  }
+
+  .text-highlight {
+    @apply text-red-700 font-bold;
   }
 }
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

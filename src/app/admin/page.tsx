@@ -728,53 +728,53 @@ export default function AdminPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 font-sans bg-black">
+      <div className="min-h-screen flex items-center justify-center px-4 font-sans bg-gray-50">
         <div className="w-full max-w-sm relative">
           {/* Background Accent */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-900 blur opacity-20"></div>
+          <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-red-700 blur opacity-10"></div>
           
-          <div className="relative bg-neutral-950 border border-neutral-800 p-8 shadow-2xl rounded-sm">
+          <div className="relative bg-white border border-gray-200 p-8 shadow-xl rounded-sm">
             {/* Logo */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 border-2 border-red-600 flex items-center justify-center text-2xl bg-black">
-                <span className="text-red-600 font-black">B</span>
+              <div className="w-16 h-16 mx-auto mb-4 border-2 border-red-600 flex items-center justify-center text-2xl bg-white">
+                <span className="text-red-700 font-black">B</span>
               </div>
-              <h1 className="text-xl font-black text-white uppercase tracking-widest">KOLBL ADMIN</h1>
-              <p className="text-[10px] text-neutral-500 mt-1 font-mono uppercase tracking-widest border-t border-neutral-800 pt-2 inline-block">Authorized Access Only</p>
+              <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest">KOLBL ADMIN</h1>
+              <p className="text-[10px] text-gray-500 mt-1 font-mono uppercase tracking-widest border-t border-gray-100 pt-2 inline-block">Authorized Access Only</p>
             </div>
 
             {/* Login Card */}
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-[10px] font-bold text-neutral-400 mb-1.5 uppercase tracking-widest">Operator ID</label>
+                <label className="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-widest">Operator ID</label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="USERNAME"
                   autoComplete="username"
-                  className="w-full px-4 py-3 bg-black border border-neutral-800 text-white placeholder-neutral-700 focus:outline-none focus:border-red-600 transition-colors text-sm font-mono rounded-sm"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-600 transition-colors text-sm font-mono rounded-sm"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-neutral-400 mb-1.5 uppercase tracking-widest">Passcode</label>
+                <label className="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-widest">Passcode</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="w-full px-4 py-3 bg-black border border-neutral-800 text-white placeholder-neutral-700 focus:outline-none focus:border-red-600 transition-colors text-sm font-mono rounded-sm"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-600 transition-colors text-sm font-mono rounded-sm"
                 />
               </div>
               {loginError && (
-                <div className="bg-red-950/50 border border-red-900/50 px-3 py-2 text-xs text-red-500 font-mono rounded-sm flex items-start gap-2">
+                <div className="bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-600 font-mono rounded-sm flex items-start gap-2">
                   <span className="mt-0.5">⚠️</span> <span>{loginError}</span>
                 </div>
               )}
               <button
                 type="submit"
-                className="w-full py-4 bg-red-700 text-white font-black uppercase tracking-widest transition-colors hover:bg-neutral-100 hover:text-black active:bg-neutral-300 text-xs rounded-sm mt-2"
+                className="w-full py-4 bg-red-700 text-white font-black uppercase tracking-widest transition-colors hover:bg-red-800 active:bg-red-900 text-xs rounded-sm mt-2 shadow-sm"
               >
                 INITIALIZE SESSION
               </button>
@@ -786,44 +786,54 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-neutral-300 font-sans selection:bg-red-900/50 pb-20">
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans selection:bg-red-200 pt-0 pb-20">
       {/* Header */}
-      <div className="bg-neutral-950 border-b border-neutral-800 px-4 pt-6 pb-20 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-900"></div>
+      <div className="bg-white border-b border-gray-200 px-4 pt-6 pb-20 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-700"></div>
         
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-black border border-red-800 flex items-center justify-center text-lg font-black text-red-500 rounded-sm">
+              <div className="w-10 h-10 bg-white border border-red-200 flex items-center justify-center text-lg font-black text-red-600 rounded-sm shadow-sm">
                 {(adminUser?.display_name || adminUser?.username || 'A').charAt(0).toUpperCase()}
               </div>
               <div>
-                <h1 className="text-sm font-black text-white uppercase tracking-widest">COMMAND CENTER</h1>
-                <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest">OP: {adminUser?.display_name || adminUser?.username || 'Admin'}</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OPERATOR LOGIN</p>
+                <p className="font-bold text-gray-900 text-sm">{adminUser?.display_name || adminUser?.username}</p>
               </div>
             </div>
-            <button
+            <button 
               onClick={handleLogout}
-              className="text-[10px] font-bold uppercase tracking-widest px-4 py-2 border border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors rounded-sm"
+              className="px-4 py-2 bg-white border border-gray-200 text-gray-500 text-[10px] font-bold uppercase tracking-widest hover:border-red-200 hover:text-red-600 transition-colors rounded-sm shadow-sm"
             >
               TERMINATE
             </button>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: 'LAPORAN', count: pendingReports, color: 'text-red-500', border: 'border-red-900/30', bg: 'bg-red-950/10' },
-              { label: 'BANDING', count: pendingBanding, color: 'text-orange-500', border: 'border-orange-900/30', bg: 'bg-orange-950/10' },
-              { label: 'INDIKASI', count: pendingIndikasi, color: 'text-amber-500', border: 'border-amber-900/30', bg: 'bg-amber-950/10' },
-              { label: 'FRAUD', count: pendingFraud, color: 'text-rose-500', border: 'border-rose-900/30', bg: 'bg-rose-950/10' },
-            ].map((stat) => (
-              <div key={stat.label} className={`rounded-sm p-4 text-center border ${stat.border} ${stat.bg} shadow-md relative overflow-hidden`}>
-                <div className="absolute top-0 left-0 w-1 h-full bg-neutral-800"></div>
-                <p className={`text-2xl md:text-3xl font-black ${stat.color} font-mono leading-none mb-1 md:mb-2`}>{stat.count}</p>
-                <p className="text-[9px] md:text-[10px] text-neutral-500 font-bold uppercase tracking-widest">{stat.label}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-white border border-gray-200 p-4 rounded-sm shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1 h-full bg-red-600"></div>
+              <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1 pl-2">ANTREAN LAPORAN</p>
+              <div className="text-3xl font-black text-gray-900 pl-2">{pendingReports}</div>
+            </div>
+            
+            <div className="bg-white border border-gray-200 p-4 rounded-sm shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-blue-600"></div>
+              <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1 pl-2">ANTREAN BANDING</p>
+              <div className="text-3xl font-black text-gray-900 pl-2">{pendingBanding}</div>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-sm shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+              <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1 pl-2">ANTREAN INDIKASI</p>
+              <div className="text-3xl font-black text-gray-900 pl-2">{(pendingIndikasi + pendingIndikasiBanding)}</div>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-sm shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-purple-600"></div>
+              <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1 pl-2">ANTREAN FRAUD</p>
+              <div className="text-3xl font-black text-gray-900 pl-2">{(pendingFraud + pendingFraudBanding)}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -831,29 +841,18 @@ export default function AdminPage() {
       {/* Main Content - overlaps header */}
       <div className="max-w-4xl mx-auto px-4 -mt-10 relative z-10">
         {/* Tab Navigation */}
-        <div className="bg-neutral-900 border border-neutral-800 p-1 mb-6 flex overflow-x-auto rounded-sm scrollbar-hide">
-          {([
-            { key: 'laporan', label: 'LAPORAN', icon: '📋', badge: pendingReports },
-            { key: 'banding', label: 'BANDING', icon: '🔓', badge: pendingBanding },
-            { key: 'indikasi', label: 'INDIKASI', icon: '⚠️', badge: pendingIndikasi },
-            { key: 'fraud', label: 'FRAUD', icon: '🚨', badge: pendingFraud },
-            { key: 'log', label: 'SYS LOG', icon: '🖥️', badge: 0 },
-          ] as const).map((tab) => (
+        <div className="flex overflow-x-auto hide-scrollbar gap-2 mb-6 pb-2">
+          {['laporan', 'banding', 'indikasi', 'fraud', 'log'].map((tab) => (
             <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 min-w-[100px] py-3 px-2 text-[10px] font-bold uppercase tracking-widest transition-colors whitespace-nowrap relative rounded-sm flex items-center justify-center gap-1.5 ${
-                activeTab === tab.key
-                  ? 'bg-neutral-800 text-white shadow-sm'
-                  : 'text-neutral-500 hover:bg-neutral-950 hover:text-neutral-300'
+              key={tab}
+              onClick={() => setActiveTab(tab as any)}
+              className={`px-4 py-3 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors rounded-sm shadow-sm border ${
+                activeTab === tab 
+                  ? 'bg-white text-gray-900 border-gray-200 border-b-2 border-b-red-600' 
+                  : 'bg-white border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <span>{tab.icon} {tab.label}</span>
-              {tab.badge > 0 && (
-                <span className="w-4 h-4 bg-red-600 text-white text-[9px] flex items-center justify-center font-black ml-1 rounded-sm">
-                  {tab.badge}
-                </span>
-              )}
+              DIR: {tab}
             </button>
           ))}
         </div>
@@ -862,20 +861,20 @@ export default function AdminPage() {
         {activeTab === 'laporan' && (
           <>
             {/* Filters */}
-            <div className="bg-neutral-900 border border-neutral-800 p-3 mb-4 rounded-sm">
-              <div className="flex gap-2 overflow-x-auto pb-2 mb-3 border-b border-neutral-800 scrollbar-hide">
+            <div className="bg-white border border-gray-200 p-3 mb-4 rounded-sm shadow-sm">
+              <div className="flex gap-2 overflow-x-auto pb-2 mb-3 border-b border-gray-100 scrollbar-hide">
                 {[
-                  { key: 'all', label: 'SEMUA', color: 'hover:text-white', activeStyles: 'bg-neutral-800 text-white' },
-                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-400', activeStyles: 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' },
-                  { key: 'approved', label: '✅ AKTIF', color: 'hover:text-green-400', activeStyles: 'bg-green-900/30 text-green-500 border-green-900/50' },
-                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-400', activeStyles: 'bg-red-900/30 text-red-500 border-red-900/50' },
-                  { key: 'resolved', label: '🔓 CLEAR', color: 'hover:text-orange-400', activeStyles: 'bg-orange-900/30 text-orange-500 border-orange-900/50' },
+                  { key: 'all', label: 'SEMUA', color: 'hover:text-gray-900', activeStyles: 'bg-gray-100 text-gray-900 border-gray-200' },
+                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-600', activeStyles: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+                  { key: 'approved', label: '✅ AKTIF', color: 'hover:text-green-600', activeStyles: 'bg-green-50 border-green-200 text-green-700' },
+                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-600', activeStyles: 'bg-red-50 border-red-200 text-red-700' },
+                  { key: 'resolved', label: '🔓 CLEAR', color: 'hover:text-orange-600', activeStyles: 'bg-orange-50 border-orange-200 text-orange-700' },
                 ].map((f) => (
                   <button
                     key={f.key}
                     onClick={() => setFilter(f.key as typeof filter)}
                     className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border border-transparent rounded-sm ${
-                      filter === f.key ? f.activeStyles : `text-neutral-500 ${f.color}`
+                      filter === f.key ? f.activeStyles : `text-gray-500 ${f.color}`
                     }`}
                   >
                     {f.label}
@@ -889,8 +888,8 @@ export default function AdminPage() {
                     onClick={() => setKategoriFilter(k as typeof kategoriFilter)}
                     className={`flex-1 py-2 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-colors border ${
                       kategoriFilter === k
-                        ? k === 'KOL' ? 'bg-purple-900/30 text-purple-400 border-purple-900/50' : k === 'MG' ? 'bg-blue-900/30 text-blue-400 border-blue-900/50' : 'bg-neutral-800 text-white border-neutral-700'
-                        : 'bg-black text-neutral-500 border-neutral-800 hover:bg-neutral-950 hover:text-neutral-300'
+                        ? k === 'KOL' ? 'bg-purple-50 text-purple-700 border-purple-200' : k === 'MG' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-800 text-white border-gray-900'
+                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:text-gray-700'
                     }`}
                   >
                     {k === 'all' ? `SEMUA (${reports.length})` : `${k} (${reports.filter(r => r.kategori === k).length})`}
@@ -901,22 +900,22 @@ export default function AdminPage() {
 
             {/* Bulk Actions */}
             {filter === 'pending' && reports.filter(r => r.status === 'pending').length > 0 && (
-              <div className="bg-blue-950/20 rounded-sm p-3 mb-4 border border-blue-900/30">
+              <div className="bg-blue-50 rounded-sm p-3 mb-4 border border-blue-200 shadow-sm">
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={selectedIds.length === reports.filter(r => r.status === 'pending').length && selectedIds.length > 0}
                       onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded-sm accent-red-600 bg-neutral-900 border-neutral-700"
+                      className="w-4 h-4 rounded-sm accent-red-600 bg-white border-gray-300"
                     />
-                    <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">PILIH SEMUA PENDING</span>
+                    <span className="text-[10px] font-bold text-blue-700 uppercase tracking-widest">PILIH SEMUA PENDING</span>
                   </label>
                   {selectedIds.length > 0 && (
                     <button
                       onClick={handleBulkApprove}
                       disabled={bulkProcessing}
-                      className="px-4 py-2 bg-green-700 text-black rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-green-600 disabled:opacity-50 transition-colors"
+                      className="px-4 py-2 bg-green-600 text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm"
                     >
                       {bulkProcessing ? 'MEMPROSES...' : `✅ APPROVE (${selectedIds.length})`}
                     </button>
@@ -928,18 +927,18 @@ export default function AdminPage() {
             {/* Reports */}
             {loading ? (
               <div className="flex items-center justify-center py-16">
-                <div className="w-8 h-8 border-2 border-neutral-800 border-t-red-600 rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-red-600 rounded-full animate-spin"></div>
               </div>
             ) : reports.length === 0 ? (
-              <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-12 text-center">
+              <div className="bg-white border border-gray-200 rounded-sm p-12 text-center shadow-sm">
                 <p className="text-3xl mb-2 opacity-50">📭</p>
-                <p className="text-neutral-500 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DATA DOSSIER</p>
+                <p className="text-gray-400 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DATA DOSSIER</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {reports.map((report) => (
-                  <div key={report.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative hover:bg-neutral-900/50 transition-colors"
-                    style={{ borderLeft: `2px solid ${report.status === 'pending' ? '#eab308' : report.status === 'approved' ? '#22c55e' : report.status === 'rejected' ? '#ef4444' : '#f97316'}` }}>
+                  <div key={report.id} className="bg-white border border-gray-200 rounded-sm overflow-hidden relative hover:bg-gray-50 transition-colors shadow-sm"
+                    style={{ borderLeft: `3px solid ${report.status === 'pending' ? '#eab308' : report.status === 'approved' ? '#22c55e' : report.status === 'rejected' ? '#ef4444' : '#f97316'}` }}>
                     <div className="p-4">
                       <div className="flex items-start gap-3 mb-3">
                         {report.status === 'pending' && (
@@ -947,31 +946,31 @@ export default function AdminPage() {
                             type="checkbox"
                             checked={selectedIds.includes(report.id)}
                             onChange={() => toggleSelect(report.id)}
-                            className="w-4 h-4 mt-0.5 rounded-sm accent-red-600 bg-black border-neutral-700"
+                            className="w-4 h-4 mt-0.5 rounded-sm accent-red-600 bg-white border-gray-300"
                           />
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-bold text-white text-sm uppercase tracking-wider">{report.nama}</h3>
+                            <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">{report.nama}</h3>
                             {editingId === report.id ? (
                               <div className="flex items-center gap-1">
-                                <select value={editKategori} onChange={(e) => setEditKategori(e.target.value)} className="px-2 py-0.5 bg-black border border-neutral-700 text-white rounded-sm text-[10px] font-mono">
+                                <select value={editKategori} onChange={(e) => setEditKategori(e.target.value)} className="px-2 py-0.5 bg-white border border-gray-300 text-gray-900 rounded-sm text-[10px] font-mono shadow-sm">
                                   <option value="KOL">KOL</option>
                                   <option value="MG">MG</option>
                                 </select>
-                                <button onClick={() => handleSaveEdit(report)} disabled={processing === report.id} className="text-green-500 text-[10px] font-bold hover:text-green-400">✓ SAVE</button>
-                                <button onClick={handleCancelEdit} className="text-neutral-500 text-[10px] hover:text-neutral-400">✕ CANCEL</button>
+                                <button onClick={() => handleSaveEdit(report)} disabled={processing === report.id} className="text-green-600 text-[10px] font-bold hover:text-green-700">✓ SAVE</button>
+                                <button onClick={handleCancelEdit} className="text-gray-500 text-[10px] hover:text-gray-700">✕ CANCEL</button>
                               </div>
                             ) : (
                               <>
                                 <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${
-                                  report.kategori === 'KOL' ? 'bg-purple-900/30 text-purple-400 border-purple-900/50' : 'bg-blue-900/30 text-blue-400 border-blue-900/50'
+                                  report.kategori === 'KOL' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
                                 }`}>{report.kategori}</span>
-                                <button onClick={() => handleEdit(report)} className="text-neutral-500 text-[10px] hover:text-blue-500">✏️</button>
+                                <button onClick={() => handleEdit(report)} className="text-gray-400 text-[10px] hover:text-blue-600">✏️</button>
                               </>
                             )}
                           </div>
-                          <p className="text-[10px] text-neutral-500 mt-1 font-mono uppercase tracking-widest">
+                          <p className="text-[10px] text-gray-500 mt-1 font-mono uppercase tracking-widest">
                             {report.instagram && `@${report.instagram}`}
                             {report.instagram && report.no_hp && ' ⚡ '}
                             {report.no_hp}
@@ -981,33 +980,33 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="bg-black border border-neutral-800 rounded-sm p-3 mb-3">
-                        <p className="text-xs text-neutral-400 line-clamp-2 font-serif italic">{report.kronologi}</p>
-                        <button onClick={() => setSelectedReport(report)} className="text-[10px] text-red-500 font-bold mt-2 uppercase tracking-widest hover:text-red-400 transition-colors">
+                      <div className="bg-gray-50 border border-gray-100 rounded-sm p-3 mb-3">
+                        <p className="text-xs text-gray-600 line-clamp-2 font-serif italic">{report.kronologi}</p>
+                        <button onClick={() => setSelectedReport(report)} className="text-[10px] text-red-600 font-bold mt-2 uppercase tracking-widest hover:text-red-700 transition-colors">
                           BACA DOSSIER →
                         </button>
                       </div>
 
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono uppercase tracking-widest mb-3">
                         {report.bukti_url && (
-                          <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-900/50 bg-blue-950/20 px-2 py-1 rounded-sm hover:bg-blue-900/40">📎 BUKTI</a>
+                          <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-700 border border-blue-200 bg-blue-50 px-2 py-1 rounded-sm hover:bg-blue-100">📎 BUKTI</a>
                         )}
-                        {report.pelapor_nama && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">👤 {report.pelapor_nama}</span>}
-                        {report.pelapor_kontak && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">📞 CONTACT</span>}
+                        {report.pelapor_nama && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">👤 {report.pelapor_nama}</span>}
+                        {report.pelapor_kontak && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">📞 CONTACT</span>}
                       </div>
 
                       {report.status === 'pending' && (
                         <div className="flex gap-2">
-                          <button onClick={() => handleApprove(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-700/20 border border-green-700/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-700/40 transition-colors">
+                          <button onClick={() => handleApprove(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-100 transition-colors shadow-sm">
                             ✅ APPROVE
                           </button>
-                          <button onClick={() => handleReject(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-900/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/40 transition-colors">
+                          <button onClick={() => handleReject(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-100 transition-colors shadow-sm">
                             ❌ REJECT
                           </button>
                         </div>
                       )}
                       {report.status === 'approved' && (
-                        <button onClick={() => handleUnblacklist(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-900/20 border border-orange-900/50 text-orange-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-900/40 transition-colors">
+                        <button onClick={() => handleUnblacklist(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-50 border border-orange-200 text-orange-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-100 transition-colors shadow-sm">
                           🔓 CLEAR / UNBLACKLIST
                         </button>
                       )}
@@ -1023,19 +1022,19 @@ export default function AdminPage() {
         {activeTab === 'banding' && (
           <div>
             {/* Status Filter */}
-            <div className="bg-neutral-900 border border-neutral-800 p-3 mb-4 rounded-sm">
+            <div className="bg-white border border-gray-200 p-3 mb-4 rounded-sm shadow-sm">
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {[
-                  { key: 'all', label: 'SEMUA', color: 'hover:text-white', activeStyles: 'bg-neutral-800 text-white' },
-                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-400', activeStyles: 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' },
-                  { key: 'approved', label: '✅ APPROVED', color: 'hover:text-green-400', activeStyles: 'bg-green-900/30 text-green-500 border-green-900/50' },
-                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-400', activeStyles: 'bg-red-900/30 text-red-500 border-red-900/50' },
+                  { key: 'all', label: 'SEMUA', color: 'hover:text-gray-900', activeStyles: 'bg-gray-100 text-gray-900 border-gray-200' },
+                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-600', activeStyles: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+                  { key: 'approved', label: '✅ APPROVED', color: 'hover:text-green-600', activeStyles: 'bg-green-50 border-green-200 text-green-700' },
+                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-600', activeStyles: 'bg-red-50 border-red-200 text-red-700' },
                 ].map((f) => (
                   <button
                     key={f.key}
                     onClick={() => setBandingFilter(f.key as typeof bandingFilter)}
                     className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border border-transparent rounded-sm ${
-                      bandingFilter === f.key ? f.activeStyles : `text-neutral-500 ${f.color}`
+                      bandingFilter === f.key ? f.activeStyles : `text-gray-500 ${f.color}`
                     }`}
                   >
                     {f.label}
@@ -1045,42 +1044,42 @@ export default function AdminPage() {
             </div>
             {loading ? (
               <div className="flex items-center justify-center py-16">
-                <div className="w-8 h-8 border-2 border-neutral-800 border-t-orange-500 rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
               </div>
             ) : bandingRequests.length === 0 ? (
-              <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-12 text-center">
+              <div className="bg-white border border-gray-200 rounded-sm p-12 text-center shadow-sm">
                 <p className="text-3xl mb-2 opacity-50">📭</p>
-                <p className="text-neutral-500 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DATA BANDING</p>
+                <p className="text-gray-400 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DATA BANDING</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {bandingRequests.map((req) => (
-                  <div key={req.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative hover:bg-neutral-900/50 transition-colors"
-                    style={{ borderLeft: `2px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
+                  <div key={req.id} className="bg-white border border-gray-200 rounded-sm overflow-hidden relative hover:bg-gray-50 transition-colors shadow-sm"
+                    style={{ borderLeft: `3px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
                     <div className="p-4">
                       <div className="flex items-center gap-2 flex-wrap mb-3">
-                        <h3 className="font-bold text-white text-sm uppercase tracking-wider">{req.nama}</h3>
+                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">{req.nama}</h3>
                         <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${
-                          req.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                          req.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                          'bg-red-900/30 text-red-500 border-red-900/50'
+                          req.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                          req.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                          'bg-red-50 border-red-200 text-red-700'
                         }`}>{req.status}</span>
                       </div>
-                      <p className="text-[10px] text-neutral-500 mt-1 font-mono uppercase tracking-widest mb-3">
+                      <p className="text-[10px] text-gray-500 mt-1 font-mono uppercase tracking-widest mb-3">
                         {req.instagram && `@${req.instagram}`}{req.instagram && req.no_hp && ' ⚡ '}{req.no_hp}{' ⚡ '}{new Date(req.created_at).toLocaleDateString('id-ID')}
                       </p>
-                      <div className="bg-black border border-neutral-800 rounded-sm p-3 mb-3">
-                        <p className="text-[9px] text-orange-500 font-bold uppercase tracking-widest mb-1.5">ALASAN BANDING:</p>
-                        <p className="text-xs text-neutral-400 font-serif italic">{req.alasan_banding}</p>
+                      <div className="bg-gray-50 border border-gray-100 rounded-sm p-3 mb-3">
+                        <p className="text-[9px] text-blue-600 font-bold uppercase tracking-widest mb-1.5">ALASAN BANDING:</p>
+                        <p className="text-xs text-gray-600 font-serif italic">{req.alasan_banding}</p>
                       </div>
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono uppercase tracking-widest mb-4">
-                        {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-900/50 bg-blue-950/20 px-2 py-1 rounded-sm hover:bg-blue-900/40">📎 BUKTI CLEAR</a>}
-                        {req.kontak && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
+                        {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-700 border border-blue-200 bg-blue-50 px-2 py-1 rounded-sm hover:bg-blue-100">📎 BUKTI CLEAR</a>}
+                        {req.kontak && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
                       </div>
                       {req.status === 'pending' && (
                         <div className="flex gap-2">
-                          <button onClick={() => handleApproveBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-700/20 border border-green-700/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-700/40 transition-colors">✅ APPROVE</button>
-                          <button onClick={() => handleRejectBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-900/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/40 transition-colors">❌ REJECT</button>
+                          <button onClick={() => handleApproveBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-100 transition-colors shadow-sm">✅ APPROVE</button>
+                          <button onClick={() => handleRejectBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-100 transition-colors shadow-sm">❌ REJECT</button>
                         </div>
                       )}
                     </div>
@@ -1095,19 +1094,19 @@ export default function AdminPage() {
         {activeTab === 'indikasi' && (
           <div>
             {/* Status Filter */}
-            <div className="bg-neutral-900 border border-neutral-800 p-3 mb-4 rounded-sm">
+            <div className="bg-white border border-gray-200 p-3 mb-4 rounded-sm shadow-sm">
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {[
-                  { key: 'all', label: 'SEMUA', color: 'hover:text-white', activeStyles: 'bg-neutral-800 text-white' },
-                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-400', activeStyles: 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' },
-                  { key: 'approved', label: '✅ AKTIF', color: 'hover:text-green-400', activeStyles: 'bg-green-900/30 text-green-500 border-green-900/50' },
-                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-400', activeStyles: 'bg-red-900/30 text-red-500 border-red-900/50' },
+                  { key: 'all', label: 'SEMUA', color: 'hover:text-gray-900', activeStyles: 'bg-gray-100 text-gray-900 border-gray-200' },
+                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-600', activeStyles: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+                  { key: 'approved', label: '✅ AKTIF', color: 'hover:text-green-600', activeStyles: 'bg-green-50 border-green-200 text-green-700' },
+                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-600', activeStyles: 'bg-red-50 border-red-200 text-red-700' },
                 ].map((f) => (
                   <button
                     key={f.key}
                     onClick={() => setIndikasiFilter(f.key as typeof indikasiFilter)}
                     className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border border-transparent rounded-sm ${
-                      indikasiFilter === f.key ? f.activeStyles : `text-neutral-500 ${f.color}`
+                      indikasiFilter === f.key ? f.activeStyles : `text-gray-500 ${f.color}`
                     }`}
                   >
                     {f.label}
@@ -1117,49 +1116,49 @@ export default function AdminPage() {
             </div>
             {loading ? (
               <div className="flex items-center justify-center py-16">
-                <div className="w-8 h-8 border-2 border-neutral-800 border-t-amber-500 rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-amber-500 rounded-full animate-spin"></div>
               </div>
             ) : indikasiReports.length === 0 ? (
-              <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-12 text-center">
+              <div className="bg-white border border-gray-200 rounded-sm p-12 text-center shadow-sm">
                 <p className="text-3xl mb-2 opacity-50">📭</p>
-                <p className="text-neutral-500 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DOSSIER INDIKASI</p>
+                <p className="text-gray-400 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DOSSIER INDIKASI</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {indikasiReports.map((report) => (
-                  <div key={report.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative hover:bg-neutral-900/50 transition-colors"
-                    style={{ borderLeft: `2px solid ${report.status === 'pending' ? '#eab308' : report.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
+                  <div key={report.id} className="bg-white border border-gray-200 rounded-sm overflow-hidden relative hover:bg-gray-50 transition-colors shadow-sm"
+                    style={{ borderLeft: `3px solid ${report.status === 'pending' ? '#eab308' : report.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
                     <div className="p-4">
                       <div className="flex items-center gap-2 flex-wrap mb-3">
-                        <h3 className="font-bold text-white text-sm uppercase tracking-wider">{report.nama}</h3>
-                        <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border bg-amber-900/30 text-amber-500 border-amber-900/50">{report.kategori_masalah}</span>
+                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">{report.nama}</h3>
+                        <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border bg-amber-50 text-amber-700 border-amber-200">{report.kategori_masalah}</span>
                         <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${
-                          report.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                          report.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                          'bg-red-900/30 text-red-500 border-red-900/50'
+                          report.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                          report.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                          'bg-red-50 border-red-200 text-red-700'
                         }`}>{report.status}</span>
                       </div>
-                      <p className="text-[10px] text-neutral-500 mt-1 font-mono uppercase tracking-widest mb-3">
+                      <p className="text-[10px] text-gray-500 mt-1 font-mono uppercase tracking-widest mb-3">
                         {report.instagram && `@${report.instagram}`}{report.instagram && report.no_hp && ' ⚡ '}{report.no_hp}{' ⚡ '}{new Date(report.created_at).toLocaleDateString('id-ID')}
                       </p>
-                      <div className="bg-black border border-neutral-800 rounded-sm p-3 mb-3">
-                        <p className="text-xs text-neutral-400 line-clamp-2 font-serif italic">{report.kronologi}</p>
-                        <button onClick={() => setSelectedIndikasi(report)} className="text-[10px] text-amber-500 font-bold mt-2 uppercase tracking-widest hover:text-amber-400 transition-colors">
+                      <div className="bg-gray-50 border border-gray-100 rounded-sm p-3 mb-3">
+                        <p className="text-xs text-gray-600 line-clamp-2 font-serif italic">{report.kronologi}</p>
+                        <button onClick={() => setSelectedIndikasi(report)} className="text-[10px] text-amber-600 font-bold mt-2 uppercase tracking-widest hover:text-amber-700 transition-colors">
                           BACA DOSSIER →
                         </button>
                       </div>
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono uppercase tracking-widest mb-4">
-                        {report.bukti_url && <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-900/50 bg-blue-950/20 px-2 py-1 rounded-sm hover:bg-blue-900/40">📎 BUKTI</a>}
-                        {report.pelapor_nama && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">👤 {report.pelapor_nama}</span>}
+                        {report.bukti_url && <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-700 border border-blue-200 bg-blue-50 px-2 py-1 rounded-sm hover:bg-blue-100">📎 BUKTI</a>}
+                        {report.pelapor_nama && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">👤 {report.pelapor_nama}</span>}
                       </div>
                       {report.status === 'pending' && (
                         <div className="flex gap-2">
-                          <button onClick={() => handleApproveIndikasi(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-700/20 border border-green-700/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-700/40 transition-colors">✅ APPROVE</button>
-                          <button onClick={() => handleRejectIndikasi(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-900/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/40 transition-colors">❌ REJECT</button>
+                          <button onClick={() => handleApproveIndikasi(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-100 transition-colors shadow-sm">✅ APPROVE</button>
+                          <button onClick={() => handleRejectIndikasi(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-100 transition-colors shadow-sm">❌ REJECT</button>
                         </div>
                       )}
                       {report.status === 'approved' && (
-                        <button onClick={() => handleUnblacklistIndikasi(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-900/20 border border-orange-900/50 text-orange-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-900/40 transition-colors">
+                        <button onClick={() => handleUnblacklistIndikasi(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-50 border border-orange-200 text-orange-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-100 transition-colors shadow-sm">
                           🔓 CLEAR / UNBLACKLIST
                         </button>
                       )}
@@ -1171,39 +1170,39 @@ export default function AdminPage() {
 
             {/* Indikasi Banding Sub-section */}
             {indikasiBandingList.length > 0 && (
-              <div className="mt-8 border-t border-neutral-800 pt-6">
-                <h3 className="text-sm font-black text-white mb-4 flex items-center gap-2 uppercase tracking-widest">
+              <div className="mt-8 border-t border-gray-200 pt-6">
+                <h3 className="text-sm font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-widest">
                   ⚖️ BANDING INDIKASI
                   {pendingIndikasiBanding > 0 && <span className="w-4 h-4 bg-amber-600 text-white text-[9px] rounded-sm flex items-center justify-center font-black">{pendingIndikasiBanding}</span>}
                 </h3>
                 <div className="space-y-3">
                   {indikasiBandingList.map((req) => (
-                    <div key={req.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative hover:bg-neutral-900/50 transition-colors"
-                      style={{ borderLeft: `2px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
+                    <div key={req.id} className="bg-white border border-gray-200 rounded-sm overflow-hidden relative hover:bg-gray-50 transition-colors shadow-sm"
+                      style={{ borderLeft: `3px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
                       <div className="p-4">
                         <div className="flex items-center gap-2 flex-wrap mb-3">
-                          <h3 className="font-bold text-white text-sm uppercase tracking-wider">{req.nama}</h3>
+                          <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">{req.nama}</h3>
                           <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${
-                            req.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                            req.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                            'bg-red-900/30 text-red-500 border-red-900/50'
+                            req.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                            req.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                            'bg-red-50 border-red-200 text-red-700'
                           }`}>{req.status}</span>
                         </div>
-                        <p className="text-[10px] text-neutral-500 mt-1 font-mono uppercase tracking-widest mb-3">
+                        <p className="text-[10px] text-gray-500 mt-1 font-mono uppercase tracking-widest mb-3">
                           {req.instagram && `@${req.instagram}`}{req.instagram && req.no_hp && ' ⚡ '}{req.no_hp}{' ⚡ '}{new Date(req.created_at).toLocaleDateString('id-ID')}
                         </p>
-                        <div className="bg-black border border-neutral-800 rounded-sm p-3 mb-3">
-                          <p className="text-[9px] text-amber-500 font-bold uppercase tracking-widest mb-1.5">ALASAN BANDING:</p>
-                          <p className="text-xs text-neutral-400 font-serif italic">{req.alasan_banding}</p>
+                        <div className="bg-gray-50 border border-gray-100 rounded-sm p-3 mb-3">
+                          <p className="text-[9px] text-amber-600 font-bold uppercase tracking-widest mb-1.5">ALASAN BANDING:</p>
+                          <p className="text-xs text-gray-600 font-serif italic">{req.alasan_banding}</p>
                         </div>
                         <div className="flex flex-wrap gap-1.5 text-[9px] font-mono uppercase tracking-widest mb-4">
-                          {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-900/50 bg-blue-950/20 px-2 py-1 rounded-sm hover:bg-blue-900/40">📎 BUKTI CLEAR</a>}
-                          {req.kontak && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
+                          {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-700 border border-blue-200 bg-blue-50 px-2 py-1 rounded-sm hover:bg-blue-100">📎 BUKTI CLEAR</a>}
+                          {req.kontak && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
                         </div>
                         {req.status === 'pending' && (
                           <div className="flex gap-2">
-                            <button onClick={() => handleApproveIndikasiBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-700/20 border border-green-700/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-700/40 transition-colors">✅ APPROVE</button>
-                            <button onClick={() => handleRejectIndikasiBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-900/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/40 transition-colors">❌ REJECT</button>
+                            <button onClick={() => handleApproveIndikasiBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-100 transition-colors shadow-sm">✅ APPROVE</button>
+                            <button onClick={() => handleRejectIndikasiBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-100 transition-colors shadow-sm">❌ REJECT</button>
                           </div>
                         )}
                       </div>
@@ -1219,19 +1218,19 @@ export default function AdminPage() {
         {activeTab === 'fraud' && (
           <div>
             {/* Status Filter */}
-            <div className="bg-neutral-900 border border-neutral-800 p-3 mb-4 rounded-sm">
+            <div className="bg-white border border-gray-200 p-3 mb-4 rounded-sm shadow-sm">
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {[
-                  { key: 'all', label: 'SEMUA', color: 'hover:text-white', activeStyles: 'bg-neutral-800 text-white' },
-                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-400', activeStyles: 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' },
-                  { key: 'approved', label: '✅ AKTIF', color: 'hover:text-green-400', activeStyles: 'bg-green-900/30 text-green-500 border-green-900/50' },
-                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-400', activeStyles: 'bg-red-900/30 text-red-500 border-red-900/50' },
+                  { key: 'all', label: 'SEMUA', color: 'hover:text-gray-900', activeStyles: 'bg-gray-100 text-gray-900 border-gray-200' },
+                  { key: 'pending', label: '⏳ PENDING', color: 'hover:text-yellow-600', activeStyles: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+                  { key: 'approved', label: '✅ AKTIF', color: 'hover:text-green-600', activeStyles: 'bg-green-50 border-green-200 text-green-700' },
+                  { key: 'rejected', label: '❌ REJECTED', color: 'hover:text-red-600', activeStyles: 'bg-red-50 border-red-200 text-red-700' },
                 ].map((f) => (
                   <button
                     key={f.key}
                     onClick={() => setFraudFilter(f.key as typeof fraudFilter)}
                     className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border border-transparent rounded-sm ${
-                      fraudFilter === f.key ? f.activeStyles : `text-neutral-500 ${f.color}`
+                      fraudFilter === f.key ? f.activeStyles : `text-gray-500 ${f.color}`
                     }`}
                   >
                     {f.label}
@@ -1241,54 +1240,54 @@ export default function AdminPage() {
             </div>
             {loading ? (
               <div className="flex items-center justify-center py-16">
-                <div className="w-8 h-8 border-2 border-neutral-800 border-t-red-600 rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-red-600 rounded-full animate-spin"></div>
               </div>
             ) : fraudReports.length === 0 ? (
-              <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-12 text-center">
+              <div className="bg-white border border-gray-200 rounded-sm p-12 text-center shadow-sm">
                 <p className="text-3xl mb-2 opacity-50">📭</p>
-                <p className="text-neutral-500 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DOSSIER FRAUD</p>
+                <p className="text-gray-400 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DOSSIER FRAUD</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {fraudReports.map((report) => (
-                  <div key={report.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative hover:bg-neutral-900/50 transition-colors"
-                    style={{ borderLeft: `2px solid ${report.status === 'pending' ? '#eab308' : report.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
+                  <div key={report.id} className="bg-white border border-gray-200 rounded-sm overflow-hidden relative hover:bg-gray-50 transition-colors shadow-sm"
+                    style={{ borderLeft: `3px solid ${report.status === 'pending' ? '#eab308' : report.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
                     <div className="p-4">
                       <div className="flex items-center gap-2 flex-wrap mb-3">
-                        <h3 className="font-bold text-white text-sm uppercase tracking-wider">{report.nama}</h3>
-                        <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border bg-red-900/30 text-red-500 border-red-900/50">{report.jenis_fraud}</span>
+                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">{report.nama}</h3>
+                        <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border bg-red-50 text-red-700 border-red-200">{report.jenis_fraud}</span>
                         <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${
-                          report.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                          report.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                          'bg-red-900/30 text-red-500 border-red-900/50'
+                          report.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                          report.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                          'bg-red-50 border-red-200 text-red-700'
                         }`}>{report.status}</span>
                       </div>
-                      <p className="text-[10px] text-neutral-500 mt-1 font-mono uppercase tracking-widest mb-3">
+                      <p className="text-[10px] text-gray-500 mt-1 font-mono uppercase tracking-widest mb-3">
                         {report.nominal ? `RP ${report.nominal.toLocaleString('id-ID')}` : ''}
                         {report.nominal && report.instagram ? ' ⚡ ' : ''}
                         {report.instagram && `@${report.instagram}`}
                         {(report.instagram || report.nominal) && report.no_hp ? ' ⚡ ' : ''}
                         {report.no_hp}{' ⚡ '}{new Date(report.created_at).toLocaleDateString('id-ID')}
                       </p>
-                      <div className="bg-black border border-neutral-800 rounded-sm p-3 mb-3">
-                        <p className="text-xs text-neutral-400 line-clamp-2 font-serif italic">{report.kronologi}</p>
-                        <button onClick={() => setSelectedFraud(report)} className="text-[10px] text-red-500 font-bold mt-2 uppercase tracking-widest hover:text-red-400 transition-colors">
+                      <div className="bg-gray-50 border border-gray-100 rounded-sm p-3 mb-3">
+                        <p className="text-xs text-gray-600 line-clamp-2 font-serif italic">{report.kronologi}</p>
+                        <button onClick={() => setSelectedFraud(report)} className="text-[10px] text-red-600 font-bold mt-2 uppercase tracking-widest hover:text-red-700 transition-colors">
                           BACA DOSSIER →
                         </button>
                       </div>
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono uppercase tracking-widest mb-4">
-                        {report.bukti_url && <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-900/50 bg-blue-950/20 px-2 py-1 rounded-sm hover:bg-blue-900/40">📎 BUKTI</a>}
-                        {report.metode_pembayaran && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">💳 {report.metode_pembayaran}</span>}
-                        {report.pelapor_nama && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">👤 {report.pelapor_nama}</span>}
+                        {report.bukti_url && <a href={report.bukti_url} target="_blank" rel="noopener noreferrer" className="text-blue-700 border border-blue-200 bg-blue-50 px-2 py-1 rounded-sm hover:bg-blue-100">📎 BUKTI</a>}
+                        {report.metode_pembayaran && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">💳 {report.metode_pembayaran}</span>}
+                        {report.pelapor_nama && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">👤 {report.pelapor_nama}</span>}
                       </div>
                       {report.status === 'pending' && (
                         <div className="flex gap-2">
-                          <button onClick={() => handleApproveFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-700/20 border border-green-700/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-700/40 transition-colors">✅ APPROVE</button>
-                          <button onClick={() => handleRejectFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-900/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/40 transition-colors">❌ REJECT</button>
+                          <button onClick={() => handleApproveFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-100 transition-colors shadow-sm">✅ APPROVE</button>
+                          <button onClick={() => handleRejectFraud(report)} disabled={processing === report.id} className="flex-1 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-100 transition-colors shadow-sm">❌ REJECT</button>
                         </div>
                       )}
                       {report.status === 'approved' && (
-                        <button onClick={() => handleUnblacklistFraud(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-900/20 border border-orange-900/50 text-orange-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-900/40 transition-colors">
+                        <button onClick={() => handleUnblacklistFraud(report)} disabled={processing === report.id} className="w-full py-2.5 bg-orange-50 border border-orange-200 text-orange-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-100 transition-colors shadow-sm">
                           🔓 CLEAR / UNBLACKLIST
                         </button>
                       )}
@@ -1300,39 +1299,39 @@ export default function AdminPage() {
 
             {/* Fraud Banding Sub-section */}
             {fraudBandingList.length > 0 && (
-              <div className="mt-8 border-t border-neutral-800 pt-6">
-                <h3 className="text-sm font-black text-white mb-4 flex items-center gap-2 uppercase tracking-widest">
+              <div className="mt-8 border-t border-gray-200 pt-6">
+                <h3 className="text-sm font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-widest">
                   ⚖️ BANDING FRAUD
                   {pendingFraudBanding > 0 && <span className="w-4 h-4 bg-red-600 text-white text-[9px] rounded-sm flex items-center justify-center font-black">{pendingFraudBanding}</span>}
                 </h3>
                 <div className="space-y-3">
                   {fraudBandingList.map((req) => (
-                    <div key={req.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative hover:bg-neutral-900/50 transition-colors"
-                      style={{ borderLeft: `2px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
+                    <div key={req.id} className="bg-white border border-gray-200 rounded-sm overflow-hidden relative hover:bg-gray-50 transition-colors shadow-sm"
+                      style={{ borderLeft: `3px solid ${req.status === 'pending' ? '#eab308' : req.status === 'approved' ? '#22c55e' : '#ef4444'}` }}>
                       <div className="p-4">
                         <div className="flex items-center gap-2 flex-wrap mb-3">
-                          <h3 className="font-bold text-white text-sm uppercase tracking-wider">{req.nama}</h3>
+                          <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">{req.nama}</h3>
                           <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${
-                            req.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                            req.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                            'bg-red-900/30 text-red-500 border-red-900/50'
+                            req.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                            req.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                            'bg-red-50 border-red-200 text-red-700'
                           }`}>{req.status}</span>
                         </div>
-                        <p className="text-[10px] text-neutral-500 mt-1 font-mono uppercase tracking-widest mb-3">
+                        <p className="text-[10px] text-gray-500 mt-1 font-mono uppercase tracking-widest mb-3">
                           {req.instagram && `@${req.instagram}`}{req.instagram && req.no_hp && ' ⚡ '}{req.no_hp}{' ⚡ '}{new Date(req.created_at).toLocaleDateString('id-ID')}
                         </p>
-                        <div className="bg-black border border-neutral-800 rounded-sm p-3 mb-3">
-                          <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest mb-1.5">ALASAN BANDING:</p>
-                          <p className="text-xs text-neutral-400 font-serif italic">{req.alasan_banding}</p>
+                        <div className="bg-gray-50 border border-gray-100 rounded-sm p-3 mb-3">
+                          <p className="text-[9px] text-red-600 font-bold uppercase tracking-widest mb-1.5">ALASAN BANDING:</p>
+                          <p className="text-xs text-gray-600 font-serif italic">{req.alasan_banding}</p>
                         </div>
                         <div className="flex flex-wrap gap-1.5 text-[9px] font-mono uppercase tracking-widest mb-4">
-                          {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-900/50 bg-blue-950/20 px-2 py-1 rounded-sm hover:bg-blue-900/40">📎 BUKTI CLEAR</a>}
-                          {req.kontak && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
+                          {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-700 border border-blue-200 bg-blue-50 px-2 py-1 rounded-sm hover:bg-blue-100">📎 BUKTI CLEAR</a>}
+                          {req.kontak && <span className="text-gray-600 border border-gray-200 bg-gray-50 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
                         </div>
                         {req.status === 'pending' && (
                           <div className="flex gap-2">
-                            <button onClick={() => handleApproveFraudBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-700/20 border border-green-700/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-700/40 transition-colors">✅ APPROVE</button>
-                            <button onClick={() => handleRejectFraudBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-900/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/40 transition-colors">❌ REJECT</button>
+                            <button onClick={() => handleApproveFraudBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-100 transition-colors shadow-sm">✅ APPROVE</button>
+                            <button onClick={() => handleRejectFraudBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-100 transition-colors shadow-sm">❌ REJECT</button>
                           </div>
                         )}
                       </div>
@@ -1349,24 +1348,24 @@ export default function AdminPage() {
           <div>
             {loading ? (
               <div className="flex items-center justify-center py-16">
-                <div className="w-8 h-8 border-2 border-neutral-800 border-t-neutral-500 rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-500 rounded-full animate-spin"></div>
               </div>
             ) : adminLogs.length === 0 ? (
-              <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-12 text-center">
+              <div className="bg-white border border-gray-200 rounded-sm p-12 text-center shadow-sm">
                 <p className="text-3xl mb-2 opacity-50">📭</p>
-                <p className="text-neutral-500 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA LOG AKTIVITAS</p>
+                <p className="text-gray-400 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA LOG AKTIVITAS</p>
               </div>
             ) : (
-              <div className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden">
+              <div className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
                 {adminLogs.map((log, index) => (
-                  <div key={log.id} className={`p-4 flex items-start gap-3 hover:bg-neutral-900/50 transition-colors ${index !== adminLogs.length - 1 ? 'border-b border-neutral-800' : ''}`}>
+                  <div key={log.id} className={`p-4 flex items-start gap-3 hover:bg-gray-50 transition-colors ${index !== adminLogs.length - 1 ? 'border-b border-gray-100' : ''}`}>
                     <div className={`w-8 h-8 rounded-sm flex items-center justify-center text-sm flex-shrink-0 border ${
-                      log.action.includes('approve') ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                      log.action.includes('reject') ? 'bg-red-900/30 text-red-500 border-red-900/50' :
-                      log.action === 'login' ? 'bg-blue-900/30 text-blue-500 border-blue-900/50' :
-                      log.action === 'login_failed' ? 'bg-red-900/30 text-red-500 border-red-900/50' :
-                      log.action === 'logout' ? 'bg-neutral-800 text-neutral-400 border-neutral-700' :
-                      'bg-purple-900/30 text-purple-500 border-purple-900/50'
+                      log.action.includes('approve') ? 'bg-green-50 text-green-700 border-green-200' :
+                      log.action.includes('reject') ? 'bg-red-50 text-red-700 border-red-200' :
+                      log.action === 'login' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                      log.action === 'login_failed' ? 'bg-red-50 text-red-700 border-red-200' :
+                      log.action === 'logout' ? 'bg-gray-100 text-gray-500 border-gray-200' :
+                      'bg-purple-50 text-purple-700 border-purple-200'
                     }`}>
                       {log.action.includes('approve') ? '✅' :
                        log.action.includes('reject') ? '❌' :
@@ -1377,23 +1376,23 @@ export default function AdminPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white">{log.admin_username}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-900">{log.admin_username}</span>
                         <span className={`px-1.5 py-0.5 rounded-sm text-[8px] font-bold tracking-widest uppercase border ${
-                          log.action.includes('approve') ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                          log.action.includes('reject') ? 'bg-red-900/30 text-red-500 border-red-900/50' :
-                          log.action === 'login' ? 'bg-blue-900/30 text-blue-500 border-blue-900/50' :
-                          log.action === 'login_failed' ? 'bg-red-900/30 text-red-500 border-red-900/50' :
-                          'bg-neutral-800 text-neutral-400 border-neutral-700'
+                          log.action.includes('approve') ? 'bg-green-50 text-green-700 border-green-200' :
+                          log.action.includes('reject') ? 'bg-red-50 text-red-700 border-red-200' :
+                          log.action === 'login' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          log.action === 'login_failed' ? 'bg-red-50 text-red-700 border-red-200' :
+                          'bg-gray-100 text-gray-500 border-gray-200'
                         }`}>{log.action}</span>
-                        {log.target_type && <span className="px-1.5 py-0.5 rounded-sm text-[8px] font-bold tracking-widest uppercase bg-purple-900/30 text-purple-400 border border-purple-900/50">{log.target_type}</span>}
+                        {log.target_type && <span className="px-1.5 py-0.5 rounded-sm text-[8px] font-bold tracking-widest uppercase bg-purple-50 text-purple-700 border border-purple-200">{log.target_type}</span>}
                       </div>
-                      {log.details && <p className="text-[10px] text-neutral-400 mt-0.5 font-mono truncate">{log.details}</p>}
+                      {log.details && <p className="text-[10px] text-gray-500 mt-0.5 font-mono truncate">{log.details}</p>}
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest">
+                        <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest">
                           {new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </span>
                         {log.ip_address && log.ip_address !== 'unknown' && (
-                          <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest">• IP: {log.ip_address}</span>
+                          <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest">• IP: {log.ip_address}</span>
                         )}
                       </div>
                     </div>
@@ -1406,69 +1405,69 @@ export default function AdminPage() {
 
         {/* Report Detail Modal */}
         {selectedReport && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={() => setSelectedReport(null)}>
-            <div className="bg-neutral-950 border border-neutral-800 rounded-sm w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={() => setSelectedReport(null)}>
+            <div className="bg-white border border-gray-300 rounded-sm w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
               {/* Modal Header */}
-              <div className="border-b border-neutral-800 px-5 py-4 flex justify-between items-start bg-neutral-900 shrinks-0">
+              <div className="border-b border-gray-200 px-5 py-4 flex justify-between items-start bg-gray-50 shrinks-0">
                 <div>
-                  <h2 className="text-sm font-black text-white uppercase tracking-widest">{selectedReport.nama}</h2>
+                  <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest">{selectedReport.nama}</h2>
                   <div className="flex items-center gap-2 mt-2">
                     <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border ${
-                      selectedReport.kategori === 'KOL' ? 'bg-purple-900/30 text-purple-400 border-purple-900/50' : 'bg-blue-900/30 text-blue-400 border-blue-900/50'
+                      selectedReport.kategori === 'KOL' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-blue-100 text-blue-700 border-blue-200'
                     }`}>{selectedReport.kategori}</span>
                     <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border ${
-                      selectedReport.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                      selectedReport.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                      'bg-red-900/30 text-red-500 border-red-900/50'
+                      selectedReport.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                      selectedReport.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                      'bg-red-50 border-red-200 text-red-700'
                     }`}>{selectedReport.status}</span>
                   </div>
                 </div>
-                <button onClick={() => setSelectedReport(null)} className="w-8 h-8 bg-black border border-neutral-800 flex items-center justify-center text-neutral-500 hover:bg-neutral-800 hover:text-white transition-colors text-lg rounded-sm">&times;</button>
+                <button onClick={() => setSelectedReport(null)} className="w-8 h-8 bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-colors text-lg rounded-sm shadow-sm">&times;</button>
               </div>
 
               {/* Modal Body */}
               <div className="p-5 overflow-y-auto space-y-5 custom-scrollbar">
                 {/* Contact Info */}
-                <div className="bg-black border border-neutral-800 rounded-sm p-4 space-y-3">
-                  {selectedReport.no_hp && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">📱</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">{selectedReport.no_hp}</span></div>}
-                  {selectedReport.instagram && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">📷</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">@{selectedReport.instagram}</span></div>}
-                  {selectedReport.tiktok && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">🎵</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">@{selectedReport.tiktok}</span></div>}
-                  {selectedReport.asal_mg && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">🏢</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">{selectedReport.asal_mg}</span></div>}
+                <div className="bg-gray-50 border border-gray-200 rounded-sm p-4 space-y-3">
+                  {selectedReport.no_hp && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">📱</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">{selectedReport.no_hp}</span></div>}
+                  {selectedReport.instagram && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">📷</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">@{selectedReport.instagram}</span></div>}
+                  {selectedReport.tiktok && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">🎵</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">@{selectedReport.tiktok}</span></div>}
+                  {selectedReport.asal_mg && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">🏢</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">{selectedReport.asal_mg}</span></div>}
                 </div>
 
                 {/* Kronologi */}
                 <div>
-                  <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2 border-b border-neutral-800 pb-1 w-max">📝 DOSSIER KRONOLOGI</p>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-4">
-                    <p className="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed font-serif">{selectedReport.kronologi}</p>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-200 pb-1 w-max">📝 DOSSIER KRONOLOGI</p>
+                  <div className="bg-white border border-gray-200 rounded-sm p-4 shadow-sm">
+                    <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed font-serif">{selectedReport.kronologi}</p>
                   </div>
                 </div>
 
                 {selectedReport.bukti_url && (
                   <div>
-                    <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2 border-b border-neutral-800 pb-1 w-max">📎 BUKTI LAMPIRAN</p>
-                    <a href={selectedReport.bukti_url} target="_blank" rel="noopener noreferrer" className="inline-block px-3 py-2 bg-blue-950/20 border border-blue-900/50 text-blue-400 text-[10px] font-mono tracking-widest uppercase hover:bg-blue-900/40 transition-colors rounded-sm break-all">BUKA TAUTAN BUKTI →</a>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-200 pb-1 w-max">📎 BUKTI LAMPIRAN</p>
+                    <a href={selectedReport.bukti_url} target="_blank" rel="noopener noreferrer" className="inline-block px-3 py-2 bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-mono tracking-widest uppercase hover:bg-blue-100 transition-colors rounded-sm break-all shadow-sm">BUKA TAUTAN BUKTI →</a>
                   </div>
                 )}
 
                 {(selectedReport.pelapor_nama || selectedReport.pelapor_kontak) && (
                   <div>
-                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2 border-b border-red-900/50 pb-1 w-max">👤 DATA PELAPOR (RAHASIA)</p>
-                    <div className="bg-red-950/10 border border-red-900/30 rounded-sm p-4 space-y-2">
-                      {selectedReport.pelapor_nama && <p className="text-[10px] font-mono text-neutral-300 uppercase tracking-wider"><span className="text-red-500/70 mr-2">NID:</span> {selectedReport.pelapor_nama}</p>}
-                      {selectedReport.pelapor_kontak && <p className="text-[10px] font-mono text-neutral-300 uppercase tracking-wider"><span className="text-red-500/70 mr-2">COM:</span> {selectedReport.pelapor_kontak}</p>}
+                    <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-2 border-b border-red-200 pb-1 w-max">👤 DATA PELAPOR (RAHASIA)</p>
+                    <div className="bg-red-50 border border-red-200 rounded-sm p-4 space-y-2">
+                      {selectedReport.pelapor_nama && <p className="text-[10px] font-mono text-gray-700 uppercase tracking-wider"><span className="text-red-500 mr-2">NID:</span> {selectedReport.pelapor_nama}</p>}
+                      {selectedReport.pelapor_kontak && <p className="text-[10px] font-mono text-gray-700 uppercase tracking-wider"><span className="text-red-500 mr-2">COM:</span> {selectedReport.pelapor_kontak}</p>}
                     </div>
                   </div>
                 )}
 
-                <p className="text-[9px] font-mono text-neutral-600 uppercase tracking-widest pt-2">
+                <p className="text-[9px] font-mono text-gray-400 uppercase tracking-widest pt-2">
                   DILAPORKAN: {new Date(selectedReport.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
 
                 {selectedReport.status === 'pending' && (
-                  <div className="flex gap-2 pt-4 mt-4 border-t border-neutral-800">
-                    <button onClick={() => { handleApprove(selectedReport); setSelectedReport(null); }} disabled={processing === selectedReport.id} className="flex-1 py-3 bg-green-700 text-black font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-green-600 transition-colors">✅ AUTHORIZE [APPROVE]</button>
-                    <button onClick={() => { handleReject(selectedReport); setSelectedReport(null); }} disabled={processing === selectedReport.id} className="flex-1 py-3 bg-red-700 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-red-600 transition-colors">❌ DENY [REJECT]</button>
+                  <div className="flex gap-2 pt-4 mt-4 border-t border-gray-200">
+                    <button onClick={() => { handleApprove(selectedReport); setSelectedReport(null); }} disabled={processing === selectedReport.id} className="flex-1 py-3 bg-green-600 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-green-700 transition-colors shadow-sm">✅ AUTHORIZE [APPROVE]</button>
+                    <button onClick={() => { handleReject(selectedReport); setSelectedReport(null); }} disabled={processing === selectedReport.id} className="flex-1 py-3 bg-red-600 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-red-700 transition-colors shadow-sm">❌ DENY [REJECT]</button>
                   </div>
                 )}
               </div>
@@ -1478,57 +1477,57 @@ export default function AdminPage() {
 
         {/* Indikasi Detail Modal */}
         {selectedIndikasi && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={() => setSelectedIndikasi(null)}>
-            <div className="bg-neutral-950 border border-neutral-800 rounded-sm w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="border-b border-neutral-800 px-5 py-4 flex justify-between items-start bg-neutral-900 shrinks-0">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={() => setSelectedIndikasi(null)}>
+            <div className="bg-white border border-gray-300 rounded-sm w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="border-b border-gray-200 px-5 py-4 flex justify-between items-start bg-gray-50 shrinks-0">
                 <div>
-                  <h2 className="text-sm font-black text-white uppercase tracking-widest">{selectedIndikasi.nama}</h2>
+                  <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest">{selectedIndikasi.nama}</h2>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border bg-amber-900/30 text-amber-500 border-amber-900/50">{selectedIndikasi.kategori_masalah}</span>
+                    <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border bg-amber-50 text-amber-700 border-amber-200">{selectedIndikasi.kategori_masalah}</span>
                     <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border ${
-                      selectedIndikasi.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                      selectedIndikasi.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                      'bg-red-900/30 text-red-500 border-red-900/50'
+                      selectedIndikasi.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                      selectedIndikasi.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                      'bg-red-50 border-red-200 text-red-700'
                     }`}>{selectedIndikasi.status}</span>
                   </div>
                 </div>
-                <button onClick={() => setSelectedIndikasi(null)} className="w-8 h-8 bg-black border border-neutral-800 flex items-center justify-center text-neutral-500 hover:bg-neutral-800 hover:text-white transition-colors text-lg rounded-sm">&times;</button>
+                <button onClick={() => setSelectedIndikasi(null)} className="w-8 h-8 bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-colors text-lg rounded-sm shadow-sm">&times;</button>
               </div>
               <div className="p-5 overflow-y-auto space-y-5 custom-scrollbar">
-                <div className="bg-black border border-neutral-800 rounded-sm p-4 space-y-3">
-                  {selectedIndikasi.no_hp && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">📱</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">{selectedIndikasi.no_hp}</span></div>}
-                  {selectedIndikasi.instagram && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">📷</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">@{selectedIndikasi.instagram}</span></div>}
-                  {selectedIndikasi.tiktok && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">🎵</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">@{selectedIndikasi.tiktok}</span></div>}
-                  {selectedIndikasi.asal_mg && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">🏢</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">{selectedIndikasi.asal_mg}</span></div>}
+                <div className="bg-gray-50 border border-gray-200 rounded-sm p-4 space-y-3">
+                  {selectedIndikasi.no_hp && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">📱</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">{selectedIndikasi.no_hp}</span></div>}
+                  {selectedIndikasi.instagram && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">📷</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">@{selectedIndikasi.instagram}</span></div>}
+                  {selectedIndikasi.tiktok && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">🎵</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">@{selectedIndikasi.tiktok}</span></div>}
+                  {selectedIndikasi.asal_mg && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">🏢</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">{selectedIndikasi.asal_mg}</span></div>}
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2 border-b border-neutral-800 pb-1 w-max">📝 DOSSIER KRONOLOGI</p>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-4">
-                    <p className="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed font-serif">{selectedIndikasi.kronologi}</p>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-200 pb-1 w-max">📝 DOSSIER KRONOLOGI</p>
+                  <div className="bg-white border border-gray-200 rounded-sm p-4 shadow-sm">
+                    <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed font-serif">{selectedIndikasi.kronologi}</p>
                   </div>
                 </div>
                 {selectedIndikasi.bukti_url && (
                   <div>
-                    <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2 border-b border-neutral-800 pb-1 w-max">📎 BUKTI LAMPIRAN</p>
-                    <a href={selectedIndikasi.bukti_url} target="_blank" rel="noopener noreferrer" className="inline-block px-3 py-2 bg-blue-950/20 border border-blue-900/50 text-blue-400 text-[10px] font-mono tracking-widest uppercase hover:bg-blue-900/40 transition-colors rounded-sm break-all">BUKA TAUTAN BUKTI →</a>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-200 pb-1 w-max">📎 BUKTI LAMPIRAN</p>
+                    <a href={selectedIndikasi.bukti_url} target="_blank" rel="noopener noreferrer" className="inline-block px-3 py-2 bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-mono tracking-widest uppercase hover:bg-blue-100 transition-colors rounded-sm break-all shadow-sm">BUKA TAUTAN BUKTI →</a>
                   </div>
                 )}
                 {(selectedIndikasi.pelapor_nama || selectedIndikasi.pelapor_kontak) && (
                   <div>
-                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2 border-b border-red-900/50 pb-1 w-max">👤 DATA PELAPOR (RAHASIA)</p>
-                    <div className="bg-red-950/10 border border-red-900/30 rounded-sm p-4 space-y-2">
-                      {selectedIndikasi.pelapor_nama && <p className="text-[10px] font-mono text-neutral-300 uppercase tracking-wider"><span className="text-red-500/70 mr-2">NID:</span> {selectedIndikasi.pelapor_nama}</p>}
-                      {selectedIndikasi.pelapor_kontak && <p className="text-[10px] font-mono text-neutral-300 uppercase tracking-wider"><span className="text-red-500/70 mr-2">COM:</span> {selectedIndikasi.pelapor_kontak}</p>}
+                    <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-2 border-b border-red-200 pb-1 w-max">👤 DATA PELAPOR (RAHASIA)</p>
+                    <div className="bg-red-50 border border-red-200 rounded-sm p-4 space-y-2">
+                      {selectedIndikasi.pelapor_nama && <p className="text-[10px] font-mono text-gray-700 uppercase tracking-wider"><span className="text-red-500 mr-2">NID:</span> {selectedIndikasi.pelapor_nama}</p>}
+                      {selectedIndikasi.pelapor_kontak && <p className="text-[10px] font-mono text-gray-700 uppercase tracking-wider"><span className="text-red-500 mr-2">COM:</span> {selectedIndikasi.pelapor_kontak}</p>}
                     </div>
                   </div>
                 )}
-                <p className="text-[9px] font-mono text-neutral-600 uppercase tracking-widest pt-2">
+                <p className="text-[9px] font-mono text-gray-400 uppercase tracking-widest pt-2">
                   DILAPORKAN: {new Date(selectedIndikasi.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
                 {selectedIndikasi.status === 'pending' && (
-                  <div className="flex gap-2 pt-4 mt-4 border-t border-neutral-800">
-                    <button onClick={() => { handleApproveIndikasi(selectedIndikasi); setSelectedIndikasi(null); }} disabled={processing === selectedIndikasi.id} className="flex-1 py-3 bg-green-700 text-black font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-green-600 transition-colors">✅ AUTHORIZE [APPROVE]</button>
-                    <button onClick={() => { handleRejectIndikasi(selectedIndikasi); setSelectedIndikasi(null); }} disabled={processing === selectedIndikasi.id} className="flex-1 py-3 bg-red-700 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-red-600 transition-colors">❌ DENY [REJECT]</button>
+                  <div className="flex gap-2 pt-4 mt-4 border-t border-gray-200">
+                    <button onClick={() => { handleApproveIndikasi(selectedIndikasi); setSelectedIndikasi(null); }} disabled={processing === selectedIndikasi.id} className="flex-1 py-3 bg-green-600 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-green-700 transition-colors shadow-sm">✅ AUTHORIZE [APPROVE]</button>
+                    <button onClick={() => { handleRejectIndikasi(selectedIndikasi); setSelectedIndikasi(null); }} disabled={processing === selectedIndikasi.id} className="flex-1 py-3 bg-red-600 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-red-700 transition-colors shadow-sm">❌ DENY [REJECT]</button>
                   </div>
                 )}
               </div>
@@ -1538,58 +1537,58 @@ export default function AdminPage() {
 
         {/* Fraud Detail Modal */}
         {selectedFraud && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={() => setSelectedFraud(null)}>
-            <div className="bg-neutral-950 border border-neutral-800 rounded-sm w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="border-b border-neutral-800 px-5 py-4 flex justify-between items-start bg-neutral-900 shrinks-0">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={() => setSelectedFraud(null)}>
+            <div className="bg-white border border-gray-300 rounded-sm w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="border-b border-gray-200 px-5 py-4 flex justify-between items-start bg-gray-50 shrinks-0">
                 <div>
-                  <h2 className="text-sm font-black text-white uppercase tracking-widest">{selectedFraud.nama}</h2>
+                  <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest">{selectedFraud.nama}</h2>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border bg-red-900/30 text-red-500 border-red-900/50">{selectedFraud.jenis_fraud}</span>
+                    <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border bg-red-50 text-red-700 border-red-200">{selectedFraud.jenis_fraud}</span>
                     <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border ${
-                      selectedFraud.status === 'pending' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900/50' :
-                      selectedFraud.status === 'approved' ? 'bg-green-900/30 text-green-500 border-green-900/50' :
-                      'bg-red-900/30 text-red-500 border-red-900/50'
+                      selectedFraud.status === 'pending' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+                      selectedFraud.status === 'approved' ? 'bg-green-50 border-green-200 text-green-700' :
+                      'bg-red-50 border-red-200 text-red-700'
                     }`}>{selectedFraud.status}</span>
-                    {selectedFraud.nominal && <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border bg-neutral-800 border-neutral-700 text-neutral-300">RP {selectedFraud.nominal.toLocaleString('id-ID')}</span>}
+                    {selectedFraud.nominal && <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest border bg-gray-100 border-gray-200 text-gray-700">RP {selectedFraud.nominal.toLocaleString('id-ID')}</span>}
                   </div>
                 </div>
-                <button onClick={() => setSelectedFraud(null)} className="w-8 h-8 bg-black border border-neutral-800 flex items-center justify-center text-neutral-500 hover:bg-neutral-800 hover:text-white transition-colors text-lg rounded-sm">&times;</button>
+                <button onClick={() => setSelectedFraud(null)} className="w-8 h-8 bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-colors text-lg rounded-sm shadow-sm">&times;</button>
               </div>
               <div className="p-5 overflow-y-auto space-y-5 custom-scrollbar">
-                <div className="bg-black border border-neutral-800 rounded-sm p-4 space-y-3">
-                  {selectedFraud.no_hp && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">📱</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">{selectedFraud.no_hp}</span></div>}
-                  {selectedFraud.instagram && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">📷</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">@{selectedFraud.instagram}</span></div>}
-                  {selectedFraud.tiktok && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">🎵</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">@{selectedFraud.tiktok}</span></div>}
-                  {selectedFraud.metode_pembayaran && <div className="flex items-center gap-3"><span className="text-neutral-500 text-xs">💳</span> <span className="font-mono text-neutral-300 tracking-wider text-[11px] uppercase">{selectedFraud.metode_pembayaran}</span></div>}
+                <div className="bg-gray-50 border border-gray-200 rounded-sm p-4 space-y-3">
+                  {selectedFraud.no_hp && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">📱</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">{selectedFraud.no_hp}</span></div>}
+                  {selectedFraud.instagram && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">📷</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">@{selectedFraud.instagram}</span></div>}
+                  {selectedFraud.tiktok && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">🎵</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">@{selectedFraud.tiktok}</span></div>}
+                  {selectedFraud.metode_pembayaran && <div className="flex items-center gap-3"><span className="text-gray-500 text-xs">💳</span> <span className="font-mono text-gray-700 tracking-wider text-[11px] uppercase">{selectedFraud.metode_pembayaran}</span></div>}
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2 border-b border-neutral-800 pb-1 w-max">📝 DOSSIER KRONOLOGI</p>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-4">
-                    <p className="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed font-serif">{selectedFraud.kronologi}</p>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-200 pb-1 w-max">📝 DOSSIER KRONOLOGI</p>
+                  <div className="bg-white border border-gray-200 rounded-sm p-4 shadow-sm">
+                    <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed font-serif">{selectedFraud.kronologi}</p>
                   </div>
                 </div>
                 {selectedFraud.bukti_url && (
                   <div>
-                    <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2 border-b border-neutral-800 pb-1 w-max">📎 BUKTI LAMPIRAN</p>
-                    <a href={selectedFraud.bukti_url} target="_blank" rel="noopener noreferrer" className="inline-block px-3 py-2 bg-blue-950/20 border border-blue-900/50 text-blue-400 text-[10px] font-mono tracking-widest uppercase hover:bg-blue-900/40 transition-colors rounded-sm break-all">BUKA TAUTAN BUKTI →</a>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-200 pb-1 w-max">📎 BUKTI LAMPIRAN</p>
+                    <a href={selectedFraud.bukti_url} target="_blank" rel="noopener noreferrer" className="inline-block px-3 py-2 bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-mono tracking-widest uppercase hover:bg-blue-100 transition-colors rounded-sm break-all shadow-sm">BUKA TAUTAN BUKTI →</a>
                   </div>
                 )}
                 {(selectedFraud.pelapor_nama || selectedFraud.pelapor_kontak) && (
                   <div>
-                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2 border-b border-red-900/50 pb-1 w-max">👤 DATA PELAPOR (RAHASIA)</p>
-                    <div className="bg-red-950/10 border border-red-900/30 rounded-sm p-4 space-y-2">
-                      {selectedFraud.pelapor_nama && <p className="text-[10px] font-mono text-neutral-300 uppercase tracking-wider"><span className="text-red-500/70 mr-2">NID:</span> {selectedFraud.pelapor_nama}</p>}
-                      {selectedFraud.pelapor_kontak && <p className="text-[10px] font-mono text-neutral-300 uppercase tracking-wider"><span className="text-red-500/70 mr-2">COM:</span> {selectedFraud.pelapor_kontak}</p>}
+                    <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-2 border-b border-red-200 pb-1 w-max">👤 DATA PELAPOR (RAHASIA)</p>
+                    <div className="bg-red-50 border border-red-200 rounded-sm p-4 space-y-2">
+                      {selectedFraud.pelapor_nama && <p className="text-[10px] font-mono text-gray-700 uppercase tracking-wider"><span className="text-red-500 mr-2">NID:</span> {selectedFraud.pelapor_nama}</p>}
+                      {selectedFraud.pelapor_kontak && <p className="text-[10px] font-mono text-gray-700 uppercase tracking-wider"><span className="text-red-500 mr-2">COM:</span> {selectedFraud.pelapor_kontak}</p>}
                     </div>
                   </div>
                 )}
-                <p className="text-[9px] font-mono text-neutral-600 uppercase tracking-widest pt-2">
+                <p className="text-[9px] font-mono text-gray-400 uppercase tracking-widest pt-2">
                   DILAPORKAN: {new Date(selectedFraud.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
                 {selectedFraud.status === 'pending' && (
-                  <div className="flex gap-2 pt-4 mt-4 border-t border-neutral-800">
-                    <button onClick={() => { handleApproveFraud(selectedFraud); setSelectedFraud(null); }} disabled={processing === selectedFraud.id} className="flex-1 py-3 bg-green-700 text-black font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-green-600 transition-colors">✅ AUTHORIZE [APPROVE]</button>
-                    <button onClick={() => { handleRejectFraud(selectedFraud); setSelectedFraud(null); }} disabled={processing === selectedFraud.id} className="flex-1 py-3 bg-red-700 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-red-600 transition-colors">❌ DENY [REJECT]</button>
+                  <div className="flex gap-2 pt-4 mt-4 border-t border-gray-200">
+                    <button onClick={() => { handleApproveFraud(selectedFraud); setSelectedFraud(null); }} disabled={processing === selectedFraud.id} className="flex-1 py-3 bg-green-600 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-green-700 transition-colors shadow-sm">✅ AUTHORIZE [APPROVE]</button>
+                    <button onClick={() => { handleRejectFraud(selectedFraud); setSelectedFraud(null); }} disabled={processing === selectedFraud.id} className="flex-1 py-3 bg-red-600 text-white font-black uppercase tracking-widest text-[10px] rounded-sm disabled:opacity-50 hover:bg-red-700 transition-colors shadow-sm">❌ DENY [REJECT]</button>
                   </div>
                 )}
               </div>
