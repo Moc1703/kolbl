@@ -226,39 +226,53 @@ export default function AdminPage() {
     if (!confirm('Yakin approve laporan indikasi ini?')) return
     setProcessing(report.id)
 
-    const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
+    try {
+      const conditions = []
+      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
 
-    const { data: existing } = conditions.length > 0 ? await supabase
-      .from('indikasi_list').select('*').or(conditions.join(',')).limit(1) : { data: null }
+      let existing = null;
+      if (conditions.length > 0) {
+        const { data, error } = await supabase
+          .from('indikasi_list').select('*').or(conditions.join(',')).limit(1)
+        if (error) throw error;
+        existing = data;
+      }
 
-    if (existing && existing.length > 0) {
-      await supabase.from('indikasi_list').update({
-        jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
-        alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
-        updated_at: new Date().toISOString()
-      }).eq('id', existing[0].id)
-    } else {
-      await supabase.from('indikasi_list').insert({
-        report_id: report.id,
-        nama: report.nama,
-        no_hp: report.no_hp,
-        instagram: report.instagram,
-        tiktok: report.tiktok,
-        kategori_masalah: report.kategori_masalah,
-        alasan: report.kronologi,
-        jumlah_laporan: 1
-      })
+      if (existing && existing.length > 0) {
+        const { error } = await supabase.from('indikasi_list').update({
+          jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
+          alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
+          updated_at: new Date().toISOString()
+        }).eq('id', existing[0].id)
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('indikasi_list').insert({
+          report_id: report.id,
+          nama: report.nama,
+          no_hp: report.no_hp,
+          instagram: report.instagram,
+          tiktok: report.tiktok,
+          kategori_masalah: report.kategori_masalah,
+          alasan: report.kronologi,
+          jumlah_laporan: 1
+        })
+        if (error) throw error;
+      }
+
+      const { error: updateError } = await supabase.from('indikasi_reports').update({
+        status: 'approved', reviewed_at: new Date().toISOString()
+      }).eq('id', report.id)
+      if (updateError) throw updateError;
+
+      await logAction('approve_indikasi', 'indikasi', report.id, `Approved indikasi: ${report.nama} (${report.kategori_masalah})`)
+      fetchIndikasiReports()
+    } catch (error: any) {
+      console.error('Approve indikasi error:', error)
+      alert(`Gagal approve: ${error.message || 'Terjadi kesalahan sistem'}`)
+    } finally {
+      setProcessing(null)
     }
-
-    await supabase.from('indikasi_reports').update({
-      status: 'approved', reviewed_at: new Date().toISOString()
-    }).eq('id', report.id)
-
-    await logAction('approve_indikasi', 'indikasi', report.id, `Approved indikasi: ${report.nama} (${report.kategori_masalah})`)
-    setProcessing(null)
-    fetchIndikasiReports()
   }
 
   const handleRejectIndikasi = async (report: IndikasiReport) => {
@@ -276,41 +290,55 @@ export default function AdminPage() {
     if (!confirm('Yakin approve laporan fraud ini?')) return
     setProcessing(report.id)
 
-    const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
+    try {
+      const conditions = []
+      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
 
-    const { data: existing } = conditions.length > 0 ? await supabase
-      .from('fraud_list').select('*').or(conditions.join(',')).limit(1) : { data: null }
+      let existing = null;
+      if (conditions.length > 0) {
+        const { data, error } = await supabase
+          .from('fraud_list').select('*').or(conditions.join(',')).limit(1)
+        if (error) throw error;
+        existing = data;
+      }
 
-    if (existing && existing.length > 0) {
-      await supabase.from('fraud_list').update({
-        jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
-        nominal_total: (existing[0].nominal_total || 0) + (report.nominal || 0),
-        alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
-        updated_at: new Date().toISOString()
-      }).eq('id', existing[0].id)
-    } else {
-      await supabase.from('fraud_list').insert({
-        report_id: report.id,
-        nama: report.nama,
-        no_hp: report.no_hp,
-        instagram: report.instagram,
-        tiktok: report.tiktok,
-        jenis_fraud: report.jenis_fraud,
-        nominal_total: report.nominal || 0,
-        alasan: report.kronologi,
-        jumlah_laporan: 1
-      })
+      if (existing && existing.length > 0) {
+        const { error } = await supabase.from('fraud_list').update({
+          jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
+          nominal_total: (existing[0].nominal_total || 0) + (report.nominal || 0),
+          alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
+          updated_at: new Date().toISOString()
+        }).eq('id', existing[0].id)
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('fraud_list').insert({
+          report_id: report.id,
+          nama: report.nama,
+          no_hp: report.no_hp,
+          instagram: report.instagram,
+          tiktok: report.tiktok,
+          jenis_fraud: report.jenis_fraud,
+          nominal_total: report.nominal || 0,
+          alasan: report.kronologi,
+          jumlah_laporan: 1
+        })
+        if (error) throw error;
+      }
+
+      const { error: updateError } = await supabase.from('fraud_reports').update({
+        status: 'approved', reviewed_at: new Date().toISOString()
+      }).eq('id', report.id)
+      if (updateError) throw updateError;
+
+      await logAction('approve_fraud', 'fraud', report.id, `Approved fraud: ${report.nama} (${report.jenis_fraud})`)
+      fetchFraudReports()
+    } catch (error: any) {
+      console.error('Approve fraud error:', error)
+      alert(`Gagal approve: ${error.message || 'Terjadi kesalahan sistem'}`)
+    } finally {
+      setProcessing(null)
     }
-
-    await supabase.from('fraud_reports').update({
-      status: 'approved', reviewed_at: new Date().toISOString()
-    }).eq('id', report.id)
-
-    await logAction('approve_fraud', 'fraud', report.id, `Approved fraud: ${report.nama} (${report.jenis_fraud})`)
-    setProcessing(null)
-    fetchFraudReports()
   }
 
   const handleRejectFraud = async (report: FraudReport) => {
@@ -464,50 +492,65 @@ export default function AdminPage() {
     
     setProcessing(report.id)
     
-    // Check if already exists in blacklist (by name, phone, ig, or tiktok)
-    const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-    if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
-    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-    if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
-    
-    const { data: existing } = await supabase
-      .from('blacklist')
-      .select('*')
-      .or(conditions.join(','))
-      .limit(1)
-    
-    if (existing && existing.length > 0) {
-      // Update existing entry - increment jumlah_laporan
-      const entry = existing[0]
-      await supabase.from('blacklist').update({
-        jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
-        alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
-        updated_at: new Date().toISOString()
-      }).eq('id', entry.id)
-    } else {
-      // Create new entry
-      await supabase.from('blacklist').insert({
-        report_id: report.id,
-        nama: report.nama,
-        no_hp: report.no_hp,
-        instagram: report.instagram,
-        tiktok: report.tiktok,
-        kategori: report.kategori,
-        alasan: report.kronologi,
-        jumlah_laporan: 1
-      })
+    try {
+      // Check if already exists in blacklist (by name, phone, ig, or tiktok)
+      const conditions = []
+      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+      if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
+      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
+      if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
+      
+      let existing = null;
+      if (conditions.length > 0) {
+        const { data, error } = await supabase
+          .from('blacklist')
+          .select('*')
+          .or(conditions.join(','))
+          .limit(1)
+        
+        if (error) throw error;
+        existing = data;
+      }
+      
+      if (existing && existing.length > 0) {
+        // Update existing entry - increment jumlah_laporan
+        const entry = existing[0]
+        const { error } = await supabase.from('blacklist').update({
+          jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
+          alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
+          updated_at: new Date().toISOString()
+        }).eq('id', entry.id)
+        if (error) throw error;
+      } else {
+        // Create new entry
+        const { error } = await supabase.from('blacklist').insert({
+          report_id: report.id,
+          nama: report.nama,
+          no_hp: report.no_hp,
+          instagram: report.instagram,
+          tiktok: report.tiktok,
+          kategori: report.kategori,
+          alasan: report.kronologi,
+          jumlah_laporan: 1
+        })
+        if (error) throw error;
+      }
+      
+      // Update report status
+      const { error: updateError } = await supabase.from('reports').update({
+        status: 'approved',
+        reviewed_at: new Date().toISOString()
+      }).eq('id', report.id)
+      if (updateError) throw updateError;
+      
+      await logAction('approve_report', 'report', report.id, `Approved: ${report.nama} (${report.kategori})`)
+      fetchReports()
+    } catch (error: any) {
+      console.error('Approve error:', error)
+      alert(`Gagal approve: ${error.message || 'Terjadi kesalahan sistem'}`)
+    } finally {
+      setProcessing(null)
     }
-    
-    // Update report status
-    await supabase.from('reports').update({
-      status: 'approved',
-      reviewed_at: new Date().toISOString()
-    }).eq('id', report.id)
-    
-    await logAction('approve_report', 'report', report.id, `Approved: ${report.nama} (${report.kategori})`)
-    setProcessing(null)
-    fetchReports()
   }
 
   const handleReject = async (report: Report) => {
@@ -606,53 +649,67 @@ export default function AdminPage() {
 
     setBulkProcessing(true)
 
-    for (const id of selectedIds) {
-      const report = reports.find(r => r.id === id)
-      if (!report || report.status !== 'pending') continue
+    try {
+      for (const id of selectedIds) {
+        const report = reports.find(r => r.id === id)
+        if (!report || report.status !== 'pending') continue
 
-      // Check for existing entry
-      const conditions = []
-      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-      if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
-      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-      if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
-      
-      const { data: existing } = await supabase
-        .from('blacklist')
-        .select('*')
-        .or(conditions.join(','))
-        .limit(1)
+        // Check for existing entry
+        const conditions = []
+        if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+        if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
+        if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
+        if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
+        
+        let existing = null;
+        if (conditions.length > 0) {
+          const { data, error } = await supabase
+            .from('blacklist')
+            .select('*')
+            .or(conditions.join(','))
+            .limit(1)
+          if (error) throw error;
+          existing = data;
+        }
 
-      if (existing && existing.length > 0) {
-        const entry = existing[0]
-        await supabase.from('blacklist').update({
-          jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
-          alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
-          updated_at: new Date().toISOString()
-        }).eq('id', entry.id)
-      } else {
-        await supabase.from('blacklist').insert({
-          report_id: report.id,
-          nama: report.nama,
-          no_hp: report.no_hp,
-          instagram: report.instagram,
-          tiktok: report.tiktok,
-          kategori: report.kategori,
-          alasan: report.kronologi,
-          jumlah_laporan: 1
-        })
+        if (existing && existing.length > 0) {
+          const entry = existing[0]
+          const { error } = await supabase.from('blacklist').update({
+            jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
+            alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
+            updated_at: new Date().toISOString()
+          }).eq('id', entry.id)
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('blacklist').insert({
+            report_id: report.id,
+            nama: report.nama,
+            no_hp: report.no_hp,
+            instagram: report.instagram,
+            tiktok: report.tiktok,
+            kategori: report.kategori,
+            alasan: report.kronologi,
+            jumlah_laporan: 1
+          })
+          if (error) throw error;
+        }
+
+        const { error: updateError } = await supabase.from('reports').update({
+          status: 'approved',
+          reviewed_at: new Date().toISOString()
+        }).eq('id', id)
+        if (updateError) throw updateError;
       }
 
-      await supabase.from('reports').update({
-        status: 'approved',
-        reviewed_at: new Date().toISOString()
-      }).eq('id', id)
+      await logAction('bulk_approve', 'report', null, `Bulk approved ${selectedIds.length} reports`)
+      setSelectedIds([])
+      fetchReports()
+    } catch (error: any) {
+      console.error('Bulk approve error:', error)
+      alert(`Gagal approve beberapa laporan: ${error.message || 'Terjadi kesalahan sistem'}`)
+    } finally {
+      setBulkProcessing(false)
     }
-
-    await logAction('bulk_approve', 'report', null, `Bulk approved ${selectedIds.length} reports`)
-    setBulkProcessing(false)
-    setSelectedIds([])
-    fetchReports()
   }
 
   const handleLogout = async () => {
