@@ -6,6 +6,9 @@ import type { NextRequest } from 'next/server'
  * 
  * Applies rate limiting to API routes to prevent spam and abuse.
  * Limits: 5 requests per minute per IP address
+ * 
+ * ⚠️ Note: In serverless environments (Vercel), this cache is per-instance.
+ * For production, consider using Upstash Redis for shared state.
  */
 
 interface RateLimitEntry {
@@ -13,19 +16,18 @@ interface RateLimitEntry {
   resetTime: number
 }
 
-// In-memory cache for rate limiting
-// ⚠️ Note: In serverless environments (Vercel), this cache is per-instance
-// For production, consider using Upstash Redis
+// In-memory cache for rate limiting (per-instance)
 const rateLimitCache = new Map<string, RateLimitEntry>()
 
 const MAX_REQUESTS = 5
 const WINDOW_MS = 60 * 1000 // 1 minute
+const CLEANUP_INTERVAL_MS = 60 * 1000 // Cleanup every 1 minute
+let lastCleanup = Date.now()
 
 /**
  * Get client IP address from request
  */
 function getClientIp(request: NextRequest): string {
-  // Check various headers for the real IP
   const forwardedFor = request.headers.get('x-forwarded-for')
   if (forwardedFor) {
     return forwardedFor.split(',')[0].trim()
@@ -36,59 +38,23 @@ function getClientIp(request: NextRequest): string {
     return realIp
   }
 
-  const cfConnectingIp = request.headers.get('cf-connecting-ip') // Cloudflare
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
   if (cfConnectingIp) {
     return cfConnectingIp
   }
 
-  // Fallback
   return 'unknown-ip'
 }
 
 /**
- * Check rate limit for an IP address
+ * Lazy cleanup of expired entries — runs during each request if enough time has passed.
+ * This replaces setInterval which doesn't work in Edge Runtime.
  */
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
+function lazyCleanup(): void {
   const now = Date.now()
-  const entry = rateLimitCache.get(ip)
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return
 
-  // No entry or window expired - allow and create new entry
-  if (!entry || now > entry.resetTime) {
-    const resetTime = now + WINDOW_MS
-    rateLimitCache.set(ip, { count: 1, resetTime })
-    
-    return {
-      allowed: true,
-      remaining: MAX_REQUESTS - 1,
-      resetTime
-    }
-  }
-
-  // Entry exists and window is still active
-  if (entry.count >= MAX_REQUESTS) {
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime: entry.resetTime
-    }
-  }
-
-  // Increment count
-  entry.count++
-  rateLimitCache.set(ip, entry)
-
-  return {
-    allowed: true,
-    remaining: MAX_REQUESTS - entry.count,
-    resetTime: entry.resetTime
-  }
-}
-
-/**
- * Cleanup expired entries periodically
- */
-function cleanupExpiredEntries(): void {
-  const now = Date.now()
+  lastCleanup = now
   const keysToDelete: string[] = []
 
   rateLimitCache.forEach((entry, key) => {
@@ -100,8 +66,30 @@ function cleanupExpiredEntries(): void {
   keysToDelete.forEach(key => rateLimitCache.delete(key))
 }
 
-// Run cleanup every minute
-setInterval(cleanupExpiredEntries, 60 * 1000)
+/**
+ * Check rate limit for an IP address
+ */
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
+  // Run lazy cleanup first
+  lazyCleanup()
+
+  const now = Date.now()
+  const entry = rateLimitCache.get(ip)
+
+  if (!entry || now > entry.resetTime) {
+    const resetTime = now + WINDOW_MS
+    rateLimitCache.set(ip, { count: 1, resetTime })
+    return { allowed: true, remaining: MAX_REQUESTS - 1, resetTime }
+  }
+
+  if (entry.count >= MAX_REQUESTS) {
+    return { allowed: false, remaining: 0, resetTime: entry.resetTime }
+  }
+
+  entry.count++
+  rateLimitCache.set(ip, entry)
+  return { allowed: true, remaining: MAX_REQUESTS - entry.count, resetTime: entry.resetTime }
+}
 
 export function middleware(request: NextRequest) {
   // Only apply rate limiting to API routes
@@ -110,15 +98,10 @@ export function middleware(request: NextRequest) {
     const { allowed, remaining, resetTime } = checkRateLimit(ip)
 
     if (!allowed) {
-      // Rate limit exceeded
       const retryAfter = Math.ceil((resetTime - Date.now()) / 1000)
-      
       return NextResponse.json(
-        { 
-          message: 'Too many requests, slow down!',
-          retryAfter: `${retryAfter} seconds`
-        },
-        { 
+        { message: 'Too many requests, slow down!', retryAfter: `${retryAfter} seconds` },
+        {
           status: 429,
           headers: {
             'Retry-After': retryAfter.toString(),
@@ -130,20 +113,16 @@ export function middleware(request: NextRequest) {
       )
     }
 
-    // Add rate limit headers to successful requests
     const response = NextResponse.next()
     response.headers.set('X-RateLimit-Limit', MAX_REQUESTS.toString())
     response.headers.set('X-RateLimit-Remaining', remaining.toString())
     response.headers.set('X-RateLimit-Reset', resetTime.toString())
-
     return response
   }
 
-  // For non-API routes, continue without rate limiting
   return NextResponse.next()
 }
 
-// Configure which routes the middleware runs on
 export const config = {
-  matcher: '/api/:path*', // Only run on /api/* routes
+  matcher: '/api/:path*',
 }

@@ -46,7 +46,7 @@ export default function Home() {
       const { data, error } = await supabase
         .from('blacklist')
         .select('id, report_id, nama, no_hp, instagram, tiktok, kategori, alasan, jumlah_laporan, created_at, updated_at')
-        .or(`nama.ilike.%${searchTerm}%,no_hp.ilike.%${searchTerm}%,instagram.ilike.%${searchTerm}%,tiktok.ilike.%${searchTerm}%`)
+        .or(`nama.ilike.%${searchTerm.replace(/[,()."'\\]/g, '')}%,no_hp.ilike.%${searchTerm.replace(/[,()."'\\]/g, '')}%,instagram.ilike.%${searchTerm.replace(/[,()."'\\]/g, '')}%,tiktok.ilike.%${searchTerm.replace(/[,()."'\\]/g, '')}%`)
         .order('created_at', { ascending: false })
       
       if (!error && data) {
@@ -61,7 +61,7 @@ export default function Home() {
     setLoading(false)
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSearch()
   }
 
@@ -114,7 +114,7 @@ export default function Home() {
               placeholder="Cari nama, No HP, IG, atau TikTok..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               className="w-full pl-12 md:pl-16 pr-20 md:pr-24 py-4 md:py-5 bg-transparent border-none focus:outline-none text-base md:text-lg text-gray-800 placeholder-gray-400 font-medium"
             />
             <button

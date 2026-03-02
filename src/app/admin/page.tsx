@@ -21,6 +21,14 @@ interface AdminUserInfo {
   role: string
 }
 
+/**
+ * Escape special characters for Supabase PostgREST filter values
+ * Prevents query injection via special characters like comma, period, parentheses
+ */
+function escapeFilterValue(value: string): string {
+  return value.replace(/[,()."'\\]/g, '')
+}
+
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [username, setUsername] = useState('')
@@ -162,7 +170,7 @@ export default function AdminPage() {
 
   const fetchReports = async () => {
     setLoading(true)
-    let query = supabase.from('reports').select('*').order('created_at', { ascending: false })
+    let query = supabase.from('reports').select('*').order('created_at', { ascending: false }).limit(100)
     
     if (filter !== 'all') {
       query = query.eq('status', filter)
@@ -179,7 +187,7 @@ export default function AdminPage() {
 
   const fetchBandingRequests = async () => {
     setLoading(true)
-    let query = supabase.from('unblacklist_requests').select('*').order('created_at', { ascending: false })
+    let query = supabase.from('unblacklist_requests').select('*').order('created_at', { ascending: false }).limit(100)
     if (bandingFilter !== 'all') query = query.eq('status', bandingFilter)
     const { data } = await query
     setBandingRequests(data || [])
@@ -188,7 +196,7 @@ export default function AdminPage() {
 
   const fetchIndikasiReports = async () => {
     setLoading(true)
-    let query = supabase.from('indikasi_reports').select('*').order('created_at', { ascending: false })
+    let query = supabase.from('indikasi_reports').select('*').order('created_at', { ascending: false }).limit(100)
     if (indikasiFilter !== 'all') query = query.eq('status', indikasiFilter)
     const { data } = await query
     setIndikasiReports(data || [])
@@ -197,7 +205,7 @@ export default function AdminPage() {
 
   const fetchFraudReports = async () => {
     setLoading(true)
-    let query = supabase.from('fraud_reports').select('*').order('created_at', { ascending: false })
+    let query = supabase.from('fraud_reports').select('*').order('created_at', { ascending: false }).limit(100)
     if (fraudFilter !== 'all') query = query.eq('status', fraudFilter)
     const { data } = await query
     setFraudReports(data || [])
@@ -219,8 +227,8 @@ export default function AdminPage() {
     setProcessing(report.id)
 
     const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
 
     const { data: existing } = conditions.length > 0 ? await supabase
       .from('indikasi_list').select('*').or(conditions.join(',')).limit(1) : { data: null }
@@ -269,8 +277,8 @@ export default function AdminPage() {
     setProcessing(report.id)
 
     const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
 
     const { data: existing } = conditions.length > 0 ? await supabase
       .from('fraud_list').select('*').or(conditions.join(',')).limit(1) : { data: null }
@@ -321,8 +329,8 @@ export default function AdminPage() {
     if (!confirm('Yakin clear/unblacklist indikasi ini?')) return
     setProcessing(report.id)
     const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
     if (conditions.length > 0) {
       await supabase.from('indikasi_list').delete().or(conditions.join(','))
     }
@@ -339,8 +347,8 @@ export default function AdminPage() {
     if (!confirm('Yakin clear/unblacklist fraud ini?')) return
     setProcessing(report.id)
     const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
+    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
     if (conditions.length > 0) {
       await supabase.from('fraud_list').delete().or(conditions.join(','))
     }
@@ -357,8 +365,8 @@ export default function AdminPage() {
     if (!confirm('Yakin approve banding indikasi ini?')) return
     setProcessing(req.id)
     const conditions = []
-    if (req.nama) conditions.push(`nama.ilike.%${req.nama}%`)
-    if (req.instagram) conditions.push(`instagram.ilike.${req.instagram}`)
+    if (req.nama) conditions.push(`nama.ilike.%${escapeFilterValue(req.nama)}%`)
+    if (req.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(req.instagram)}`)
     if (conditions.length > 0) {
       await supabase.from('indikasi_list').delete().or(conditions.join(','))
     }
@@ -386,8 +394,8 @@ export default function AdminPage() {
     if (!confirm('Yakin approve banding fraud ini?')) return
     setProcessing(req.id)
     const conditions = []
-    if (req.nama) conditions.push(`nama.ilike.%${req.nama}%`)
-    if (req.instagram) conditions.push(`instagram.ilike.${req.instagram}`)
+    if (req.nama) conditions.push(`nama.ilike.%${escapeFilterValue(req.nama)}%`)
+    if (req.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(req.instagram)}`)
     if (conditions.length > 0) {
       await supabase.from('fraud_list').delete().or(conditions.join(','))
     }
@@ -417,7 +425,7 @@ export default function AdminPage() {
     
     // Find and delete from blacklist
     await supabase.from('blacklist').delete().or(
-      `nama.ilike.%${req.nama}%,instagram.ilike.${req.instagram || ''},no_hp.eq.${req.no_hp || ''}`
+      `nama.ilike.%${escapeFilterValue(req.nama)}%,instagram.ilike.${escapeFilterValue(req.instagram || '')},no_hp.eq.${escapeFilterValue(req.no_hp || '')}`
     )
     
     // Update request status
@@ -429,7 +437,7 @@ export default function AdminPage() {
     // Also update related reports to resolved
     await supabase.from('reports').update({
       status: 'resolved'
-    }).or(`nama.ilike.%${req.nama}%,instagram.ilike.${req.instagram || ''}`)
+    }).or(`nama.ilike.%${escapeFilterValue(req.nama)}%,instagram.ilike.${escapeFilterValue(req.instagram || '')}`)
     
     await logAction('approve_banding', 'banding', req.id, `Approved banding: ${req.nama} — removed from blacklist`)
     setProcessing(null)
@@ -457,13 +465,11 @@ export default function AdminPage() {
     setProcessing(report.id)
     
     // Check if already exists in blacklist (by name, phone, ig, or tiktok)
-    let existingQuery = supabase.from('blacklist').select('*')
-    
     const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
-    if (report.no_hp) conditions.push(`no_hp.eq.${report.no_hp}`)
-    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
-    if (report.tiktok) conditions.push(`tiktok.ilike.${report.tiktok}`)
+    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+    if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
+    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
+    if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
     
     const { data: existing } = await supabase
       .from('blacklist')
@@ -572,10 +578,10 @@ export default function AdminPage() {
     
     // Remove from blacklist — match by multiple fields since report_id may differ for merged entries
     const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
-    if (report.no_hp) conditions.push(`no_hp.eq.${report.no_hp}`)
-    if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
-    if (report.tiktok) conditions.push(`tiktok.ilike.${report.tiktok}`)
+    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+    if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
+    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
+    if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
     
     if (conditions.length > 0) {
       await supabase.from('blacklist').delete().or(conditions.join(','))
@@ -606,10 +612,10 @@ export default function AdminPage() {
 
       // Check for existing entry
       const conditions = []
-      if (report.nama) conditions.push(`nama.ilike.%${report.nama}%`)
-      if (report.no_hp) conditions.push(`no_hp.eq.${report.no_hp}`)
-      if (report.instagram) conditions.push(`instagram.ilike.${report.instagram}`)
-      if (report.tiktok) conditions.push(`tiktok.ilike.${report.tiktok}`)
+      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
+      if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
+      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
+      if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
       
       const { data: existing } = await supabase
         .from('blacklist')
@@ -655,10 +661,10 @@ export default function AdminPage() {
     setAdminUser(null)
   }
 
-  const pendingReports = reports.length > 0 ? reports.filter(r => r.status === 'pending').length : initialCounts.reports
-  const pendingBanding = bandingRequests.length > 0 ? bandingRequests.filter(r => r.status === 'pending').length : initialCounts.banding
-  const pendingIndikasi = indikasiReports.length > 0 ? indikasiReports.filter(r => r.status === 'pending').length : initialCounts.indikasi
-  const pendingFraud = fraudReports.length > 0 ? fraudReports.filter(r => r.status === 'pending').length : initialCounts.fraud
+  const pendingReports = initialCounts.reports
+  const pendingBanding = initialCounts.banding
+  const pendingIndikasi = initialCounts.indikasi
+  const pendingFraud = initialCounts.fraud
   const pendingIndikasiBanding = indikasiBandingList.filter(r => r.status === 'pending').length
   const pendingFraudBanding = fraudBandingList.filter(r => r.status === 'pending').length
   const totalPending = pendingReports + pendingBanding + pendingIndikasi + pendingFraud

@@ -1,50 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { sanitizeInput } from '@/lib/security'
+import { sanitizeInput, sanitizeUrl } from '@/lib/security'
+import { getSupabaseClient, getClientIp } from '@/lib/api-utils'
 
-/**
- * Create Supabase client inside function to avoid build-time errors
- */
-function getSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase credentials not configured')
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey)
-}
-
-/**
- * Get client IP address from request headers
- * Works with Vercel and other hosting providers
- */
-function getClientIp(request: Request): string {
-  const headers = request.headers
-  
-  // Try x-forwarded-for first (Vercel, most proxies)
-  const forwardedFor = headers.get('x-forwarded-for')
-  if (forwardedFor) {
-    // x-forwarded-for can contain multiple IPs, take the first one (client IP)
-    return forwardedFor.split(',')[0].trim()
-  }
-
-  // Try x-real-ip (some proxies)
-  const realIp = headers.get('x-real-ip')
-  if (realIp) {
-    return realIp
-  }
-
-  // Try CF-Connecting-IP (Cloudflare)
-  const cfIp = headers.get('cf-connecting-ip')
-  if (cfIp) {
-    return cfIp
-  }
-
-  // Fallback
-  return 'unknown'
-}
 
 export async function POST(request: Request) {
   try {
@@ -70,7 +27,7 @@ export async function POST(request: Request) {
       kategori: sanitizeInput(body.kategori),
       asal_mg: body.kategori === 'KOL' ? (sanitizeInput(body.asal_mg) || null) : null,
       kronologi: sanitizeInput(body.kronologi),
-      bukti_url: sanitizeInput(body.bukti_url) || null,
+      bukti_url: sanitizeUrl(body.bukti_url) || null,
       pelapor_nama: sanitizeInput(body.pelapor_nama) || null,
       pelapor_kontak: sanitizeInput(body.pelapor_kontak) || null,
       status: 'pending',

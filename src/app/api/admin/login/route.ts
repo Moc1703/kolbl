@@ -70,12 +70,11 @@ export async function POST(request: Request) {
     path: '/',
   })
 
-  // Also store the session info as a non-httpOnly cookie for client-side access
+  // Also store the display info (NOT the token) as a non-httpOnly cookie for client-side UI
   response.cookies.set('admin_user', JSON.stringify({
     username: adminUser.username,
     display_name: adminUser.display_name,
     role: adminUser.role,
-    token: sessionToken,
   }), {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',

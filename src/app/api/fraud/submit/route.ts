@@ -1,34 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { sanitizeInput } from '@/lib/security'
+import { sanitizeInput, sanitizeUrl } from '@/lib/security'
+import { getSupabaseClient, getClientIp } from '@/lib/api-utils'
 
-function getSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase credentials not configured')
-  }
-
-  return createClient(supabaseUrl, supabaseAnonKey)
-}
-
-function getClientIp(request: Request): string {
-  const headers = request.headers
-
-  const forwardedFor = headers.get('x-forwarded-for')
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim()
-  }
-
-  const realIp = headers.get('x-real-ip')
-  if (realIp) return realIp
-
-  const cfIp = headers.get('cf-connecting-ip')
-  if (cfIp) return cfIp
-
-  return 'unknown'
-}
 
 export async function POST(request: Request) {
   try {
@@ -54,7 +27,7 @@ export async function POST(request: Request) {
       nominal: isNaN(nominalValue as number) ? null : nominalValue,
       metode_pembayaran: sanitizeInput(body.metode_pembayaran) || null,
       kronologi: sanitizeInput(body.kronologi),
-      bukti_url: sanitizeInput(body.bukti_url) || null,
+      bukti_url: sanitizeUrl(body.bukti_url) || null,
       pelapor_nama: sanitizeInput(body.pelapor_nama) || null,
       pelapor_kontak: sanitizeInput(body.pelapor_kontak) || null,
       status: 'pending',
