@@ -14,11 +14,9 @@ export async function POST(request: Request) {
       )
     }
 
-    const reporterIp = getClientIp(request)
-
     const nominalValue = body.nominal ? parseInt(body.nominal, 10) : null
 
-    const cleanData = {
+    const cleanData: Record<string, unknown> = {
       nama: sanitizeInput(body.nama),
       no_hp: sanitizeInput(body.no_hp) || null,
       instagram: sanitizeInput(body.instagram?.replace('@', '')) || null,
@@ -31,10 +29,13 @@ export async function POST(request: Request) {
       pelapor_nama: sanitizeInput(body.pelapor_nama) || null,
       pelapor_kontak: sanitizeInput(body.pelapor_kontak) || null,
       status: 'pending',
-      reporter_ip: reporterIp,
-      agreed_to_terms: true,
-      agreement_timestamp: new Date().toISOString()
     }
+
+    // Optional tracking fields
+    const reporterIp = getClientIp(request)
+    cleanData.reporter_ip = reporterIp
+    cleanData.agreed_to_terms = true
+    cleanData.agreement_timestamp = new Date().toISOString()
 
     if (!cleanData.nama || !cleanData.kronologi) {
       return NextResponse.json(
@@ -44,16 +45,33 @@ export async function POST(request: Request) {
     }
 
     const supabase = getSupabaseClient()
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('fraud_reports')
       .insert(cleanData)
       .select()
       .single()
 
+    // Retry without optional tracking fields if insert fails
+    if (error) {
+      console.error('First insert attempt failed:', error.message)
+      delete cleanData.reporter_ip
+      delete cleanData.agreed_to_terms
+      delete cleanData.agreement_timestamp
+
+      const retryResult = await supabase
+        .from('fraud_reports')
+        .insert(cleanData)
+        .select()
+        .single()
+      
+      data = retryResult.data
+      error = retryResult.error
+    }
+
     if (error) {
       console.error('Supabase error:', error)
       return NextResponse.json(
-        { error: 'Gagal mengirim laporan. Silakan coba lagi.' },
+        { error: `Gagal mengirim laporan: ${error.message}` },
         { status: 500 }
       )
     }

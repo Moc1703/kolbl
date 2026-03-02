@@ -15,11 +15,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Capture IP address
-    const reporterIp = getClientIp(request)
-
     // Sanitize all inputs to prevent XSS attacks
-    const cleanData = {
+    const cleanData: Record<string, unknown> = {
       nama: sanitizeInput(body.nama),
       no_hp: sanitizeInput(body.no_hp) || null,
       instagram: sanitizeInput(body.instagram?.replace('@', '')) || null,
@@ -31,11 +28,13 @@ export async function POST(request: Request) {
       pelapor_nama: sanitizeInput(body.pelapor_nama) || null,
       pelapor_kontak: sanitizeInput(body.pelapor_kontak) || null,
       status: 'pending',
-      // New fields for terms agreement and IP tracking
-      reporter_ip: reporterIp,
-      agreed_to_terms: true,
-      agreement_timestamp: new Date().toISOString()
     }
+
+    // Only add optional tracking fields if they might exist in the table
+    const reporterIp = getClientIp(request)
+    cleanData.reporter_ip = reporterIp
+    cleanData.agreed_to_terms = true
+    cleanData.agreement_timestamp = new Date().toISOString()
 
     // Validate required fields
     if (!cleanData.nama || !cleanData.kronologi) {
@@ -47,16 +46,35 @@ export async function POST(request: Request) {
 
     // Insert into database
     const supabase = getSupabaseClient()
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('reports')
       .insert(cleanData)
       .select()
       .single()
 
+    // If insert fails (possibly due to extra columns), retry without optional tracking fields
+    if (error) {
+      console.error('First insert attempt failed:', error.message)
+      
+      // Remove optional tracking fields and retry
+      delete cleanData.reporter_ip
+      delete cleanData.agreed_to_terms
+      delete cleanData.agreement_timestamp
+
+      const retryResult = await supabase
+        .from('reports')
+        .insert(cleanData)
+        .select()
+        .single()
+      
+      data = retryResult.data
+      error = retryResult.error
+    }
+
     if (error) {
       console.error('Supabase error:', error)
       return NextResponse.json(
-        { error: 'Gagal mengirim laporan. Silakan coba lagi.' },
+        { error: `Gagal mengirim laporan: ${error.message}` },
         { status: 500 }
       )
     }
