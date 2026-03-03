@@ -18,7 +18,6 @@ export default function SaranPage() {
     e.preventDefault()
     setLoading(true)
 
-    // Sanitize all inputs to prevent XSS attacks
     const { error } = await supabase.from('saran').insert({
       nama: sanitizeInput(form.nama) || null,
       kontak: sanitizeInput(form.kontak) || null,
@@ -39,23 +38,24 @@ export default function SaranPage() {
 
   if (success) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-12">
-        <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
-          <div className="text-5xl mb-4">💌</div>
-          <h2 className="text-2xl font-bold text-green-800 mb-3">Terima Kasih!</h2>
-          <p className="text-green-600 mb-6">
+      <div className="max-w-xl mx-auto px-4 py-12 font-sans">
+        <div className="bg-green-950/30 border border-green-900/50 rounded-sm p-8 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+          <div className="text-5xl mb-4 opacity-80">💌</div>
+          <h2 className="text-2xl font-black text-green-500 uppercase tracking-tight mb-3">Terima Kasih!</h2>
+          <p className="text-green-400/80 font-mono text-sm mb-6">
             Saran/masukan kamu sudah kami terima. Kami akan review dan pertimbangkan untuk perbaikan website.
           </p>
-          <div className="space-x-4">
-            <button 
+          <div className="flex justify-center gap-3">
+            <button
               onClick={() => setSuccess(false)}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-5 py-2.5 bg-neutral-800 text-white border border-neutral-700 rounded-sm hover:bg-neutral-700 transition-colors font-bold uppercase tracking-widest text-xs"
             >
               Kirim Lagi
             </button>
-            <a 
+            <a
               href="/"
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 inline-block"
+              className="px-5 py-2.5 bg-red-700 text-white rounded-sm hover:bg-red-600 transition-colors font-bold uppercase tracking-widest text-xs inline-flex items-center"
             >
               Kembali ke Home
             </a>
@@ -66,44 +66,48 @@ export default function SaranPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-6 md:py-8">
-      <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">💡 Saran & Masukan</h1>
-        <p className="text-gray-600 text-sm">
-          Punya ide untuk improve website ini? Atau ada bug yang perlu diperbaiki? Kasih tau kami!
+    <div className="max-w-xl mx-auto px-4 py-6 md:py-8 font-sans">
+      <div className="mb-8 border-b-2 border-neutral-800 pb-4">
+        <h1 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight flex items-center gap-3 mb-2">
+          <span className="text-yellow-500">💡</span> SARAN & MASUKAN
+        </h1>
+        <p className="text-neutral-500 font-mono text-sm uppercase tracking-wider">
+          Punya ide untuk improve website ini? Kasih tau kami!
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-4 md:p-6 space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-800 rounded-sm p-6 md:p-8 space-y-6 relative">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-600 to-red-700"></div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nama (Opsional)</label>
+            <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Nama (Opsional)</label>
             <input
               type="text"
               value={form.nama}
               onChange={(e) => setForm({...form, nama: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
+              className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-yellow-500 transition-colors font-mono text-sm placeholder-neutral-700"
               placeholder="Nama kamu"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Kontak (Opsional)</label>
+            <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Kontak (Opsional)</label>
             <input
               type="text"
               value={form.kontak}
               onChange={(e) => setForm({...form, kontak: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
+              className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-yellow-500 transition-colors font-mono text-sm placeholder-neutral-700"
               placeholder="Email/WA untuk follow up"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Jenis</label>
+          <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Jenis</label>
           <select
             value={form.jenis}
             onChange={(e) => setForm({...form, jenis: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
+            className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-yellow-500 transition-colors font-mono text-sm cursor-pointer"
           >
             <option value="saran">💡 Saran/Ide Fitur</option>
             <option value="bug">🐛 Lapor Bug</option>
@@ -113,7 +117,7 @@ export default function SaranPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">
             Pesan <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -121,7 +125,7 @@ export default function SaranPage() {
             rows={5}
             value={form.pesan}
             onChange={(e) => setForm({...form, pesan: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
+            className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-neutral-300 focus:outline-none focus:border-yellow-500 transition-colors font-serif italic text-sm placeholder-neutral-700 leading-relaxed resize-none"
             placeholder="Tulis saran, kritik, atau masukan kamu di sini..."
           />
         </div>
@@ -129,9 +133,19 @@ export default function SaranPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+          className="w-full py-4 bg-red-700 text-white font-black uppercase tracking-widest rounded-sm hover:bg-red-600 active:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {loading ? 'Mengirim...' : 'Kirim Saran'}
+          {loading ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>MENGIRIM...</span>
+            </>
+          ) : (
+            <>
+              <span>KIRIM SARAN</span>
+              <span className="text-xl">→</span>
+            </>
+          )}
         </button>
       </form>
     </div>
