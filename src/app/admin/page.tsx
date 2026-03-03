@@ -1423,36 +1423,36 @@ export default function AdminPage() {
           <div>
             <div className="bg-neutral-900 border border-neutral-800 p-4 mb-4 rounded-sm flex items-center justify-between">
               <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">MANAGE ADMIN USERS</p>
-              <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">{pendingAdmins.filter(a => !a.is_active).length} PENDING</span>
+              <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">{pendingAdmins.filter((a: any) => !a.is_active).length} PENDING</span>
             </div>
             {pendingAdmins.length === 0 ? (
               <div className="bg-neutral-950 border border-neutral-800 rounded-sm p-12 text-center">
-                <p className="text-3xl mb-2 opacity-50"></p>
+                <p className="text-3xl mb-2 opacity-50">👥</p>
                 <p className="text-neutral-600 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DATA ADMIN</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {pendingAdmins.map((admin) => (
+                {pendingAdmins.map((admin: any) => (
                   <div key={admin.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative transition-colors"
-                    style={{ borderLeft: 3px solid  }}>
+                    style={{ borderLeft: `3px solid ${!admin.is_active ? '#eab308' : admin.role === 'superadmin' ? '#8b5cf6' : '#22c55e'}` }}>
                     <div className="p-4">
                       <div className="flex items-center gap-2 flex-wrap mb-2">
                         <h3 className="font-bold text-white text-sm uppercase tracking-wider">{admin.display_name || admin.username}</h3>
-                        <span className={px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border }>{admin.is_active ? 'AKTIF' : 'PENDING'}</span>
-                        <span className={px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border }>{admin.role}</span>
+                        <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${!admin.is_active ? 'bg-yellow-900/20 border-yellow-800/50 text-yellow-500' : 'bg-green-900/20 border-green-800/50 text-green-500'}`}>{admin.is_active ? 'AKTIF' : 'PENDING'}</span>
+                        <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border ${admin.role === 'superadmin' ? 'bg-purple-900/20 border-purple-800/50 text-purple-400' : 'bg-neutral-800 border-neutral-700 text-neutral-500'}`}>{admin.role}</span>
                       </div>
                       <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest mb-3">
-                        @{admin.username}  {new Date(admin.created_at).toLocaleDateString('id-ID')}
-                        {admin.last_login &&   Last: }
+                        @{admin.username} ⚡ {new Date(admin.created_at).toLocaleDateString('id-ID')}
+                        {admin.last_login && ` ⚡ Last: ${new Date(admin.last_login).toLocaleDateString('id-ID')}`}
                       </p>
                       {!admin.is_active && (
                         <div className="flex gap-2">
-                          <button onClick={() => handleApproveAdmin(admin)} disabled={processing === admin.id} className="flex-1 py-2.5 bg-green-900/20 border border-green-800/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-900/30 transition-colors"> APPROVE</button>
-                          <button onClick={() => handleRejectAdmin(admin)} disabled={processing === admin.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-800/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/30 transition-colors"> HAPUS</button>
+                          <button onClick={() => handleApproveAdmin(admin)} disabled={processing === admin.id} className="flex-1 py-2.5 bg-green-900/20 border border-green-800/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-900/30 transition-colors">✅ APPROVE</button>
+                          <button onClick={() => handleRejectAdmin(admin)} disabled={processing === admin.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-800/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/30 transition-colors">❌ HAPUS</button>
                         </div>
                       )}
                       {admin.is_active && admin.role !== 'superadmin' && adminUser?.role === 'superadmin' && (
-                        <button onClick={() => handleDeactivateAdmin(admin)} disabled={processing === admin.id} className="w-full py-2.5 bg-orange-900/20 border border-orange-800/50 text-orange-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-900/30 transition-colors"> NONAKTIFKAN</button>
+                        <button onClick={() => handleDeactivateAdmin(admin)} disabled={processing === admin.id} className="w-full py-2.5 bg-orange-900/20 border border-orange-800/50 text-orange-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-900/30 transition-colors">🚫 NONAKTIFKAN</button>
                       )}
                     </div>
                   </div>
