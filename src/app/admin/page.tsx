@@ -35,7 +35,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [adminUser, setAdminUser] = useState<AdminUserInfo | null>(null)
-  const [activeTab, setActiveTab] = useState<'laporan' | 'banding' | 'indikasi' | 'fraud' | 'log'>('laporan')
+  const [activeTab, setActiveTab] = useState<'laporan' | 'banding' | 'indikasi' | 'fraud' | 'log' | 'users'>('laporan')
   const [reports, setReports] = useState<Report[]>([])
   const [bandingRequests, setBandingRequests] = useState<UnblacklistRequest[]>([])
   const [loading, setLoading] = useState(false)
@@ -61,6 +61,7 @@ export default function AdminPage() {
   const [selectedIndikasi, setSelectedIndikasi] = useState<IndikasiReport | null>(null)
   const [selectedFraud, setSelectedFraud] = useState<FraudReport | null>(null)
   // NEW: initial pending counts (before tabs are clicked)
+  const [pendingAdmins, setPendingAdmins] = useState<any[]>([])
   const [initialCounts, setInitialCounts] = useState({ reports: 0, banding: 0, indikasi: 0, fraud: 0 })
   const [copied, setCopied] = useState(false)
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null)
@@ -120,6 +121,8 @@ export default function AdminPage() {
         fetchFraudBanding()
       } else if (activeTab === 'log') {
         fetchAdminLogs()
+      } else if (activeTab === 'users') {
+        fetchPendingAdmins()
       }
     }
   }, [isLoggedIn, filter, kategoriFilter, indikasiFilter, fraudFilter, bandingFilter, activeTab])
@@ -720,6 +723,38 @@ export default function AdminPage() {
     }
   }
 
+
+  const fetchPendingAdmins = async () => {
+    const { data } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false })
+    setPendingAdmins(data || [])
+  }
+
+  const handleApproveAdmin = async (admin: any) => {
+    if (!(await confirmAction('Yakin approve admin ini?'))) return
+    setProcessing(admin.id)
+    await supabase.from('admin_users').update({ is_active: true }).eq('id', admin.id)
+    await logAction('approve_admin', 'admin', admin.id, 'Approved admin: ' + admin.display_name)
+    setProcessing(null)
+    fetchPendingAdmins()
+  }
+
+  const handleRejectAdmin = async (admin: any) => {
+    if (!(await confirmAction('Yakin reject dan hapus admin ini?'))) return
+    setProcessing(admin.id)
+    await supabase.from('admin_users').delete().eq('id', admin.id)
+    await logAction('reject_admin', 'admin', admin.id, 'Rejected admin: ' + admin.display_name)
+    setProcessing(null)
+    fetchPendingAdmins()
+  }
+
+  const handleDeactivateAdmin = async (admin: any) => {
+    if (!(await confirmAction('Yakin nonaktifkan admin ini?'))) return
+    setProcessing(admin.id)
+    await supabase.from('admin_users').update({ is_active: false }).eq('id', admin.id)
+    await logAction('deactivate_admin', 'admin', admin.id, 'Deactivated admin: ' + admin.display_name)
+    setProcessing(null)
+    fetchPendingAdmins()
+  }
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
     setIsLoggedIn(false)
@@ -787,6 +822,12 @@ export default function AdminPage() {
                 INITIALIZE SESSION
               </button>
             </form>
+
+          <div className="mt-4 text-center">
+            <a href="/admin/register" className="text-[10px] text-neutral-600 font-mono uppercase tracking-widest hover:text-neutral-400 transition-colors">
+              Belum punya akun? DAFTAR 
+            </a>
+          </div>
           </div>
         </div>
       </div>
@@ -850,7 +891,7 @@ export default function AdminPage() {
       <div className="max-w-4xl mx-auto px-4 -mt-10 relative z-10">
         {/* Tab Navigation */}
         <div className="flex overflow-x-auto hide-scrollbar gap-2 mb-6 pb-2">
-          {['laporan', 'banding', 'indikasi', 'fraud', 'log'].map((tab) => (
+          {['laporan', 'banding', 'indikasi', 'fraud', 'log', 'users'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
@@ -1377,6 +1418,50 @@ export default function AdminPage() {
             )}
           </div>
         )}
+        {/* Users Tab */}
+        {activeTab === 'users' && (
+          <div>
+            <div className="bg-neutral-900 border border-neutral-800 p-4 mb-4 rounded-sm flex items-center justify-between">
+              <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">MANAGE ADMIN USERS</p>
+              <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">{pendingAdmins.filter(a => !a.is_active).length} PENDING</span>
+            </div>
+            {pendingAdmins.length === 0 ? (
+              <div className="bg-neutral-950 border border-neutral-800 rounded-sm p-12 text-center">
+                <p className="text-3xl mb-2 opacity-50"></p>
+                <p className="text-neutral-600 font-mono text-[10px] uppercase tracking-widest">TIDAK ADA DATA ADMIN</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingAdmins.map((admin) => (
+                  <div key={admin.id} className="bg-neutral-950 border border-neutral-800 rounded-sm overflow-hidden relative transition-colors"
+                    style={{ borderLeft: 3px solid  }}>
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 flex-wrap mb-2">
+                        <h3 className="font-bold text-white text-sm uppercase tracking-wider">{admin.display_name || admin.username}</h3>
+                        <span className={px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border }>{admin.is_active ? 'AKTIF' : 'PENDING'}</span>
+                        <span className={px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase border }>{admin.role}</span>
+                      </div>
+                      <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest mb-3">
+                        @{admin.username}  {new Date(admin.created_at).toLocaleDateString('id-ID')}
+                        {admin.last_login &&   Last: }
+                      </p>
+                      {!admin.is_active && (
+                        <div className="flex gap-2">
+                          <button onClick={() => handleApproveAdmin(admin)} disabled={processing === admin.id} className="flex-1 py-2.5 bg-green-900/20 border border-green-800/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-900/30 transition-colors"> APPROVE</button>
+                          <button onClick={() => handleRejectAdmin(admin)} disabled={processing === admin.id} className="flex-1 py-2.5 bg-red-900/20 border border-red-800/50 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-red-900/30 transition-colors"> HAPUS</button>
+                        </div>
+                      )}
+                      {admin.is_active && admin.role !== 'superadmin' && adminUser?.role === 'superadmin' && (
+                        <button onClick={() => handleDeactivateAdmin(admin)} disabled={processing === admin.id} className="w-full py-2.5 bg-orange-900/20 border border-orange-800/50 text-orange-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-orange-900/30 transition-colors"> NONAKTIFKAN</button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
 
         {/* Log Tab */}
         {activeTab === 'log' && (
