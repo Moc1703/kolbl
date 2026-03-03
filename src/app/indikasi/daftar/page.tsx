@@ -152,7 +152,7 @@ export default function IndikasiDaftarPage() {
           <div className="relative bg-neutral-950 border border-neutral-700 rounded-sm max-w-lg w-full max-h-[90vh]  animate-zoom-in flex flex-col overflow-hidden">
             
             {/* Modal Header */}
-            <div className={`p-4 md:p-6 border-b-4 flex justify-between items-start border-b-amber-500 bg-amber-50`}>
+            <div className={`p-4 md:p-6 border-b-4 flex justify-between items-start border-b-amber-500 bg-amber-950/30`}>
               <div>
                  <div className="inline-block px-2 py-0.5 bg-neutral-950 border border-neutral-800 rounded-sm text-[10px] font-bold tracking-widest text-neutral-500 mb-2 font-mono ">
                   SUBJECT: PRE-WARNING
