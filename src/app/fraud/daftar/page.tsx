@@ -242,9 +242,7 @@ ${selected.instagram ? `IG: @${selected.instagram}` : ''}
 *Detail Kasus:*
 ${selected.alasan}
 
-_Dossier: Blacklist KOL Indonesia_
-
-Untuk pengajuan banding silahkan isi form banding dan melakukan klarifikasi terhadap pihak yang di rugikan. Penghapusan Blacklist dilakukan apabila pihak yang dirugikan telah menyatakan bahwa masalah telah selesai`;
+_Dossier: Blacklist KOL Indonesia_`;
                   navigator.clipboard.writeText(text);
                   alert('Data disalin ke clipboard!');
                 }}
