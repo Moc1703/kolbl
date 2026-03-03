@@ -1076,6 +1076,14 @@ export default function AdminPage() {
                         {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-800/50 bg-blue-900/20 px-2 py-1 rounded-sm hover:bg-blue-900/30">📎 BUKTI CLEAR</a>}
                         {req.kontak && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
                       </div>
+                      <button
+                        onClick={() => {
+                          const text = `📋 *AJUAN BANDING*\nNama: ${req.nama}\n${req.no_hp ? `HP: ${req.no_hp}` : ''}${req.instagram ? `\nIG: @${req.instagram}` : ''}\n\n*Alasan Banding:*\n${req.alasan_banding}\n${req.bukti_clear ? `\nBukti: ${req.bukti_clear}` : ''}${req.kontak ? `\nKontak: ${req.kontak}` : ''}\n\n_Tanggal: ${new Date(req.created_at).toLocaleDateString('id-ID')}_`;
+                          navigator.clipboard.writeText(text);
+                          alert('Data banding disalin!');
+                        }}
+                        className="w-full py-2 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-700 hover:text-white transition-colors mb-2"
+                      >📋 COPY DATA BANDING</button>
                       {req.status === 'pending' && (
                         <div className="flex gap-2">
                           <button onClick={() => handleApproveBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-900/20 border border-green-800/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-900/30 transition-colors shadow-none">✅ APPROVE</button>
@@ -1199,6 +1207,14 @@ export default function AdminPage() {
                           {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-800/50 bg-blue-900/20 px-2 py-1 rounded-sm hover:bg-blue-900/30">📎 BUKTI CLEAR</a>}
                           {req.kontak && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
                         </div>
+                        <button
+                          onClick={() => {
+                            const text = `📋 *BANDING INDIKASI*\nNama: ${req.nama}\n${req.no_hp ? `HP: ${req.no_hp}` : ''}${req.instagram ? `\nIG: @${req.instagram}` : ''}\n\n*Alasan Banding:*\n${req.alasan_banding}\n${req.bukti_clear ? `\nBukti: ${req.bukti_clear}` : ''}${req.kontak ? `\nKontak: ${req.kontak}` : ''}\n\n_Tanggal: ${new Date(req.created_at).toLocaleDateString('id-ID')}_`;
+                            navigator.clipboard.writeText(text);
+                            alert('Data banding disalin!');
+                          }}
+                          className="w-full py-2 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-700 hover:text-white transition-colors mb-2"
+                        >📋 COPY DATA BANDING</button>
                         {req.status === 'pending' && (
                           <div className="flex gap-2">
                             <button onClick={() => handleApproveIndikasiBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-900/20 border border-green-800/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-900/30 transition-colors shadow-none">✅ APPROVE</button>
@@ -1328,6 +1344,14 @@ export default function AdminPage() {
                           {req.bukti_clear && <a href={req.bukti_clear} target="_blank" rel="noopener noreferrer" className="text-blue-400 border border-blue-800/50 bg-blue-900/20 px-2 py-1 rounded-sm hover:bg-blue-900/30">📎 BUKTI CLEAR</a>}
                           {req.kontak && <span className="text-neutral-400 border border-neutral-800 bg-neutral-900 px-2 py-1 rounded-sm">📞 {req.kontak}</span>}
                         </div>
+                        <button
+                          onClick={() => {
+                            const text = `📋 *BANDING FRAUD*\nNama: ${req.nama}\n${req.no_hp ? `HP: ${req.no_hp}` : ''}${req.instagram ? `\nIG: @${req.instagram}` : ''}\n\n*Alasan Banding:*\n${req.alasan_banding}\n${req.bukti_clear ? `\nBukti: ${req.bukti_clear}` : ''}${req.kontak ? `\nKontak: ${req.kontak}` : ''}\n\n_Tanggal: ${new Date(req.created_at).toLocaleDateString('id-ID')}_`;
+                            navigator.clipboard.writeText(text);
+                            alert('Data banding disalin!');
+                          }}
+                          className="w-full py-2 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-700 hover:text-white transition-colors mb-2"
+                        >📋 COPY DATA BANDING</button>
                         {req.status === 'pending' && (
                           <div className="flex gap-2">
                             <button onClick={() => handleApproveFraudBanding(req)} disabled={processing === req.id} className="flex-1 py-2.5 bg-green-900/20 border border-green-800/50 text-green-500 rounded-sm text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-green-900/30 transition-colors shadow-none">✅ APPROVE</button>
