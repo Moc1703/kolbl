@@ -9,6 +9,7 @@ export default function IndikasiDaftarPage() {
   const [filter, setFilter] = useState<'all' | 'Lelet' | 'Hilang' | 'Ghost' | 'Lainnya'>('all')
   const [sort, setSort] = useState<'terbaru' | 'terlama' | 'terbanyak'>('terbaru')
   const [selected, setSelected] = useState<IndikasiList | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -238,7 +239,8 @@ export default function IndikasiDaftarPage() {
                   ].filter((line, i, arr) => line !== '' || (arr[i - 1] !== '' && arr[i - 1] !== undefined));
                   const text = lines.join('\n');
                   navigator.clipboard.writeText(text);
-                  alert('Data disalin ke clipboard!');
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
                 }}
                 className="w-full py-4 bg-amber-600 text-white rounded-sm font-bold uppercase tracking-widest hover:bg-amber-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 "
               >
@@ -262,6 +264,12 @@ export default function IndikasiDaftarPage() {
           LAMPIRKAN LAPORAN BARU
         </a>
       </div>
+      {/* Toast */}
+      {copied && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-neutral-800 border border-neutral-700 text-white text-xs font-bold uppercase tracking-widest rounded-sm animate-fade-in">
+          ✅ Data disalin ke clipboard
+        </div>
+      )}
     </div>
   )
 }

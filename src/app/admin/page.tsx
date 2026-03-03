@@ -62,6 +62,7 @@ export default function AdminPage() {
   const [selectedFraud, setSelectedFraud] = useState<FraudReport | null>(null)
   // NEW: initial pending counts (before tabs are clicked)
   const [initialCounts, setInitialCounts] = useState({ reports: 0, banding: 0, indikasi: 0, fraud: 0 })
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     // Check for admin_user cookie
@@ -1080,7 +1081,8 @@ export default function AdminPage() {
                         onClick={() => {
                           const text = `📋 *AJUAN BANDING*\nNama: ${req.nama}\n${req.no_hp ? `HP: ${req.no_hp}` : ''}${req.instagram ? `\nIG: @${req.instagram}` : ''}\n\n*Alasan Banding:*\n${req.alasan_banding}\n${req.bukti_clear ? `\nBukti: ${req.bukti_clear}` : ''}${req.kontak ? `\nKontak: ${req.kontak}` : ''}\n\n_Tanggal: ${new Date(req.created_at).toLocaleDateString('id-ID')}_`;
                           navigator.clipboard.writeText(text);
-                          alert('Data banding disalin!');
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
                         }}
                         className="w-full py-2 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-700 hover:text-white transition-colors mb-2"
                       >📋 COPY DATA BANDING</button>
@@ -1211,7 +1213,8 @@ export default function AdminPage() {
                           onClick={() => {
                             const text = `📋 *BANDING INDIKASI*\nNama: ${req.nama}\n${req.no_hp ? `HP: ${req.no_hp}` : ''}${req.instagram ? `\nIG: @${req.instagram}` : ''}\n\n*Alasan Banding:*\n${req.alasan_banding}\n${req.bukti_clear ? `\nBukti: ${req.bukti_clear}` : ''}${req.kontak ? `\nKontak: ${req.kontak}` : ''}\n\n_Tanggal: ${new Date(req.created_at).toLocaleDateString('id-ID')}_`;
                             navigator.clipboard.writeText(text);
-                            alert('Data banding disalin!');
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
                           }}
                           className="w-full py-2 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-700 hover:text-white transition-colors mb-2"
                         >📋 COPY DATA BANDING</button>
@@ -1348,7 +1351,8 @@ export default function AdminPage() {
                           onClick={() => {
                             const text = `📋 *BANDING FRAUD*\nNama: ${req.nama}\n${req.no_hp ? `HP: ${req.no_hp}` : ''}${req.instagram ? `\nIG: @${req.instagram}` : ''}\n\n*Alasan Banding:*\n${req.alasan_banding}\n${req.bukti_clear ? `\nBukti: ${req.bukti_clear}` : ''}${req.kontak ? `\nKontak: ${req.kontak}` : ''}\n\n_Tanggal: ${new Date(req.created_at).toLocaleDateString('id-ID')}_`;
                             navigator.clipboard.writeText(text);
-                            alert('Data banding disalin!');
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
                           }}
                           className="w-full py-2 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-700 hover:text-white transition-colors mb-2"
                         >📋 COPY DATA BANDING</button>
@@ -1623,6 +1627,12 @@ export default function AdminPage() {
         {/* Bottom spacing for mobile */}
         <div className="h-8"></div>
       </div>
+      {/* Toast */}
+      {copied && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-neutral-800 border border-neutral-700 text-white text-xs font-bold uppercase tracking-widest rounded-sm">
+          Data disalin ke clipboard
+        </div>
+      )}
     </div>
   )
 }
