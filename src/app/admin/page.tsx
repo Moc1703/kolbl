@@ -653,7 +653,7 @@ export default function AdminPage() {
 
   const handleBulkApprove = async () => {
     if (selectedIds.length === 0) return
-    if (!(await confirmAction(`Yakin approve ${selectedIds.length} laporan sekaligus?`)) return
+    if (!(await confirmAction(`Yakin approve ${selectedIds.length} laporan sekaligus?`))) return
 
     setBulkProcessing(true)
 
