@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase, Report, IndikasiReport, FraudReport, AdminLog, IndikasiBanding, FraudBanding } from '@/lib/supabase'
+import { Report, IndikasiReport, FraudReport, AdminLog, IndikasiBanding, FraudBanding } from '@/lib/supabase'
 
 interface UnblacklistRequest {
   id: string
@@ -90,22 +90,27 @@ export default function AdminPage() {
     }
   }, [])
 
+// Helper to call the protected admin API
+  const adminApi = async (action: string, payload?: any) => {
+    const res = await fetch('/api/admin/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, payload })
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || 'Request failed')
+    }
+    return res.json()
+  }
+
   useEffect(() => {
     if (isLoggedIn) {
-      // Fetch initial pending counts for all tabs
       const fetchCounts = async () => {
-        const [r1, r2, r3, r4] = await Promise.all([
-          supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('unblacklist_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('indikasi_reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('fraud_reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        ])
-        setInitialCounts({
-          reports: r1.count || 0,
-          banding: r2.count || 0,
-          indikasi: r3.count || 0,
-          fraud: r4.count || 0
-        })
+        try {
+          const { data } = await adminApi('fetch_counts')
+          setInitialCounts(data)
+        } catch { /* ignore */ }
       }
       fetchCounts()
 
@@ -135,7 +140,6 @@ export default function AdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     })
-    
     if (res.ok) {
       const data = await res.json()
       setAdminUser(data.user)
@@ -154,9 +158,7 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/logs')
       const data = await res.json()
       setAdminLogs(data.logs || [])
-    } catch {
-      setAdminLogs([])
-    }
+    } catch { setAdminLogs([]) }
     setLoading(false)
   }
 
@@ -166,454 +168,236 @@ export default function AdminPage() {
       await fetch('/api/admin/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: adminUser.username,
-          action,
-          targetType,
-          targetId,
-          details
-        })
+        body: JSON.stringify({ username: adminUser.username, action, targetType, targetId, details })
       })
-    } catch {
-      // Don't break flow if logging fails
-    }
+    } catch { /* ignore */ }
   }
 
   const fetchReports = async () => {
     setLoading(true)
-    let query = supabase.from('reports').select('*').order('created_at', { ascending: false }).limit(100)
-    
-    if (filter !== 'all') {
-      query = query.eq('status', filter)
-    }
-    
-    if (kategoriFilter !== 'all') {
-      query = query.eq('kategori', kategoriFilter)
-    }
-    
-    const { data } = await query
-    setReports(data || [])
+    try {
+      const { data } = await adminApi('fetch_reports', { filter, kategoriFilter })
+      setReports(data)
+    } catch { setReports([]) }
     setLoading(false)
   }
 
   const fetchBandingRequests = async () => {
     setLoading(true)
-    let query = supabase.from('unblacklist_requests').select('*').order('created_at', { ascending: false }).limit(100)
-    if (bandingFilter !== 'all') query = query.eq('status', bandingFilter)
-    const { data } = await query
-    setBandingRequests(data || [])
+    try {
+      const { data } = await adminApi('fetch_banding')
+      setBandingRequests(data)
+    } catch { setBandingRequests([]) }
     setLoading(false)
   }
 
   const fetchIndikasiReports = async () => {
     setLoading(true)
-    let query = supabase.from('indikasi_reports').select('*').order('created_at', { ascending: false }).limit(100)
-    if (indikasiFilter !== 'all') query = query.eq('status', indikasiFilter)
-    const { data } = await query
-    setIndikasiReports(data || [])
+    try {
+      const { data } = await adminApi('fetch_indikasi', { filter: indikasiFilter })
+      setIndikasiReports(data)
+    } catch { setIndikasiReports([]) }
     setLoading(false)
   }
 
   const fetchFraudReports = async () => {
     setLoading(true)
-    let query = supabase.from('fraud_reports').select('*').order('created_at', { ascending: false }).limit(100)
-    if (fraudFilter !== 'all') query = query.eq('status', fraudFilter)
-    const { data } = await query
-    setFraudReports(data || [])
+    try {
+      const { data } = await adminApi('fetch_fraud', { filter: fraudFilter })
+      setFraudReports(data)
+    } catch { setFraudReports([]) }
     setLoading(false)
   }
 
   const fetchIndikasiBanding = async () => {
-    const { data } = await supabase.from('indikasi_banding').select('*').order('created_at', { ascending: false })
-    setIndikasiBandingList(data || [])
+    try {
+      const { data } = await adminApi('fetch_indikasi_banding')
+      setIndikasiBandingList(data)
+    } catch { setIndikasiBandingList([]) }
   }
 
   const fetchFraudBanding = async () => {
-    const { data } = await supabase.from('fraud_banding').select('*').order('created_at', { ascending: false })
-    setFraudBandingList(data || [])
+    try {
+      const { data } = await adminApi('fetch_fraud_banding')
+      setFraudBandingList(data)
+    } catch { setFraudBandingList([]) }
   }
 
   const handleApproveIndikasi = async (report: IndikasiReport) => {
     if (!(await confirmAction('Yakin approve laporan indikasi ini?'))) return
     setProcessing(report.id)
-
     try {
-      const conditions = []
-      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-
-      let existing = null;
-      if (conditions.length > 0) {
-        const { data, error } = await supabase
-          .from('indikasi_list').select('*').or(conditions.join(',')).limit(1)
-        if (error) throw error;
-        existing = data;
-      }
-
-      if (existing && existing.length > 0) {
-        const { error } = await supabase.from('indikasi_list').update({
-          jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
-          alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
-          updated_at: new Date().toISOString()
-        }).eq('id', existing[0].id)
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('indikasi_list').insert({
-          report_id: report.id,
-          nama: report.nama,
-          no_hp: report.no_hp,
-          instagram: report.instagram,
-          tiktok: report.tiktok,
-          kategori_masalah: report.kategori_masalah,
-          alasan: report.kronologi,
-          jumlah_laporan: 1
-        })
-        if (error) throw error;
-      }
-
-      const { error: updateError } = await supabase.from('indikasi_reports').update({
-        status: 'approved', reviewed_at: new Date().toISOString()
-      }).eq('id', report.id)
-      if (updateError) throw updateError;
-
-      await logAction('approve_indikasi', 'indikasi', report.id, `Approved indikasi: ${report.nama} (${report.kategori_masalah})`)
+      await adminApi('approve_indikasi', report)
       fetchIndikasiReports()
-    } catch (error: any) {
-      console.error('Approve indikasi error:', error)
-      alert(`Gagal approve: ${error.message || 'Terjadi kesalahan sistem'}`)
-    } finally {
-      setProcessing(null)
-    }
+    } catch (e: any) { console.error(e) }
+    setProcessing(null)
   }
 
   const handleRejectIndikasi = async (report: IndikasiReport) => {
-    if (!(await confirmAction('Yakin reject?'))) return
+    if (!(await confirmAction('Yakin reject laporan ini?'))) return
     setProcessing(report.id)
-    await supabase.from('indikasi_reports').update({
-      status: 'rejected', reviewed_at: new Date().toISOString()
-    }).eq('id', report.id)
-    await logAction('reject_indikasi', 'indikasi', report.id, `Rejected indikasi: ${report.nama}`)
+    try {
+      await adminApi('reject_indikasi', { id: report.id, nama: report.nama })
+      fetchIndikasiReports()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchIndikasiReports()
   }
 
   const handleApproveFraud = async (report: FraudReport) => {
     if (!(await confirmAction('Yakin approve laporan fraud ini?'))) return
     setProcessing(report.id)
-
     try {
-      const conditions = []
-      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-
-      let existing = null;
-      if (conditions.length > 0) {
-        const { data, error } = await supabase
-          .from('fraud_list').select('*').or(conditions.join(',')).limit(1)
-        if (error) throw error;
-        existing = data;
-      }
-
-      if (existing && existing.length > 0) {
-        const { error } = await supabase.from('fraud_list').update({
-          jumlah_laporan: (existing[0].jumlah_laporan || 1) + 1,
-          nominal_total: (existing[0].nominal_total || 0) + (report.nominal || 0),
-          alasan: existing[0].alasan + '\n\n---\n\n' + report.kronologi,
-          updated_at: new Date().toISOString()
-        }).eq('id', existing[0].id)
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('fraud_list').insert({
-          report_id: report.id,
-          nama: report.nama,
-          no_hp: report.no_hp,
-          instagram: report.instagram,
-          tiktok: report.tiktok,
-          jenis_fraud: report.jenis_fraud,
-          nominal_total: report.nominal || 0,
-          alasan: report.kronologi,
-          jumlah_laporan: 1
-        })
-        if (error) throw error;
-      }
-
-      const { error: updateError } = await supabase.from('fraud_reports').update({
-        status: 'approved', reviewed_at: new Date().toISOString()
-      }).eq('id', report.id)
-      if (updateError) throw updateError;
-
-      await logAction('approve_fraud', 'fraud', report.id, `Approved fraud: ${report.nama} (${report.jenis_fraud})`)
+      await adminApi('approve_fraud', report)
       fetchFraudReports()
-    } catch (error: any) {
-      console.error('Approve fraud error:', error)
-      alert(`Gagal approve: ${error.message || 'Terjadi kesalahan sistem'}`)
-    } finally {
-      setProcessing(null)
-    }
+    } catch (e: any) { console.error(e) }
+    setProcessing(null)
   }
 
   const handleRejectFraud = async (report: FraudReport) => {
-    if (!(await confirmAction('Yakin reject?'))) return
+    if (!(await confirmAction('Yakin reject laporan ini?'))) return
     setProcessing(report.id)
-    await supabase.from('fraud_reports').update({
-      status: 'rejected', reviewed_at: new Date().toISOString()
-    }).eq('id', report.id)
-    await logAction('reject_fraud', 'fraud', report.id, `Rejected fraud: ${report.nama}`)
+    try {
+      await adminApi('reject_fraud', { id: report.id, nama: report.nama })
+      fetchFraudReports()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchFraudReports()
   }
 
-  // NEW: Unblacklist Indikasi
+  // Unblacklist Indikasi
   const handleUnblacklistIndikasi = async (report: IndikasiReport) => {
     if (!(await confirmAction('Yakin clear/unblacklist indikasi ini?'))) return
     setProcessing(report.id)
-    const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-    if (conditions.length > 0) {
-      await supabase.from('indikasi_list').delete().or(conditions.join(','))
-    }
-    await supabase.from('indikasi_reports').update({
-      status: 'resolved', review_note: 'Unblacklisted - masalah sudah clear'
-    }).eq('id', report.id)
-    await logAction('approve_banding', 'indikasi', report.id, `Unblacklisted indikasi: ${report.nama}`)
+    try {
+      await adminApi('unblacklist_indikasi', { id: report.id, nama: report.nama, instagram: report.instagram })
+      fetchIndikasiReports()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchIndikasiReports()
   }
 
-  // NEW: Unblacklist Fraud
+  // Unblacklist Fraud
   const handleUnblacklistFraud = async (report: FraudReport) => {
     if (!(await confirmAction('Yakin clear/unblacklist fraud ini?'))) return
     setProcessing(report.id)
-    const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-    if (conditions.length > 0) {
-      await supabase.from('fraud_list').delete().or(conditions.join(','))
-    }
-    await supabase.from('fraud_reports').update({
-      status: 'resolved', review_note: 'Unblacklisted - masalah sudah clear'
-    }).eq('id', report.id)
-    await logAction('approve_banding', 'fraud', report.id, `Unblacklisted fraud: ${report.nama}`)
+    try {
+      await adminApi('unblacklist_fraud', { id: report.id, nama: report.nama, instagram: report.instagram })
+      fetchFraudReports()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchFraudReports()
   }
 
-  // NEW: Approve/Reject Indikasi Banding
+  // Approve/Reject Indikasi Banding
   const handleApproveIndikasiBanding = async (req: IndikasiBanding) => {
     if (!(await confirmAction('Yakin approve banding indikasi ini?'))) return
     setProcessing(req.id)
-    const conditions = []
-    if (req.nama) conditions.push(`nama.ilike.%${escapeFilterValue(req.nama)}%`)
-    if (req.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(req.instagram)}`)
-    if (conditions.length > 0) {
-      await supabase.from('indikasi_list').delete().or(conditions.join(','))
-    }
-    await supabase.from('indikasi_banding').update({
-      status: 'approved', reviewed_at: new Date().toISOString()
-    }).eq('id', req.id)
-    await logAction('approve_banding', 'indikasi', req.id, `Approved indikasi banding: ${req.nama}`)
+    try {
+      await adminApi('approve_indikasi_banding', req)
+      fetchIndikasiBanding()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchIndikasiBanding()
   }
 
   const handleRejectIndikasiBanding = async (req: IndikasiBanding) => {
     if (!(await confirmAction('Yakin reject banding ini?'))) return
     setProcessing(req.id)
-    await supabase.from('indikasi_banding').update({
-      status: 'rejected', reviewed_at: new Date().toISOString()
-    }).eq('id', req.id)
-    await logAction('reject_banding', 'indikasi', req.id, `Rejected indikasi banding: ${req.nama}`)
+    try {
+      await adminApi('reject_indikasi_banding', { id: req.id, nama: req.nama })
+      fetchIndikasiBanding()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchIndikasiBanding()
   }
 
-  // NEW: Approve/Reject Fraud Banding
+  // Approve/Reject Fraud Banding
   const handleApproveFraudBanding = async (req: FraudBanding) => {
     if (!(await confirmAction('Yakin approve banding fraud ini?'))) return
     setProcessing(req.id)
-    const conditions = []
-    if (req.nama) conditions.push(`nama.ilike.%${escapeFilterValue(req.nama)}%`)
-    if (req.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(req.instagram)}`)
-    if (conditions.length > 0) {
-      await supabase.from('fraud_list').delete().or(conditions.join(','))
-    }
-    await supabase.from('fraud_banding').update({
-      status: 'approved', reviewed_at: new Date().toISOString()
-    }).eq('id', req.id)
-    await logAction('approve_banding', 'fraud', req.id, `Approved fraud banding: ${req.nama}`)
+    try {
+      await adminApi('approve_fraud_banding', req)
+      fetchFraudBanding()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchFraudBanding()
   }
 
   const handleRejectFraudBanding = async (req: FraudBanding) => {
     if (!(await confirmAction('Yakin reject banding ini?'))) return
     setProcessing(req.id)
-    await supabase.from('fraud_banding').update({
-      status: 'rejected', reviewed_at: new Date().toISOString()
-    }).eq('id', req.id)
-    await logAction('reject_banding', 'fraud', req.id, `Rejected fraud banding: ${req.nama}`)
+    try {
+      await adminApi('reject_fraud_banding', { id: req.id, nama: req.nama })
+      fetchFraudBanding()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchFraudBanding()
   }
 
   const handleApproveBanding = async (req: UnblacklistRequest) => {
-    if (!(await confirmAction('Yakin approve banding ini? Orang ini akan dihapus dari blacklist.'))) return
-    
+    if (!(await confirmAction('Yakin approve banding ini?'))) return
     setProcessing(req.id)
-    
-    // Find and delete from blacklist
-    await supabase.from('blacklist').delete().or(
-      `nama.ilike.%${escapeFilterValue(req.nama)}%,instagram.ilike.${escapeFilterValue(req.instagram || '')},no_hp.eq.${escapeFilterValue(req.no_hp || '')}`
-    )
-    
-    // Update request status
-    await supabase.from('unblacklist_requests').update({
-      status: 'approved',
-      reviewed_at: new Date().toISOString()
-    }).eq('id', req.id)
-    
-    // Also update related reports to resolved
-    await supabase.from('reports').update({
-      status: 'resolved'
-    }).or(`nama.ilike.%${escapeFilterValue(req.nama)}%,instagram.ilike.${escapeFilterValue(req.instagram || '')}`)
-    
-    await logAction('approve_banding', 'banding', req.id, `Approved banding: ${req.nama} — removed from blacklist`)
+    try {
+      await adminApi('approve_banding', req)
+      fetchBandingRequests()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchBandingRequests()
   }
 
   const handleRejectBanding = async (req: UnblacklistRequest) => {
     if (!(await confirmAction('Yakin reject banding ini?'))) return
-    
     setProcessing(req.id)
-    
-    await supabase.from('unblacklist_requests').update({
-      status: 'rejected',
-      reviewed_at: new Date().toISOString()
-    }).eq('id', req.id)
-    
-    await logAction('reject_banding', 'banding', req.id, `Rejected banding: ${req.nama}`)
+    try {
+      await adminApi('reject_banding', { id: req.id, nama: req.nama })
+      fetchBandingRequests()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchBandingRequests()
   }
 
   const handleApprove = async (report: Report) => {
     if (!(await confirmAction('Yakin approve laporan ini? Akan masuk ke blacklist publik.'))) return
-    
     setProcessing(report.id)
-    
     try {
-      // Check if already exists in blacklist (by name, phone, ig, or tiktok)
-      const conditions = []
-      if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-      if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
-      if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-      if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
-      
-      let existing = null;
-      if (conditions.length > 0) {
-        const { data, error } = await supabase
-          .from('blacklist')
-          .select('*')
-          .or(conditions.join(','))
-          .limit(1)
-        
-        if (error) throw error;
-        existing = data;
-      }
-      
-      if (existing && existing.length > 0) {
-        // Update existing entry - increment jumlah_laporan
-        const entry = existing[0]
-        const { error } = await supabase.from('blacklist').update({
-          jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
-          alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
-          updated_at: new Date().toISOString()
-        }).eq('id', entry.id)
-        if (error) throw error;
-      } else {
-        // Create new entry
-        const { error } = await supabase.from('blacklist').insert({
-          report_id: report.id,
-          nama: report.nama,
-          no_hp: report.no_hp,
-          instagram: report.instagram,
-          tiktok: report.tiktok,
-          kategori: report.kategori,
-          alasan: report.kronologi,
-          jumlah_laporan: 1
-        })
-        if (error) throw error;
-      }
-      
-      // Update report status
-      const { error: updateError } = await supabase.from('reports').update({
-        status: 'approved',
-        reviewed_at: new Date().toISOString()
-      }).eq('id', report.id)
-      if (updateError) throw updateError;
-      
-      await logAction('approve_report', 'report', report.id, `Approved: ${report.nama} (${report.kategori})`)
+      await adminApi('approve_report', report)
       fetchReports()
-    } catch (error: any) {
-      console.error('Approve error:', error)
-      alert(`Gagal approve: ${error.message || 'Terjadi kesalahan sistem'}`)
-    } finally {
-      setProcessing(null)
-    }
+    } catch (e: any) { console.error(e) }
+    setProcessing(null)
   }
 
   const handleReject = async (report: Report) => {
-    const note = ''
-    
+    if (!(await confirmAction('Yakin reject laporan ini?'))) return
     setProcessing(report.id)
-    
-    await supabase.from('reports').update({
-      status: 'rejected',
-      reviewed_at: new Date().toISOString(),
-      review_note: note || null
-    }).eq('id', report.id)
-    
-    await logAction('reject_report', 'report', report.id, `Rejected: ${report.nama}${note ? ' — ' + note : ''}`)
+    try {
+      await adminApi('reject_report', { id: report.id, nama: report.nama })
+      fetchReports()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchReports()
   }
 
   const handleEdit = (report: Report) => {
-    setEditingId(report.id)
-    setEditKategori(report.kategori)
+    setEditingReport(report.id)
+    setEditFields({ nama: report.nama, no_hp: report.no_hp || '', instagram: report.instagram || '', tiktok: report.tiktok || '' })
   }
 
   const handleSaveEdit = async (report: Report) => {
     setProcessing(report.id)
-    
-    // Update report
-    await supabase.from('reports').update({
-      kategori: editKategori
-    }).eq('id', report.id)
-    
-    // If already approved, also update blacklist
-    if (report.status === 'approved') {
-      await supabase.from('blacklist').update({
-        kategori: editKategori
-      }).eq('report_id', report.id)
-    }
-    
+    try {
+      await adminApi('edit_report', {
+        id: report.id,
+        nama: editFields.nama,
+        updates: {
+          nama: editFields.nama,
+          no_hp: editFields.no_hp || null,
+          instagram: editFields.instagram || null,
+          tiktok: editFields.tiktok || null
+        }
+      })
+      setEditingReport(null)
+      fetchReports()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    setEditingId(null)
-    fetchReports()
   }
 
   const handleCancelEdit = () => {
-    setEditingId(null)
-    setEditKategori('')
+    setEditingReport(null)
+    setEditFields({ nama: '', no_hp: '', instagram: '', tiktok: '' })
   }
 
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    )
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
   const toggleSelectAll = () => {
@@ -626,135 +410,64 @@ export default function AdminPage() {
   }
 
   const handleUnblacklist = async (report: Report) => {
-    if (!(await confirmAction('Yakin unblacklist? Entry akan dihapus dari daftar publik.'))) return
-    
+    if (!(await confirmAction('Yakin clear/unblacklist ini?'))) return
     setProcessing(report.id)
-    
-    // Remove from blacklist — match by multiple fields since report_id may differ for merged entries
-    const conditions = []
-    if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-    if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
-    if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-    if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
-    
-    if (conditions.length > 0) {
-      await supabase.from('blacklist').delete().or(conditions.join(','))
-    }
-    // Also try by report_id as fallback
-    await supabase.from('blacklist').delete().eq('report_id', report.id)
-    
-    // Update report status to 'resolved'
-    await supabase.from('reports').update({
-      status: 'resolved',
-      review_note: 'Unblacklisted - masalah sudah clear'
-    }).eq('id', report.id)
-    
-    await logAction('approve_banding', 'report', report.id, `Unblacklisted: ${report.nama}`)
+    try {
+      await adminApi('unblacklist_report', { id: report.id, nama: report.nama, no_hp: report.no_hp, instagram: report.instagram })
+      fetchReports()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchReports()
   }
 
   const handleBulkApprove = async () => {
     if (selectedIds.length === 0) return
     if (!(await confirmAction(`Yakin approve ${selectedIds.length} laporan sekaligus?`))) return
-
     setBulkProcessing(true)
-
     try {
-      for (const id of selectedIds) {
-        const report = reports.find(r => r.id === id)
-        if (!report || report.status !== 'pending') continue
-
-        // Check for existing entry
-        const conditions = []
-        if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
-        if (report.no_hp) conditions.push(`no_hp.eq.${escapeFilterValue(report.no_hp)}`)
-        if (report.instagram) conditions.push(`instagram.ilike.${escapeFilterValue(report.instagram)}`)
-        if (report.tiktok) conditions.push(`tiktok.ilike.${escapeFilterValue(report.tiktok)}`)
-        
-        let existing = null;
-        if (conditions.length > 0) {
-          const { data, error } = await supabase
-            .from('blacklist')
-            .select('*')
-            .or(conditions.join(','))
-            .limit(1)
-          if (error) throw error;
-          existing = data;
-        }
-
-        if (existing && existing.length > 0) {
-          const entry = existing[0]
-          const { error } = await supabase.from('blacklist').update({
-            jumlah_laporan: (entry.jumlah_laporan || 1) + 1,
-            alasan: entry.alasan + '\n\n---\n\n' + report.kronologi,
-            updated_at: new Date().toISOString()
-          }).eq('id', entry.id)
-          if (error) throw error;
-        } else {
-          const { error } = await supabase.from('blacklist').insert({
-            report_id: report.id,
-            nama: report.nama,
-            no_hp: report.no_hp,
-            instagram: report.instagram,
-            tiktok: report.tiktok,
-            kategori: report.kategori,
-            alasan: report.kronologi,
-            jumlah_laporan: 1
-          })
-          if (error) throw error;
-        }
-
-        const { error: updateError } = await supabase.from('reports').update({
-          status: 'approved',
-          reviewed_at: new Date().toISOString()
-        }).eq('id', id)
-        if (updateError) throw updateError;
-      }
-
-      await logAction('bulk_approve', 'report', null, `Bulk approved ${selectedIds.length} reports`)
+      await adminApi('bulk_approve', { ids: selectedIds })
       setSelectedIds([])
       fetchReports()
-    } catch (error: any) {
-      console.error('Bulk approve error:', error)
-      alert(`Gagal approve beberapa laporan: ${error.message || 'Terjadi kesalahan sistem'}`)
-    } finally {
-      setBulkProcessing(false)
-    }
+    } catch (e: any) { console.error(e) }
+    setBulkProcessing(false)
   }
 
-
   const fetchPendingAdmins = async () => {
-    const { data } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false })
-    setPendingAdmins(data || [])
+    try {
+      const { data } = await adminApi('fetch_pending_admins')
+      setPendingAdmins(data)
+    } catch { setPendingAdmins([]) }
   }
 
   const handleApproveAdmin = async (admin: any) => {
     if (!(await confirmAction('Yakin approve admin ini?'))) return
     setProcessing(admin.id)
-    await supabase.from('admin_users').update({ is_active: true }).eq('id', admin.id)
-    await logAction('approve_admin', 'admin', admin.id, 'Approved admin: ' + admin.display_name)
+    try {
+      await adminApi('approve_admin', { id: admin.id, display_name: admin.display_name })
+      fetchPendingAdmins()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchPendingAdmins()
   }
 
   const handleRejectAdmin = async (admin: any) => {
     if (!(await confirmAction('Yakin reject dan hapus admin ini?'))) return
     setProcessing(admin.id)
-    await supabase.from('admin_users').delete().eq('id', admin.id)
-    await logAction('reject_admin', 'admin', admin.id, 'Rejected admin: ' + admin.display_name)
+    try {
+      await adminApi('reject_admin', { id: admin.id, display_name: admin.display_name })
+      fetchPendingAdmins()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchPendingAdmins()
   }
 
   const handleDeactivateAdmin = async (admin: any) => {
     if (!(await confirmAction('Yakin nonaktifkan admin ini?'))) return
     setProcessing(admin.id)
-    await supabase.from('admin_users').update({ is_active: false }).eq('id', admin.id)
-    await logAction('deactivate_admin', 'admin', admin.id, 'Deactivated admin: ' + admin.display_name)
+    try {
+      await adminApi('deactivate_admin', { id: admin.id, display_name: admin.display_name })
+      fetchPendingAdmins()
+    } catch (e: any) { console.error(e) }
     setProcessing(null)
-    fetchPendingAdmins()
   }
+
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
     setIsLoggedIn(false)
