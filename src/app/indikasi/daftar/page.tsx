@@ -223,16 +223,20 @@ export default function IndikasiDaftarPage() {
             <div className="absolute bottom-0 left-0 w-full p-4 bg-neutral-950 border-t border-neutral-800 ">
               <button
                 onClick={() => {
-                  const text = `⚠️ *INDIKASI TALENT BERMASALAH - ${selected.kategori_masalah}*
-Nama: ${selected.nama}
-${selected.no_hp ? `HP: ${selected.no_hp}` : ''}
-${selected.instagram ? `IG: @${selected.instagram}` : ''}
-
-*Detail Masalah:*
-${selected.alasan}
-
-_Dossier: Blacklist KOL Indonesia_
-_Untuk pengajuan banding silahkan isi form banding dan melakukan klarifikasi terhadap pihak yang di rugikan. Penghapusan Blacklist dilakukan apabila pihak yang dirugikan telah menyatakan bahwa masalah telah selesai_`;
+                  const lines = [
+                    `⚠️ *INDIKASI TALENT BERMASALAH - ${selected.kategori_masalah}*`,
+                    '',
+                    `Nama: ${selected.nama}`,
+                    selected.no_hp ? `HP: ${selected.no_hp}` : '',
+                    selected.instagram ? `IG: @${selected.instagram}` : '',
+                    '',
+                    '*Detail Masalah:*',
+                    selected.alasan,
+                    '',
+                    '_Dossier: Blacklist KOL Indonesia_',
+                    '_Untuk pengajuan banding silahkan isi form banding dan melakukan klarifikasi terhadap pihak yang di rugikan. Penghapusan Blacklist dilakukan apabila pihak yang dirugikan telah menyatakan bahwa masalah telah selesai_',
+                  ].filter((line, i, arr) => line !== '' || (arr[i - 1] !== '' && arr[i - 1] !== undefined));
+                  const text = lines.join('\n');
                   navigator.clipboard.writeText(text);
                   alert('Data disalin ke clipboard!');
                 }}

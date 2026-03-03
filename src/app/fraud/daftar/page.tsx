@@ -233,16 +233,20 @@ export default function FraudDaftarPage() {
             <div className="absolute bottom-0 left-0 w-full p-4 bg-neutral-950 border-t border-neutral-800 ">
               <button
                 onClick={() => {
-                  const text = `🚨 *LAPORAN FRAUD - ${selected.jenis_fraud}*
-Nama: ${selected.nama}
-${selected.nominal_total > 0 ? `Kerugian: ${formatRupiah(selected.nominal_total)}` : ''}
-${selected.no_hp ? `HP: ${selected.no_hp}` : ''}
-${selected.instagram ? `IG: @${selected.instagram}` : ''}
-
-*Detail Kasus:*
-${selected.alasan}
-
-_Dossier: Blacklist KOL Indonesia_`;
+                  const lines = [
+                    `🚨 *LAPORAN FRAUD - ${selected.jenis_fraud}*`,
+                    '',
+                    `Nama: ${selected.nama}`,
+                    selected.nominal_total > 0 ? `Kerugian: ${formatRupiah(selected.nominal_total)}` : '',
+                    selected.no_hp ? `HP: ${selected.no_hp}` : '',
+                    selected.instagram ? `IG: @${selected.instagram}` : '',
+                    '',
+                    '*Detail Kasus:*',
+                    selected.alasan,
+                    '',
+                    '_Dossier: Blacklist KOL Indonesia_',
+                  ].filter((line, i, arr) => line !== '' || (arr[i - 1] !== '' && arr[i - 1] !== undefined));
+                  const text = lines.join('\n');
                   navigator.clipboard.writeText(text);
                   alert('Data disalin ke clipboard!');
                 }}
