@@ -37,88 +37,98 @@ export default function FraudLaporanPage() {
   const terbaru = data.slice(0, 5)
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="max-w-2xl mx-auto px-4 py-6 font-sans">
       {/* Header */}
-      <div className="mb-6">
-        <a href="/fraud" className="text-red-700 hover:text-red-800 text-sm">← Fraud</a>
-        <h1 className="text-xl font-bold text-gray-800 mt-2">📊 Laporan & Statistik</h1>
-        <p className="text-gray-500 text-sm">Ringkasan data penipuan & pencurian</p>
+      <div className="mb-6 border-b-2 border-neutral-800 pb-4">
+        <a href="/fraud" className="text-red-500 hover:text-red-400 text-xs font-bold uppercase tracking-widest flex items-center gap-1 mb-2">
+          <span>←</span> FRAUD
+        </a>
+        <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2 mt-2">
+          <span className="text-red-500">📊</span> LAPORAN & STATISTIK
+        </h1>
+        <p className="text-neutral-500 font-mono text-xs uppercase tracking-widest mt-1">Ringkasan data penipuan & pencurian</p>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-red-700 border-t-transparent"></div>
-          <p className="text-gray-500 mt-3">Memuat data...</p>
+        <div className="text-center py-16">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-neutral-800 border-t-red-500"></div>
+          <p className="text-neutral-500 mt-4 font-mono text-xs uppercase tracking-widest">Memuat data...</p>
         </div>
       ) : (
         <>
           {/* Overview Cards */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-gradient-to-br from-red-700 to-rose-900 rounded-2xl p-5 text-white shadow-lg shadow-red-300">
-              <p className="text-red-200 text-xs font-medium mb-1">Total Kasus Fraud</p>
-              <p className="text-3xl font-extrabold">{totalKasus}</p>
+            <div className="bg-neutral-900 border border-red-900/40 rounded-sm p-5 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-red-600"></div>
+              <p className="text-neutral-500 text-xs font-mono uppercase tracking-widest mb-2">Total Kasus Fraud</p>
+              <p className="text-3xl font-black text-red-400 font-mono">{totalKasus}</p>
             </div>
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-5 text-white shadow-lg">
-              <p className="text-gray-400 text-xs font-medium mb-1">Total Kerugian</p>
-              <p className="text-xl font-extrabold">{formatRupiah(totalNominal)}</p>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-5 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-neutral-600"></div>
+              <p className="text-neutral-500 text-xs font-mono uppercase tracking-widest mb-2">Total Kerugian</p>
+              <p className="text-xl font-black text-white font-mono">{formatRupiah(totalNominal)}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-              <p className="text-gray-500 text-xs font-medium mb-1">Total Laporan Masuk</p>
-              <p className="text-3xl font-extrabold text-gray-800">{totalLaporan}</p>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-5">
+              <p className="text-neutral-500 text-xs font-mono uppercase tracking-widest mb-2">Total Laporan</p>
+              <p className="text-3xl font-black text-white font-mono">{totalLaporan}</p>
             </div>
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-              <p className="text-gray-500 text-xs font-medium mb-1">Rata-rata Kerugian</p>
-              <p className="text-xl font-extrabold text-gray-800">{totalKasus > 0 ? formatRupiah(Math.round(totalNominal / totalKasus)) : 'Rp 0'}</p>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-5">
+              <p className="text-neutral-500 text-xs font-mono uppercase tracking-widest mb-2">Rata-rata Kerugian</p>
+              <p className="text-xl font-black text-white font-mono">{totalKasus > 0 ? formatRupiah(Math.round(totalNominal / totalKasus)) : 'Rp 0'}</p>
             </div>
           </div>
 
-          {/* Breakdown by Jenis */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mb-6">
-            <h3 className="font-bold text-gray-800 mb-4">Breakdown Jenis Fraud</h3>
-            <div className="space-y-3">
+          {/* Breakdown */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-5 mb-6">
+            <h3 className="font-bold text-white uppercase tracking-wider text-sm mb-5 flex items-center gap-2">
+              <span className="text-neutral-500">📊</span> BREAKDOWN JENIS FRAUD
+            </h3>
+            <div className="space-y-4">
               {[
-                { label: '🔒 Pencurian', count: byJenis.pencurian, color: 'bg-red-600', bgLight: 'bg-red-50' },
-                { label: '💸 Penipuan', count: byJenis.penipuan, color: 'bg-rose-500', bgLight: 'bg-rose-50' },
-                { label: '📌 Lainnya', count: byJenis.lainnya, color: 'bg-gray-500', bgLight: 'bg-gray-50' },
+                { label: '🔒 Pencurian', count: byJenis.pencurian, bar: 'bg-red-600', track: 'bg-red-900/30' },
+                { label: '💸 Penipuan', count: byJenis.penipuan, bar: 'bg-rose-500', track: 'bg-rose-900/30' },
+                { label: '📌 Lainnya', count: byJenis.lainnya, bar: 'bg-neutral-500', track: 'bg-neutral-800' },
               ].map(item => (
                 <div key={item.label} className="flex items-center gap-3">
-                  <span className="text-sm w-24 shrink-0">{item.label}</span>
-                  <div className={`flex-1 h-6 ${item.bgLight} rounded-full overflow-hidden`}>
+                  <span className="text-sm text-neutral-400 w-24 shrink-0 font-mono">{item.label}</span>
+                  <div className={`flex-1 h-5 ${item.track} rounded-sm overflow-hidden`}>
                     <div
-                      className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                      className={`h-full ${item.bar} rounded-sm transition-all duration-500`}
                       style={{ width: totalKasus > 0 ? `${(item.count / totalKasus) * 100}%` : '0%' }}
                     />
                   </div>
-                  <span className="text-sm font-bold text-gray-700 w-8 text-right">{item.count}</span>
+                  <span className="text-sm font-bold text-neutral-300 w-8 text-right font-mono">{item.count}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Terbaru */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-            <h3 className="font-bold text-gray-800 mb-4">5 Kasus Terbaru</h3>
+          <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-5">
+            <h3 className="font-bold text-white uppercase tracking-wider text-sm mb-5 flex items-center gap-2">
+              <span className="text-neutral-500">🕐</span> 5 KASUS TERBARU
+            </h3>
             {terbaru.length === 0 ? (
-              <p className="text-gray-500 text-sm">Belum ada data.</p>
+              <p className="text-neutral-600 font-mono text-sm uppercase">Belum ada data.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {terbaru.map(item => (
-                  <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-xl">
-                    <div className={`w-1 h-8 rounded-full ${
+                  <div key={item.id} className="flex items-center gap-3 p-3 bg-black border border-neutral-800 rounded-sm">
+                    <div className={`w-1 h-8 rounded-sm shrink-0 ${
                       item.jenis_fraud === 'Pencurian' ? 'bg-red-600' :
-                      item.jenis_fraud === 'Penipuan Pembayaran' ? 'bg-rose-500' : 'bg-gray-500'
+                      item.jenis_fraud === 'Penipuan Pembayaran' ? 'bg-rose-500' : 'bg-neutral-500'
                     }`} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-800 text-sm truncate">{item.nama}</p>
-                      <p className="text-xs text-gray-500">
-                        {item.jenis_fraud === 'Penipuan Pembayaran' ? 'Penipuan' : item.jenis_fraud} • {item.nominal_total > 0 ? formatRupiah(item.nominal_total) : '-'} • {new Date(item.created_at).toLocaleDateString('id-ID')}
+                      <p className="font-bold text-white text-sm truncate uppercase">{item.nama}</p>
+                      <p className="text-xs text-neutral-500 font-mono mt-0.5">
+                        {item.jenis_fraud === 'Penipuan Pembayaran' ? 'Penipuan' : item.jenis_fraud} &bull; {item.nominal_total > 0 ? formatRupiah(item.nominal_total) : '-'} &bull; {new Date(item.created_at).toLocaleDateString('id-ID')}
                       </p>
                     </div>
                     {item.jumlah_laporan > 1 && (
-                      <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">{item.jumlah_laporan}x</span>
+                      <span className="text-xs font-bold text-red-500 bg-red-900/30 border border-red-900/50 px-2 py-0.5 rounded-sm font-mono shrink-0">{item.jumlah_laporan}x</span>
                     )}
                   </div>
                 ))}

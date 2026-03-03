@@ -11,39 +11,36 @@
 
 body {
   font-family: var(--font-inter);
-  background-color: #f8fafc; /* slate-50 */
-  color: #0f172a; /* slate-900 */
+  background-color: #0a0a0a; /* neutral-950 */
+  color: #e5e5e5; /* neutral-200 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* The selection styles are kept as they are not dark theme specific */
   @apply selection:bg-red-600 selection:text-white;
 }
 
 @layer utilities {
-  /* Legacy classes kept but restyled */
   .glass {
-    @apply bg-white/95 backdrop-blur-md border border-gray-200 shadow-sm;
+    @apply bg-neutral-900/95 backdrop-blur-md border border-neutral-800 shadow-sm;
   }
   
   .glass-card {
-    @apply bg-white border border-gray-200 hover:border-gray-300 transition-colors duration-200 rounded-sm shadow-sm;
+    @apply bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors duration-200 rounded-sm shadow-sm;
   }
 
   .glass-dark {
-    @apply bg-gray-50 border border-gray-200 rounded-sm;
+    @apply bg-neutral-950 border border-neutral-800 rounded-sm;
   }
 
-  /* Specific utilities */
   .panel-dark {
-    @apply bg-white border border-gray-200 rounded-sm shadow-md;
+    @apply bg-neutral-900 border border-neutral-800 rounded-sm shadow-md;
   }
   
   .panel-accent {
-    @apply bg-white border-l-4 border-l-red-600 border-t border-b border-r border-gray-200 rounded-sm shadow-md;
+    @apply bg-neutral-900 border-l-4 border-l-red-600 border-t border-b border-r border-neutral-800 rounded-sm shadow-md;
   }
 
   .panel-light {
-    @apply bg-white border border-gray-200 rounded-sm shadow-sm;
+    @apply bg-neutral-900 border border-neutral-800 rounded-sm shadow-sm;
   }
 
   .text-glow {
@@ -51,7 +48,7 @@ body {
   }
 
   .text-highlight {
-    @apply text-red-700 font-bold;
+    @apply text-red-500 font-bold;
   }
 }
 
@@ -66,5 +63,18 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition;
+  @apply bg-neutral-700 rounded-full hover:bg-neutral-600 transition;
+}
+
+/* Custom scrollbar class for modals */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-neutral-700 rounded-full hover:bg-neutral-600;
 }

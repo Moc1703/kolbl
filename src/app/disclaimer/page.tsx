@@ -2,94 +2,81 @@
 
 export default function DisclaimerPage() {
   return (
-    <div className="max-w-lg mx-auto px-4 py-6">
+    <div className="max-w-lg mx-auto px-4 py-6 font-sans">
       {/* Header */}
-      <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <span className="text-3xl">⚖️</span>
-        </div>
-        <h1 className="text-xl font-bold text-gray-800 mb-1">Disclaimer</h1>
-        <p className="text-gray-500 text-sm">Syarat & Ketentuan Penggunaan</p>
+      <div className="mb-8 border-b-2 border-neutral-800 pb-4">
+        <h1 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-3 mb-2">
+          <span className="text-neutral-400">⚖️</span> DISCLAIMER
+        </h1>
+        <p className="text-neutral-500 font-mono text-sm uppercase tracking-wider">Syarat & Ketentuan Penggunaan</p>
       </div>
 
       {/* Content */}
       <div className="space-y-4">
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <h2 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-5">
+          <h2 className="font-bold text-white mb-3 flex items-center gap-2 uppercase tracking-wide text-sm">
             <span>📋</span> Tentang Database Ini
           </h2>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            Website ini merupakan <strong>database informasi</strong> yang dikumpulkan dari laporan komunitas mengenai KOL (Key Opinion Leader) dan Management yang pernah bermasalah dalam kerjasama endorsement/paid promote.
+          <p className="text-sm text-neutral-400 leading-relaxed">
+            Website ini merupakan <strong className="text-neutral-300">database informasi</strong> yang dikumpulkan dari laporan komunitas mengenai KOL (Key Opinion Leader) dan Management yang pernah bermasalah dalam kerjasama endorsement/paid promote.
           </p>
         </div>
 
-        <div className="bg-amber-50 rounded-2xl border border-amber-100 p-5">
-          <h2 className="font-bold text-amber-800 mb-3 flex items-center gap-2">
+        <div className="bg-yellow-900/10 border border-yellow-900/40 rounded-sm p-5">
+          <h2 className="font-bold text-yellow-500 mb-3 flex items-center gap-2 uppercase tracking-wide text-sm">
             <span>⚠️</span> Peringatan Penting
           </h2>
-          <ul className="text-sm text-amber-700 space-y-2">
+          <ul className="text-sm text-yellow-600/80 space-y-2">
             <li className="flex gap-2">
-              <span>•</span>
-              <span>Informasi yang tersedia bersifat <strong>referensi</strong>, bukan keputusan mutlak.</span>
+              <span className="text-yellow-500">•</span>
+              <span>Informasi yang tersedia bersifat <strong className="text-yellow-500">referensi</strong>, bukan keputusan mutlak.</span>
             </li>
             <li className="flex gap-2">
-              <span>•</span>
-              <span>Keputusan untuk bekerjasama atau tidak <strong>sepenuhnya tanggung jawab Anda</strong>.</span>
+              <span className="text-yellow-500">•</span>
+              <span>Keputusan untuk bekerjasama atau tidak <strong className="text-yellow-500">sepenuhnya tanggung jawab Anda</strong>.</span>
             </li>
             <li className="flex gap-2">
-              <span>•</span>
+              <span className="text-yellow-500">•</span>
               <span>Kami tidak bertanggung jawab atas kerugian yang timbul dari keputusan Anda.</span>
             </li>
           </ul>
         </div>
 
-        <div className="bg-blue-50 rounded-2xl border border-blue-100 p-5">
-          <h2 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+        <div className="bg-blue-950/20 border border-blue-900/40 rounded-sm p-5">
+          <h2 className="font-bold text-blue-400 mb-3 flex items-center gap-2 uppercase tracking-wide text-sm">
             <span>🔍</span> Validasi Mandiri
           </h2>
-          <p className="text-sm text-blue-700 leading-relaxed mb-3">
-            Sebelum mengambil keputusan, <strong>pastikan untuk memvalidasi informasi</strong> secara mandiri:
+          <p className="text-sm text-blue-400/70 leading-relaxed mb-3">
+            Sebelum mengambil keputusan, <strong className="text-blue-400">pastikan untuk memvalidasi informasi</strong> secara mandiri:
           </p>
-          <ul className="text-sm text-blue-700 space-y-2">
-            <li className="flex gap-2">
-              <span>✓</span>
-              <span>Cek bukti-bukti yang dilampirkan</span>
-            </li>
-            <li className="flex gap-2">
-              <span>✓</span>
-              <span>Tanyakan ke komunitas/grup terpercaya</span>
-            </li>
-            <li className="flex gap-2">
-              <span>✓</span>
-              <span>Hubungi pihak terkait untuk klarifikasi</span>
-            </li>
-            <li className="flex gap-2">
-              <span>✓</span>
-              <span>Pertimbangkan kemungkinan masalah sudah diselesaikan</span>
-            </li>
+          <ul className="text-sm text-blue-400/70 space-y-2">
+            <li className="flex gap-2"><span className="text-blue-500">✓</span><span>Cek bukti-bukti yang dilampirkan</span></li>
+            <li className="flex gap-2"><span className="text-blue-500">✓</span><span>Tanyakan ke komunitas/grup terpercaya</span></li>
+            <li className="flex gap-2"><span className="text-blue-500">✓</span><span>Hubungi pihak terkait untuk klarifikasi</span></li>
+            <li className="flex gap-2"><span className="text-blue-500">✓</span><span>Pertimbangkan kemungkinan masalah sudah diselesaikan</span></li>
           </ul>
         </div>
 
-        <div className="bg-green-50 rounded-2xl border border-green-100 p-5">
-          <h2 className="font-bold text-green-800 mb-3 flex items-center gap-2">
+        <div className="bg-green-950/20 border border-green-900/40 rounded-sm p-5">
+          <h2 className="font-bold text-green-500 mb-3 flex items-center gap-2 uppercase tracking-wide text-sm">
             <span>🤝</span> Tujuan Positif
           </h2>
-          <p className="text-sm text-green-700 leading-relaxed">
-            Database ini dibuat dengan tujuan <strong>membantu komunitas</strong> agar lebih berhati-hati dalam memilih partner kerjasama. Bukan untuk menghakimi, tapi sebagai <strong>early warning system</strong> agar kejadian serupa tidak terulang.
+          <p className="text-sm text-green-400/70 leading-relaxed">
+            Database ini dibuat dengan tujuan <strong className="text-green-400">membantu komunitas</strong> agar lebih berhati-hati dalam memilih partner kerjasama. Bukan untuk menghakimi, tapi sebagai <strong className="text-green-400">early warning system</strong>.
           </p>
         </div>
 
-        <div className="bg-purple-50 rounded-2xl border border-purple-100 p-5">
-          <h2 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
+        <div className="bg-purple-950/20 border border-purple-900/40 rounded-sm p-5">
+          <h2 className="font-bold text-purple-400 mb-3 flex items-center gap-2 uppercase tracking-wide text-sm">
             <span>🔓</span> Hak Banding
           </h2>
-          <p className="text-sm text-purple-700 leading-relaxed">
-            Bagi yang merasa masalahnya sudah diselesaikan atau terdapat kesalahan informasi, dapat mengajukan <strong>banding/unblacklist</strong> melalui menu yang tersedia. Tim admin akan mereview setiap ajuan dengan fair.
+          <p className="text-sm text-purple-400/70 leading-relaxed">
+            Bagi yang merasa masalahnya sudah diselesaikan atau terdapat kesalahan informasi, dapat mengajukan <strong className="text-purple-400">banding/unblacklist</strong> melalui menu yang tersedia. Tim admin akan mereview setiap ajuan dengan fair.
           </p>
         </div>
 
-        <div className="bg-gray-100 rounded-2xl p-5">
-          <p className="text-xs text-gray-600 text-center leading-relaxed">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-4">
+          <p className="text-xs text-neutral-500 text-center leading-relaxed font-mono uppercase tracking-widest">
             Dengan menggunakan website ini, Anda dianggap telah membaca, memahami, dan menyetujui disclaimer di atas.
           </p>
         </div>
@@ -97,9 +84,9 @@ export default function DisclaimerPage() {
 
       {/* Back Button */}
       <div className="mt-6">
-        <a 
+        <a
           href="/"
-          className="block w-full py-3 bg-gray-800 text-white rounded-xl font-medium text-center"
+          className="block w-full py-3 bg-neutral-800 border border-neutral-700 text-white rounded-sm font-bold text-center uppercase tracking-widest text-sm hover:bg-neutral-700 transition-colors"
         >
           Kembali ke Home
         </a>

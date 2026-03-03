@@ -44,53 +44,53 @@ export default function IndikasiBandingPage() {
     }
   }
 
-    if (success) {
-      return (
-        <div className="max-w-lg mx-auto px-4 py-12">
-          <div className="bg-green-50 border border-green-200 rounded-sm p-8 text-center bg-white shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
-            <div className="text-5xl mb-4 opacity-80">✅</div>
-            <h2 className="text-xl font-black text-green-700 uppercase tracking-tight mb-2">Ajuan Terkirim!</h2>
-            <p className="text-green-800 font-mono text-sm mb-6">
-              Ajuan banding kamu akan direview oleh admin. Harap tunggu konfirmasi lebih lanjut.
-            </p>
-            <a
-              href="/indikasi"
-              className="inline-block px-6 py-3 bg-green-600 text-white font-bold uppercase tracking-widest rounded-sm hover:bg-green-700 transition-colors shadow-sm"
-            >
-              Kembali ke Indikasi
-            </a>
-          </div>
+  if (success) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-12 font-sans">
+        <div className="bg-green-950/30 border border-green-900/50 rounded-sm p-8 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+          <div className="text-5xl mb-4 opacity-80">✅</div>
+          <h2 className="text-xl font-black text-green-500 uppercase tracking-tight mb-2">Ajuan Terkirim!</h2>
+          <p className="text-green-400/80 font-mono text-sm mb-6">
+            Ajuan banding kamu akan direview oleh admin. Harap tunggu konfirmasi lebih lanjut.
+          </p>
+          <a
+            href="/indikasi"
+            className="inline-block px-6 py-3 bg-neutral-800 text-white border border-neutral-700 font-bold uppercase tracking-widest rounded-sm hover:bg-neutral-700 transition-colors text-sm"
+          >
+            Kembali ke Indikasi
+          </a>
         </div>
-      )
-    }
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 font-sans">
       {/* Header */}
-      <div className="text-center mb-8 border-b-2 border-gray-200 pb-6">
-        <a href="/indikasi" className="text-amber-600 hover:text-amber-700 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-1 mb-4">
+      <div className="mb-8 border-b-2 border-neutral-800 pb-4">
+        <a href="/indikasi" className="text-amber-500 hover:text-amber-400 text-xs font-bold uppercase tracking-widest flex items-center gap-1 mb-3">
           <span>←</span> KEMBALI
         </a>
-        <div className="w-16 h-16 bg-amber-50 border border-amber-200 rounded-sm flex items-center justify-center mx-auto mb-4">
-          <span className="text-3xl">⚖️</span>
-        </div>
-        <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">Banding Indikasi</h1>
-        <p className="text-gray-500 font-mono text-sm uppercase tracking-wider">Ajukan banding jika masalah sudah clear</p>
+        <h1 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-3 mb-2">
+          <span className="text-amber-500">⚖️</span> BANDING INDIKASI
+        </h1>
+        <p className="text-neutral-500 font-mono text-sm uppercase tracking-wider">Ajukan banding jika masalah sudah clear</p>
       </div>
 
       {/* Info */}
-      <div className="bg-amber-50 border border-amber-200 rounded-sm p-4 mb-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-        <p className="text-xs font-mono text-amber-800 uppercase tracking-widest leading-relaxed">
-          <strong className="font-bold">CATATAN:</strong> Ajuan akan direview admin. Sertakan bukti bahwa masalah sudah diselesaikan (screenshot chat klarifikasi, bukti penyelesaian, dll).
+      <div className="bg-amber-950/20 border border-amber-900/40 rounded-sm p-4 mb-6">
+        <p className="text-xs font-mono text-amber-400 uppercase tracking-widest leading-relaxed">
+          <strong className="font-bold">📋 CATATAN:</strong> Ajuan akan direview admin. Sertakan bukti bahwa masalah sudah diselesaikan.
         </p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 p-6 space-y-6 shadow-sm rounded-sm">
+      <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-800 p-6 space-y-6 rounded-sm relative">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-600 to-amber-900"></div>
+
         <div>
-          <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
+          <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">
             Nama Lengkap <span className="text-amber-500">*</span>
           </label>
           <input
@@ -98,78 +98,78 @@ export default function IndikasiBandingPage() {
             value={form.nama}
             onChange={(e) => setForm({...form, nama: e.target.value})}
             placeholder="NAMA SESUAI DI DAFTAR INDIKASI"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-gray-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:bg-white transition-colors font-mono text-sm placeholder-gray-400"
+            className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-amber-500 transition-colors font-mono text-sm placeholder-neutral-700"
             required
           />
         </div>
 
         <div className="grid grid-cols-2 gap-5">
           <div>
-            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">No HP/WA</label>
+            <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">No HP/WA</label>
             <input
               type="text"
               value={form.no_hp}
               onChange={(e) => setForm({...form, no_hp: e.target.value})}
               placeholder="08XXXXXXXXXX"
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-gray-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:bg-white transition-colors font-mono text-sm placeholder-gray-400"
+              className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-amber-500 transition-colors font-mono text-sm placeholder-neutral-700"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Instagram</label>
+            <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Instagram</label>
             <div className="flex">
-              <span className="px-3 py-3 bg-gray-100 border border-gray-200 border-r-0 rounded-l-sm text-gray-500 font-mono">@</span>
+              <span className="px-3 py-3 bg-neutral-900 border border-neutral-800 border-r-0 rounded-l-sm text-neutral-500 font-mono">@</span>
               <input
                 type="text"
                 value={form.instagram}
                 onChange={(e) => setForm({...form, instagram: e.target.value})}
                 placeholder="USERNAME"
-                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-r-sm text-gray-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:bg-white transition-colors font-mono text-sm placeholder-gray-400"
+                className="flex-1 px-4 py-3 bg-black border border-neutral-800 rounded-r-sm text-white focus:outline-none focus:border-amber-500 transition-colors font-mono text-sm placeholder-neutral-700"
               />
             </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
+          <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">
             Alasan Banding <span className="text-amber-500">*</span>
           </label>
           <textarea
             value={form.alasan_banding}
             onChange={(e) => setForm({...form, alasan_banding: e.target.value})}
-            placeholder="Jelaskan mengapa kamu layak dihapus dari daftar. Masalah sudah diselesaikan seperti apa?"
+            placeholder="Jelaskan mengapa kamu layak dihapus dari daftar."
             rows={4}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-gray-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:bg-white transition-colors font-serif italic text-sm placeholder-gray-400 leading-relaxed custom-scrollbar resize-none"
+            className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-neutral-300 focus:outline-none focus:border-amber-500 transition-colors font-serif italic text-sm placeholder-neutral-700 leading-relaxed resize-none"
             required
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Link Bukti Clear</label>
+          <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Link Bukti Clear</label>
           <input
             type="url"
             value={form.bukti_clear}
             onChange={(e) => setForm({...form, bukti_clear: e.target.value})}
             placeholder="HTTPS://DRIVE.GOOGLE.COM/..."
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-blue-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:bg-white transition-colors font-mono text-sm placeholder-gray-400"
+            className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-blue-400 focus:outline-none focus:border-amber-500 transition-colors font-mono text-sm placeholder-neutral-700"
           />
-          <p className="text-[10px] uppercase tracking-widest font-mono text-gray-500 mt-2">Upload bukti ke Google Drive, pastikan akses "Anyone with link"</p>
+          <p className="text-[10px] uppercase tracking-widest font-mono text-neutral-600 mt-2">Upload bukti ke Google Drive</p>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Kontak untuk Konfirmasi</label>
+          <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-widest">Kontak untuk Konfirmasi</label>
           <input
             type="text"
             value={form.kontak}
             onChange={(e) => setForm({...form, kontak: e.target.value})}
-            placeholder="WA / EMAIL UNTUK DIHUBUNGI ADMIN"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-gray-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:bg-white transition-colors font-mono text-sm placeholder-gray-400"
+            placeholder="WA / EMAIL"
+            className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-sm text-white focus:outline-none focus:border-amber-500 transition-colors font-mono text-sm placeholder-neutral-700"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-amber-600 text-white font-black uppercase tracking-widest rounded-sm hover:bg-amber-700 active:bg-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2"
+          className="w-full py-4 bg-amber-600 text-white font-black uppercase tracking-widest rounded-sm hover:bg-amber-700 active:bg-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading ? (
             <>

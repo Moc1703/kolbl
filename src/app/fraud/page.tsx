@@ -32,83 +32,83 @@ export default function FraudPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto animate-fade-in">
+    <div className="max-w-2xl mx-auto font-sans">
       {/* Hero Section */}
       <div className="text-center mb-8 md:mb-10 pt-4 md:pt-8">
         <div className="inline-block relative mb-4 md:mb-6">
-          <div className="absolute inset-0 bg-red-700 blur-2xl opacity-20 rounded-full"></div>
-          <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-red-700 to-rose-900 rounded-3xl flex items-center justify-center shadow-xl shadow-red-300 rotate-3 hover:rotate-6 transition-transform duration-300">
+          <div className="absolute inset-0 bg-red-700 blur-2xl opacity-10 rounded-full"></div>
+          <div className="relative w-20 h-20 md:w-24 md:h-24 bg-neutral-900 border border-red-900/50 rounded-sm flex items-center justify-center">
             <span className="text-4xl md:text-5xl drop-shadow-md">🚨</span>
           </div>
         </div>
 
-        <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-3 px-4">
-          Pencurian & <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-700 to-rose-600">Penipuan</span>
+        <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-3 px-4">
+          Pencurian & <span className="text-red-500">Penipuan</span>
         </h1>
-        <p className="text-sm md:text-lg text-gray-500 max-w-lg mx-auto leading-relaxed px-4">
-          Database kasus pencurian dan penipuan pembayaran. Laporkan dan lindungi komunitas dari kerugian finansial.
+        <p className="text-sm md:text-base text-neutral-500 max-w-lg mx-auto leading-relaxed px-4 font-mono uppercase tracking-wider">
+          Database kasus pencurian dan penipuan pembayaran. Lindungi komunitas.
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-8 md:mb-10 px-1 md:px-2">
-        <div className="glass-card rounded-xl md:rounded-2xl p-3 md:p-5 text-center group">
-          <div className="text-xl md:text-3xl font-extrabold text-gray-800 mb-0 md:mb-1 group-hover:scale-110 transition-transform">{stats.total}</div>
-          <p className="text-[10px] md:text-xs font-semibold text-gray-400 uppercase tracking-wider leading-tight">Total Kasus</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-8 md:mb-10 px-1">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-3 md:p-5 text-center">
+          <div className="text-xl md:text-3xl font-black text-white mb-0 md:mb-1 font-mono">{stats.total}</div>
+          <p className="text-[10px] md:text-xs font-bold text-neutral-500 uppercase tracking-wider">Total</p>
         </div>
-        <div className="glass-card rounded-xl md:rounded-2xl p-3 md:p-5 text-center group">
-          <div className="text-xl md:text-3xl font-extrabold text-red-700 mb-0 md:mb-1 group-hover:scale-110 transition-transform">{stats.pencurian}</div>
-          <p className="text-[10px] md:text-xs font-semibold text-red-400 uppercase tracking-wider leading-tight">Pencurian</p>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-3 md:p-5 text-center">
+          <div className="text-xl md:text-3xl font-black text-red-500 mb-0 md:mb-1 font-mono">{stats.pencurian}</div>
+          <p className="text-[10px] md:text-xs font-bold text-red-600 uppercase tracking-wider">Pencurian</p>
         </div>
-        <div className="glass-card rounded-xl md:rounded-2xl p-3 md:p-5 text-center group">
-          <div className="text-xl md:text-3xl font-extrabold text-rose-600 mb-0 md:mb-1 group-hover:scale-110 transition-transform">{stats.penipuan}</div>
-          <p className="text-[10px] md:text-xs font-semibold text-rose-400 uppercase tracking-wider leading-tight">Penipuan</p>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-3 md:p-5 text-center">
+          <div className="text-xl md:text-3xl font-black text-rose-500 mb-0 md:mb-1 font-mono">{stats.penipuan}</div>
+          <p className="text-[10px] md:text-xs font-bold text-rose-600 uppercase tracking-wider">Penipuan</p>
         </div>
-        <div className="glass-card rounded-xl md:rounded-2xl p-3 md:p-5 text-center group col-span-2 md:col-span-1">
-          <div className="text-base md:text-lg font-extrabold text-gray-800 mb-0 md:mb-1 group-hover:scale-110 transition-transform">{formatRupiah(stats.totalNominal)}</div>
-          <p className="text-[10px] md:text-xs font-semibold text-gray-400 uppercase tracking-wider leading-tight">Total Kerugian</p>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-sm p-3 md:p-5 text-center col-span-2 md:col-span-1">
+          <div className="text-base md:text-lg font-black text-white mb-0 md:mb-1 font-mono">{formatRupiah(stats.totalNominal)}</div>
+          <p className="text-[10px] md:text-xs font-bold text-neutral-500 uppercase tracking-wider">Total Kerugian</p>
         </div>
       </div>
 
       {/* Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-1">
-        <a href="/fraud/lapor" className="group p-5 bg-gradient-to-br from-red-700 to-rose-900 rounded-2xl shadow-lg shadow-red-300 text-white hover:shadow-xl hover:shadow-red-400 transition-all flex items-center gap-4">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl backdrop-blur-sm group-hover:scale-110 transition-transform">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 px-1">
+        <a href="/fraud/lapor" className="group p-5 bg-red-950/30 border border-red-900/40 rounded-sm hover:bg-red-950/50 transition-all flex items-center gap-4">
+          <div className="w-12 h-12 bg-red-900/50 border border-red-800/50 rounded-sm flex items-center justify-center text-2xl shrink-0">
             🚨
           </div>
           <div>
-            <h3 className="font-bold">Lapor Penipuan / Pencurian</h3>
-            <p className="text-xs text-red-200">Laporkan kasus penipuan pembayaran</p>
+            <h3 className="font-bold text-red-400 uppercase tracking-wide text-sm">Lapor Penipuan / Pencurian</h3>
+            <p className="text-xs text-neutral-500 font-mono uppercase tracking-widest mt-0.5">Laporkan kasus penipuan</p>
           </div>
         </a>
 
-        <a href="/fraud/daftar" className="group p-5 bg-white rounded-2xl border border-gray-100 hover:border-red-300 hover:shadow-lg transition-all flex items-center gap-4">
-          <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        <a href="/fraud/daftar" className="group p-5 bg-neutral-900 border border-neutral-800 rounded-sm hover:border-red-900/50 transition-all flex items-center gap-4">
+          <div className="w-12 h-12 bg-neutral-800 rounded-sm flex items-center justify-center text-2xl shrink-0">
             📋
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 group-hover:text-red-700 transition-colors">Lihat Daftar Penipu</h3>
-            <p className="text-xs text-gray-500">Database pelaku penipuan</p>
+            <h3 className="font-bold text-white uppercase tracking-wide text-sm group-hover:text-red-400 transition-colors">Lihat Daftar Penipu</h3>
+            <p className="text-xs text-neutral-500 font-mono uppercase tracking-widest mt-0.5">Database pelaku penipuan</p>
           </div>
         </a>
 
-        <a href="/fraud/banding" className="group p-5 bg-white rounded-2xl border border-gray-100 hover:border-red-300 hover:shadow-lg transition-all flex items-center gap-4">
-          <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        <a href="/fraud/banding" className="group p-5 bg-neutral-900 border border-neutral-800 rounded-sm hover:border-red-900/50 transition-all flex items-center gap-4">
+          <div className="w-12 h-12 bg-neutral-800 rounded-sm flex items-center justify-center text-2xl shrink-0">
             ⚖️
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 group-hover:text-red-700 transition-colors">Ajukan Banding</h3>
-            <p className="text-xs text-gray-500">Merasa data keliru? Ajukan klarifikasi</p>
+            <h3 className="font-bold text-white uppercase tracking-wide text-sm group-hover:text-red-400 transition-colors">Ajukan Banding</h3>
+            <p className="text-xs text-neutral-500 font-mono uppercase tracking-widest mt-0.5">Merasa data keliru? Klarifikasi</p>
           </div>
         </a>
 
-        <a href="/fraud/laporan" className="group p-5 bg-white rounded-2xl border border-gray-100 hover:border-red-300 hover:shadow-lg transition-all flex items-center gap-4">
-          <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        <a href="/fraud/laporan" className="group p-5 bg-neutral-900 border border-neutral-800 rounded-sm hover:border-red-900/50 transition-all flex items-center gap-4">
+          <div className="w-12 h-12 bg-neutral-800 rounded-sm flex items-center justify-center text-2xl shrink-0">
             📊
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 group-hover:text-red-700 transition-colors">Laporan & Statistik</h3>
-            <p className="text-xs text-gray-500">Lihat tren dan statistik kasus</p>
+            <h3 className="font-bold text-white uppercase tracking-wide text-sm group-hover:text-red-400 transition-colors">Laporan & Statistik</h3>
+            <p className="text-xs text-neutral-500 font-mono uppercase tracking-widest mt-0.5">Tren dan statistik kasus</p>
           </div>
         </a>
       </div>
