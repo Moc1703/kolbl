@@ -63,6 +63,13 @@ export default function AdminPage() {
   // NEW: initial pending counts (before tabs are clicked)
   const [initialCounts, setInitialCounts] = useState({ reports: 0, banding: 0, indikasi: 0, fraud: 0 })
   const [copied, setCopied] = useState(false)
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null)
+
+  const confirmAction = (message: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setConfirmModal({ message, onConfirm: () => { setConfirmModal(null); resolve(true) } })
+    })
+  }
 
   useEffect(() => {
     // Check for admin_user cookie
@@ -224,7 +231,7 @@ export default function AdminPage() {
   }
 
   const handleApproveIndikasi = async (report: IndikasiReport) => {
-    if (!confirm('Yakin approve laporan indikasi ini?')) return
+    if (!(await confirmAction('Yakin approve laporan indikasi ini?'))) return
     setProcessing(report.id)
 
     try {
@@ -277,7 +284,7 @@ export default function AdminPage() {
   }
 
   const handleRejectIndikasi = async (report: IndikasiReport) => {
-    if (!confirm('Yakin reject?')) return
+    if (!(await confirmAction('Yakin reject?'))) return
     setProcessing(report.id)
     await supabase.from('indikasi_reports').update({
       status: 'rejected', reviewed_at: new Date().toISOString()
@@ -288,7 +295,7 @@ export default function AdminPage() {
   }
 
   const handleApproveFraud = async (report: FraudReport) => {
-    if (!confirm('Yakin approve laporan fraud ini?')) return
+    if (!(await confirmAction('Yakin approve laporan fraud ini?'))) return
     setProcessing(report.id)
 
     try {
@@ -343,7 +350,7 @@ export default function AdminPage() {
   }
 
   const handleRejectFraud = async (report: FraudReport) => {
-    if (!confirm('Yakin reject?')) return
+    if (!(await confirmAction('Yakin reject?'))) return
     setProcessing(report.id)
     await supabase.from('fraud_reports').update({
       status: 'rejected', reviewed_at: new Date().toISOString()
@@ -355,7 +362,7 @@ export default function AdminPage() {
 
   // NEW: Unblacklist Indikasi
   const handleUnblacklistIndikasi = async (report: IndikasiReport) => {
-    if (!confirm('Yakin clear/unblacklist indikasi ini?')) return
+    if (!(await confirmAction('Yakin clear/unblacklist indikasi ini?'))) return
     setProcessing(report.id)
     const conditions = []
     if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
@@ -373,7 +380,7 @@ export default function AdminPage() {
 
   // NEW: Unblacklist Fraud
   const handleUnblacklistFraud = async (report: FraudReport) => {
-    if (!confirm('Yakin clear/unblacklist fraud ini?')) return
+    if (!(await confirmAction('Yakin clear/unblacklist fraud ini?'))) return
     setProcessing(report.id)
     const conditions = []
     if (report.nama) conditions.push(`nama.ilike.%${escapeFilterValue(report.nama)}%`)
@@ -391,7 +398,7 @@ export default function AdminPage() {
 
   // NEW: Approve/Reject Indikasi Banding
   const handleApproveIndikasiBanding = async (req: IndikasiBanding) => {
-    if (!confirm('Yakin approve banding indikasi ini?')) return
+    if (!(await confirmAction('Yakin approve banding indikasi ini?'))) return
     setProcessing(req.id)
     const conditions = []
     if (req.nama) conditions.push(`nama.ilike.%${escapeFilterValue(req.nama)}%`)
@@ -408,7 +415,7 @@ export default function AdminPage() {
   }
 
   const handleRejectIndikasiBanding = async (req: IndikasiBanding) => {
-    if (!confirm('Yakin reject banding ini?')) return
+    if (!(await confirmAction('Yakin reject banding ini?'))) return
     setProcessing(req.id)
     await supabase.from('indikasi_banding').update({
       status: 'rejected', reviewed_at: new Date().toISOString()
@@ -420,7 +427,7 @@ export default function AdminPage() {
 
   // NEW: Approve/Reject Fraud Banding
   const handleApproveFraudBanding = async (req: FraudBanding) => {
-    if (!confirm('Yakin approve banding fraud ini?')) return
+    if (!(await confirmAction('Yakin approve banding fraud ini?'))) return
     setProcessing(req.id)
     const conditions = []
     if (req.nama) conditions.push(`nama.ilike.%${escapeFilterValue(req.nama)}%`)
@@ -437,7 +444,7 @@ export default function AdminPage() {
   }
 
   const handleRejectFraudBanding = async (req: FraudBanding) => {
-    if (!confirm('Yakin reject banding ini?')) return
+    if (!(await confirmAction('Yakin reject banding ini?'))) return
     setProcessing(req.id)
     await supabase.from('fraud_banding').update({
       status: 'rejected', reviewed_at: new Date().toISOString()
@@ -448,7 +455,7 @@ export default function AdminPage() {
   }
 
   const handleApproveBanding = async (req: UnblacklistRequest) => {
-    if (!confirm('Yakin approve banding ini? Orang ini akan dihapus dari blacklist.')) return
+    if (!(await confirmAction('Yakin approve banding ini? Orang ini akan dihapus dari blacklist.'))) return
     
     setProcessing(req.id)
     
@@ -474,7 +481,7 @@ export default function AdminPage() {
   }
 
   const handleRejectBanding = async (req: UnblacklistRequest) => {
-    if (!confirm('Yakin reject banding ini?')) return
+    if (!(await confirmAction('Yakin reject banding ini?'))) return
     
     setProcessing(req.id)
     
@@ -489,7 +496,7 @@ export default function AdminPage() {
   }
 
   const handleApprove = async (report: Report) => {
-    if (!confirm('Yakin approve laporan ini? Akan masuk ke blacklist publik.')) return
+    if (!(await confirmAction('Yakin approve laporan ini? Akan masuk ke blacklist publik.'))) return
     
     setProcessing(report.id)
     
@@ -555,7 +562,7 @@ export default function AdminPage() {
   }
 
   const handleReject = async (report: Report) => {
-    const note = prompt('Alasan reject (opsional):')
+    const note = ''
     
     setProcessing(report.id)
     
@@ -616,7 +623,7 @@ export default function AdminPage() {
   }
 
   const handleUnblacklist = async (report: Report) => {
-    if (!confirm('Yakin unblacklist? Entry akan dihapus dari daftar publik.')) return
+    if (!(await confirmAction('Yakin unblacklist? Entry akan dihapus dari daftar publik.'))) return
     
     setProcessing(report.id)
     
@@ -646,7 +653,7 @@ export default function AdminPage() {
 
   const handleBulkApprove = async () => {
     if (selectedIds.length === 0) return
-    if (!confirm(`Yakin approve ${selectedIds.length} laporan sekaligus?`)) return
+    if (!(await confirmAction(`Yakin approve ${selectedIds.length} laporan sekaligus?`)) return
 
     setBulkProcessing(true)
 
@@ -1627,6 +1634,18 @@ export default function AdminPage() {
         {/* Bottom spacing for mobile */}
         <div className="h-8"></div>
       </div>
+            {/* Confirm Modal */}
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setConfirmModal(null)}>
+          <div className="bg-neutral-900 border border-neutral-700 rounded-sm p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <p className="text-white text-sm font-bold mb-6">{confirmModal.message}</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmModal(null)} className="flex-1 py-3 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-700 hover:text-white transition-colors">BATAL</button>
+              <button onClick={() => { confirmModal.onConfirm() }} className="flex-1 py-3 bg-red-700 text-white rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-red-800 transition-colors">YA, LANJUTKAN</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Toast */}
       {copied && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-neutral-800 border border-neutral-700 text-white text-xs font-bold uppercase tracking-widest rounded-sm">
